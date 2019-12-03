@@ -36,7 +36,7 @@ class SearchResult {
       response.results.map(async result => {
         const meta = await Meta.decode(result.meta)
         const record = new Record(meta, result.record_data)
-        if (query.includeData && result.access_key !== null) {
+        if (this.includeData && result.access_key !== null) {
           const eak = await EAKInfo.decode(result.access_key)
           const ak = await this.client.crypto.decryptEak(
             this.client.config.privateKey,

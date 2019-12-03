@@ -22,18 +22,18 @@ class Search extends Serializable {
     this.excludes = []
   }
 
-  match(condition, strategy, terms) {
+  match(terms, condition, strategy) {
     this.matches.push(new SearchParam(terms, condition, strategy))
     return this
   }
 
-  exclude(condition, strategy, terms) {
+  exclude(terms, condition, strategy) {
     this.excludes.push(new SearchParam(terms, condition, strategy))
     return this
   }
 
-  range(key, start, end) {
-    this.range = new SearchRange(key, start, end)
+  range(start, end, key) {
+    this.searchRange = new SearchRange(start, end, key)
     return this
   }
 
@@ -46,18 +46,20 @@ class Search extends Serializable {
   serializable() {
     let toSerialize = {
       limit: this.count,
-      next_token: this.nextToken,
       include_all_writers: this.includeAllWriters,
       include_data: this.includeData,
     }
-    if (this.matches.length > 1) {
+    if (this.nextToken) {
+      toSerialize.next_token = this.nextToken
+    }
+    if (this.matches.length > 0) {
       toSerialize.match = this.matches.map(m => m.serializable())
     }
-    if (this.excludes.length > 1) {
+    if (this.excludes.length > 0) {
       toSerialize.exclude = this.excludes.map(e => e.serializable())
     }
-    if (this.range) {
-      toSerialize.range = this.range.serializable()
+    if (this.searchRange) {
+      toSerialize.range = this.searchRange.serializable()
     }
     return toSerialize
   }

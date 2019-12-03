@@ -31,7 +31,9 @@ class SearchParam extends Serializable {
     this.condition = condition
     this.strategy = strategy
     for (let key in termKeys) {
-      if (typeof terms[key] === 'string') {
+      if (terms[key] === undefined) {
+        continue
+      } else if (typeof terms[key] === 'string') {
         this[key] = [terms[key]]
       } else if (
         Array.isArray(terms[key]) &&

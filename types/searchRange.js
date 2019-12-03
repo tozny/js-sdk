@@ -6,7 +6,7 @@ const keyWhitelist = ['CREATED', 'MODIFIED']
  * Create a search query against Tozny Platform.
  */
 class SearchRange extends Serializable {
-  constructor(key, start, end) {
+  constructor(start, end, key = 'CREATED') {
     super()
     if (keyWhitelist.indexOf(key) === -1) {
       throw new Error(`key must one of "${keyWhitelist.join('", "')}"`)

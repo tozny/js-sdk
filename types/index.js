@@ -17,6 +17,10 @@ const QueryResult = require('./queryResult')
 const Record = require('./record')
 const RecordData = require('./recordData')
 const RecordInfo = require('./recordInfo')
+const Search = require('./search')
+const SearchParam = require('./searchParam')
+const SearchRange = require('./searchRange')
+const SearchResult = require('./searchResult')
 const Serializable = require('./serializable')
 const Signable = require('./signable')
 const SignedDocument = require('./signedDocument')
@@ -43,6 +47,10 @@ module.exports = {
   Record,
   RecordData,
   RecordInfo,
+  Search,
+  SearchParam,
+  SearchRange,
+  SearchResult,
   Serializable,
   Signable,
   SignedDocument,
