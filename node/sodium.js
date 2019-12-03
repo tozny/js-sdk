@@ -73,15 +73,15 @@ class SodiumCrypto extends CryptoProvider {
   }
 
   async seedSymmetricKey(seed, salt, iterations = DEFAULT_KDF_ITERATIONS) {
-    return deriveKey(seed, salt, this.keyBytes(), iterations)
+    return deriveKey(seed, salt, await this.keyBytes(), iterations)
   }
 
-  async seedKeyPair(seed, salt, iterations = DEFAULT_KDF_ITERATIONS) {
+  async seedCryptoKeyPair(seed, salt, iterations = DEFAULT_KDF_ITERATIONS) {
     await sodium.ready
     const stretchedSeed = await deriveKey(
       seed,
       salt,
-      this.keyPairBytes(),
+      await this.keyPairBytes(),
       iterations
     )
 
@@ -93,7 +93,7 @@ class SodiumCrypto extends CryptoProvider {
     const stretchedSeed = await deriveKey(
       seed,
       salt,
-      this.signingKeyPairBytes(),
+      await this.signingKeyPairBytes(),
       iterations
     )
 

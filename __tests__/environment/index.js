@@ -3,6 +3,7 @@ const NodeEnvironment = require('jest-environment-node')
 const testTarget = process.env.TEST_TARGET
 const clientRegistrationToken = process.env.CLIENT_REGISTRATION_TOKEN
 const idRealmName = process.env.ID_REALM_NAME
+const idAppName = process.env.ID_APP_NAME
 const apiUrl = process.env.API_URL
 
 class Environment extends NodeEnvironment {
@@ -27,6 +28,7 @@ class Environment extends NodeEnvironment {
     this.global.apiUrl = apiUrl
     this.global.clientRegistrationToken = clientRegistrationToken
     this.global.idRealmName = idRealmName
+    this.global.idAppName = idAppName
 
     // Fix issue where type checks fail on native array buffer types
     // https://github.com/facebook/jest/pull/4423/files

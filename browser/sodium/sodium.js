@@ -1,6 +1,9 @@
 const sodium = require('libsodium-wrappers')
 const CryptoProvider = require('../../lib/crypto/cryptoProvider')
+const Platform = require('../platform')
 const { DEFAULT_KDF_ITERATIONS } = require('../../lib/utils/constants')
+
+const encoder = new Platform()
 
 /**
  * Use PBKDF2 to derive a key of a given length using a specified password
@@ -14,9 +17,11 @@ const { DEFAULT_KDF_ITERATIONS } = require('../../lib/utils/constants')
  * @returns {Promise<ArrayBuffer>}
  */
 async function deriveKey(password, salt, length, iterations) {
+  password = maybeToBytes(password)
+  salt = maybeToBytes(salt)
   const keyMaterial = await window.crypto.subtle.importKey(
     'raw',
-    this.maybeToBytes(password),
+    password,
     { name: 'PBKDF2' },
     false,
     ['deriveBits', 'deriveKey']
@@ -24,7 +29,7 @@ async function deriveKey(password, salt, length, iterations) {
   const key = await window.crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: this.maybeToBytes(salt),
+      salt,
       iterations,
       hash: 'SHA-512',
     },
@@ -34,6 +39,17 @@ async function deriveKey(password, salt, length, iterations) {
     ['sign', 'verify']
   )
   return window.crypto.subtle.exportKey('raw', key)
+}
+
+function maybeToBytes(val) {
+  if (
+    typeof val === 'object' &&
+    val.buffer &&
+    val.buffer instanceof ArrayBuffer
+  ) {
+    return val
+  }
+  return encoder.UTF8StringToByte(val)
 }
 
 class SodiumCrypto extends CryptoProvider {
@@ -86,15 +102,15 @@ class SodiumCrypto extends CryptoProvider {
   }
 
   async seedSymmetricKey(seed, salt, iterations = DEFAULT_KDF_ITERATIONS) {
-    return deriveKey(seed, salt, this.keyBytes(), iterations)
+    return deriveKey(seed, salt, await this.keyBytes(), iterations)
   }
 
-  async seedKeyPair(seed, salt, iterations = DEFAULT_KDF_ITERATIONS) {
+  async seedCryptoKeyPair(seed, salt, iterations = DEFAULT_KDF_ITERATIONS) {
     await sodium.ready
     const stretchedSeed = await deriveKey(
       seed,
       salt,
-      this.keyPairBytes(),
+      await this.keyPairBytes(),
       iterations
     )
 
@@ -106,7 +122,7 @@ class SodiumCrypto extends CryptoProvider {
     const stretchedSeed = await deriveKey(
       seed,
       salt,
-      this.signingKeyPairBytes(),
+      await this.signingKeyPairBytes(),
       iterations
     )
 

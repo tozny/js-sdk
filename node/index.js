@@ -1,6 +1,5 @@
 const Sodium = require('./sodium')
-// const Platform = require('./platform')
-const Platform = require('../browser/platform')
+const Platform = require('./platform')
 const Tozny = require('../lib/tozny')
 
 // Option to overwrite default (Crypto)Type mode.
