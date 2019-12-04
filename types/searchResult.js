@@ -26,8 +26,11 @@ class SearchResult {
 
     let response = await this.client._search(this.request)
     // If we've reached the last page, keep track and exit
-    if (response.results.last_index === 0) {
+    if (response.last_index === 0) {
       this.done = true
+    }
+
+    if (!response.results) {
       return []
     }
 
@@ -36,7 +39,9 @@ class SearchResult {
       response.results.map(async result => {
         const meta = await Meta.decode(result.meta)
         const record = new Record(meta, result.record_data)
-        if (this.includeData && result.access_key !== null) {
+        if (this.request.includeData) {
+        }
+        if (this.request.includeData && result.access_key !== null) {
           const eak = await EAKInfo.decode(result.access_key)
           const ak = await this.client.crypto.decryptEak(
             this.client.config.privateKey,

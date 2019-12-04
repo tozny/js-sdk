@@ -342,8 +342,58 @@ module.exports = {
           serial.limit,
           serial.next_token
         )
-        console.log(client, request)
-        // TODO: Loop thorugh match, exclude, and range to set the values in this search.
+        var i
+        function arrangeTerms(terms) {
+          var newTerms = {}
+          var termKey
+          var map = {
+            writer_ids: 'writers',
+            user_ids: 'users',
+            record_ids: 'records',
+            content_types: 'type',
+            tags: 'plain',
+          }
+          for (termKey in terms) {
+            if (map[termKey]) {
+              newTerms[map[termKey]] = terms[termKey]
+            } else {
+              newTerms[termKey] = terms[termKey]
+            }
+          }
+          return newTerms
+        }
+        if (serial.match !== undefined && serial.match.length > 0) {
+          for (i = 0; i < serial.match.length; i++) {
+            request.match(
+              arrangeTerms(serial.match[i].terms),
+              serial.match[i].condition,
+              serial.match[i].strategy
+            )
+          }
+        }
+        if (serial.exclude !== undefined && serial.exclude.length > 0) {
+          for (i = 0; i < serial.exclude.length; i++) {
+            request.exclude(
+              arrangeTerms(serial.exclude[i].terms),
+              serial.exclude[i].condition,
+              serial.exclude[i].strategy
+            )
+          }
+        }
+        if (serial.range !== undefined) {
+          request.range(serial.range.start, serial.range.end, serial.range.key)
+        }
+        return client
+          .search(request)
+          .then(function(r) {
+            return r.next()
+          })
+          .then(function(list) {
+            return list.map(function(record) {
+              return record.serializable()
+            })
+          })
+          .then(JSON.stringify)
       },
       JSON.stringify(config),
       searchRequest.stringify()

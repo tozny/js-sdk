@@ -26,7 +26,7 @@ class Record extends Signable {
     } else if (typeof data === 'object') {
       this.data = new RecordData(data)
     } else {
-      throw new Error('Record data must be an object!')
+      this.data = null
     }
 
     this.signature = signature
@@ -41,11 +41,14 @@ class Record extends Signable {
    * @returns {object}
    */
   serializable() {
-    return {
+    const serial = {
       meta: this.meta.serializable(),
-      data: this.data.serializable(),
       rec_sig: this.signature,
     }
+    if (this.data) {
+      serial.data = this.data.serializable()
+    }
+    return serial
   }
 
   /* eslint-enabled */
