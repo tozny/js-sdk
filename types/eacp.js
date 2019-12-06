@@ -1,6 +1,7 @@
 const Serializable = require('./serializable')
 const EmailEACP = require('./emailEACP')
 const LastAccessEACP = require('./lastAccessEACP')
+const TozIdEACP = require('./tozIdEACP')
 
 /**
  * EACP defines the various extended access control policies on data object.
@@ -16,7 +17,7 @@ class EACP extends Serializable {
    * @param {EmailEACP} emailEACP An Email EACP configuration to associate with the data object.
    * @param {LastAccessEACP} noteAccessEACP A Last Access EACP configuration to associate with the object.
    */
-  constructor(emailEACP, noteAccessEACP) {
+  constructor(emailEACP, noteAccessEACP, tozIdEACP) {
     super()
 
     if (emailEACP instanceof EmailEACP) {
@@ -24,6 +25,9 @@ class EACP extends Serializable {
     }
     if (noteAccessEACP instanceof LastAccessEACP) {
       this.noteAccessEACP = noteAccessEACP
+    }
+    if (tozIdEACP instanceof TozIdEACP) {
+      this.tozIdEACP = tozIdEACP
     }
   }
 
@@ -55,13 +59,17 @@ class EACP extends Serializable {
   static decode(json) {
     let emailEACP
     let noteAccessEACP
+    let tozIdEACP
     if (typeof json[EmailEACP.jsonKey] === 'object') {
       emailEACP = EmailEACP.decode(json[EmailEACP.jsonKey])
     }
     if (typeof json[LastAccessEACP.jsonKey] === 'object') {
       noteAccessEACP = LastAccessEACP.decode(json[LastAccessEACP.jsonKey])
     }
-    return new EACP(emailEACP, noteAccessEACP)
+    if (typeof json[TozIdEACP.jsonKey] === 'object') {
+      tozIdEACP = TozIdEACP.decode(json[TozIdEACP.jsonKey])
+    }
+    return new EACP(emailEACP, noteAccessEACP, tozIdEACP)
   }
 }
 
