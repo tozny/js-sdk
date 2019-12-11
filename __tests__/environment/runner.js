@@ -16,7 +16,10 @@ const TestEnvironment = process.env.TEST_ENVIRONMENT
 class BrowserRunner extends TestRunner {
   constructor(...attr) {
     super(...attr)
-    if (TestEnvironment !== 'remote' && TestBrowser === 'safari') {
+    if (
+      TestEnvironment !== 'remote' &&
+      (TestBrowser === 'safari' || TestBrowser === 'edge')
+    ) {
       this.isSerial = true
     }
   }
