@@ -2,6 +2,7 @@ const Serializable = require('./serializable')
 const EmailEACP = require('./emailEACP')
 const LastAccessEACP = require('./lastAccessEACP')
 const TozIdEACP = require('./tozIdEACP')
+const ToznyOTPEACP = require('./toznyOTPEACP')
 
 /**
  * EACP defines the various extended access control policies on data object.
@@ -16,8 +17,10 @@ class EACP extends Serializable {
    *
    * @param {EmailEACP} emailEACP An Email EACP configuration to associate with the data object.
    * @param {LastAccessEACP} noteAccessEACP A Last Access EACP configuration to associate with the object.
+   * @param {TozIdEACP} tozIdEACP A EACP which requires a special identity JWT to complete.
+   * @param {ToznyOTPEACP} toznyOTPEACP A Tozny OTP EACP configuration to associate with the object.
    */
-  constructor(emailEACP, noteAccessEACP, tozIdEACP) {
+  constructor(emailEACP, noteAccessEACP, tozIdEACP, toznyOTPEACP) {
     super()
 
     if (emailEACP instanceof EmailEACP) {
@@ -28,6 +31,9 @@ class EACP extends Serializable {
     }
     if (tozIdEACP instanceof TozIdEACP) {
       this.tozIdEACP = tozIdEACP
+    }
+    if (toznyOTPEACP instanceof ToznyOTPEACP) {
+      this.toznyOTPEACP = toznyOTPEACP
     }
   }
 
@@ -60,6 +66,7 @@ class EACP extends Serializable {
     let emailEACP
     let noteAccessEACP
     let tozIdEACP
+    let toznyOTPEACP
     if (typeof json[EmailEACP.jsonKey] === 'object') {
       emailEACP = EmailEACP.decode(json[EmailEACP.jsonKey])
     }
@@ -69,7 +76,10 @@ class EACP extends Serializable {
     if (typeof json[TozIdEACP.jsonKey] === 'object') {
       tozIdEACP = TozIdEACP.decode(json[TozIdEACP.jsonKey])
     }
-    return new EACP(emailEACP, noteAccessEACP, tozIdEACP)
+    if (typeof json[ToznyOTPEACP.jsonKey] === 'object') {
+      toznyOTPEACP = ToznyOTPEACP.decode(json[ToznyOTPEACP.jsonKey])
+    }
+    return new EACP(emailEACP, noteAccessEACP, tozIdEACP, toznyOTPEACP)
   }
 }
 
