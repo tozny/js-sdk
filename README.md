@@ -41,9 +41,8 @@ const token = '...'
 
 async function main(name) {
   try {
-
-    const cryptoKeys  = await Tozny.storage.generateKeypair();
-    const signingKeys = await Tozny.storage.generateSigningKeypair();
+    const cryptoKeys  = await Tozny.crypto.generateKeypair();
+    const signingKeys = await Tozny.crypto.generateSigningKeypair();
     const clientInfo  = await Tozny.storage.register(token, name, cryptoKeys, signingKeys)
 
     // Create a full client instance with the returned client details
@@ -333,6 +332,188 @@ async function main() {
 main()
 ```
 
+## Tozny Identity
+
+**Configure a connection to an identity realm**
+
+Before you can work with the Tozny Identity service, you need to [sign up for a Tozny Platform account](https://dashboard.tozny.com/register). Create a new identity realm and register a new client application with the realm.
+
+```js
+const realmName = '...'
+const appName = '...'
+// This is a URL in your application which handle password reset flows.
+const brokerTargetURL = '...'
+
+const realm = new Tozny.identity.Realm(realmName, appName, brokerTargetURL)
+```
+
+Once the realm is configured, it provide methods for interacting with identities belonging to that realm.
+
+**Register an identity**
+
+```js
+const realm = new Tozny.identity.Realm('...', '...', '...')
+const token = '...' // A registration token from your Tozny Platform account
+
+async function main(username, password, emailAddress) {
+  try {
+    // username and email address can be the same for ease of use
+    const identity  = await realm.register(username, password, token, emailAddress)
+    // Perform operations with the registered identity.
+  } catch(e) {
+    console.error(e)
+  }
+}
+
+main('user', 'password', 'user@example.com')
+```
+
+**Log in an identity**
+
+To log in, a user needs an identity token. This token allows fetching of the encrypted stored identity configuration. First login will gather an OIDC login URL which will issue a token to your application.
+
+```js
+const realm = new Tozny.identity.Realm('...', '...', '...')
+
+async function main(username, password) {
+  try {
+    const redirectURL = '...' // this URL handles the redirect from the OIDC login and extracts the included authentication token.
+    const loginRequest  = await realm.login(username, password, redirectUrl)
+    window.location = loginRequest.redirect
+  } catch(e) {
+    console.error(e)
+  }
+}
+
+main('user', 'password')
+```
+
+The identity service will then request all required information for the user logging and send the user back to the `redirectUrl` provided including an identity authentication token.
+
+```js
+const realm = new Tozny.identity.Realm('...', '...', '...')
+const authToken = '...' // parsed from the returned URL
+
+async function main(username, password, authToken) {
+  try {
+    const identity  = await realm.completeLogin(username, password, authToken)
+    // Perform operations with the registered identity.
+  } catch(e) {
+    console.error(e)
+  }
+}
+
+main('user', 'password')
+```
+
+**Save an identity locally**
+
+After logging an identity in, it is useful to cache and store it. Without doing this, a refresh or reload of the page or environment will require the user to log in again. Storing the session in something like local storage allows the session to persist.
+
+```js
+const realm = new Tozny.identity.Realm('...', '...', '...')
+// Gather an identity from login, register, etc...
+
+async function main(identity) {
+  try {
+    let serialized = identity.stringify()
+    localStorage.setItem('stored-identity', serialized)
+    // on the next load
+    serialized = localStorage.getItem('stored-identity')
+    identity = realm.fromObject(serialized)
+    // Perform operations with the registered identity.
+  } catch(e) {
+    console.error(e)
+  }
+}
+
+main(identity)
+```
+
+**Reset a user's password via email**
+
+To reset a user's password via email, they must be registered with a valid email address. In addition, a trusted broker client must be set up for the realm. Tozny provides a hosted broker client which can facilitate resets on your behalf. To enable this support, turn on the switch for Email Recovery Enabled for your realm in the Tozny dashboard.
+
+First, initiate a reset, which will send an email to the user. When registering the user, you must provide a valid application URL which will handle the link from the email sent.
+
+```js
+const realm = new Tozny.identity.Realm('...', '...', '...')
+
+async function main(username) {
+  try {
+    await realm.initiateRecovery(username)
+    // a return of true indicates a successful request.
+  } catch(e) {
+    console.error(e)
+  }
+}
+
+main('user')
+```
+
+_An email will only be sent if the user is a member of the requesting realm with a valid email address._
+
+When the user clicks the email, the application link you provided will be hit with query parameters for `email_otp` and `note_id`. Parse these from the URL.
+
+```js
+const realm = new Tozny.identity.Realm('...', '...', '...')
+const parsedOTP = '...'
+const parsedId = '...'
+
+async function main(otp, noteId) {
+  try {
+    const identity = await completeEmailRecovery(otp, noteId)
+    // Perform operations with the registered identity.
+  } catch(e) {
+    console.error(e)
+  }
+}
+
+main(parsedOTP, parsedId)
+```
+
+**Perform operations using the identity token**
+
+Once you have an identity, you can use it to get JWTs for the configured application, perform Tozny Storage operations with the identities' storage credentials, or change the password for the identity.
+
+```js
+  const serialized = localStorage.getItem('stored-identity')
+  const identity = realm.fromObject(serialized)
+
+  async function main() {
+    try {
+      const jwtInfo = await identity.tokenInfo() // full info including auth token, expiration, etc.
+      const jwt = await identity.token() // the raw bearer token to use in requests, automatically refreshed
+      const response = await identity.fetch('http://myAPI.com/some/endpoint', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({data: 'special data to send'})
+      }) // a basic fetch call made with the bearer token in the Authentication header
+      // To change a password for an identity user:
+      identity.changePassword('newPassword')
+      // Tozny Storage operations are available as well
+      const record = await identity.storage.writeRecord(
+        'musician',
+        {
+          first_name: 'Buddy',
+          last_name: 'Rich',
+          phone: '555-555-9383',
+        },
+        {
+          instrument: 'drums'
+        }
+      )
+      console.log(`Wrote record: ${record.meta.recordId}`)
+    } catch(e) {
+      console.error(e)
+    }
+  }
+
+  main()
+```
+
 ## Terms of Service
 
-Your use of E3DB must abide by our [Terms of Service](https://github.com/tozny/e3db-java/blob/master/terms.pdf), as detailed in the linked document.
+Your use of the Tozny JavaScript SDK must abide by our [Terms of Service](https://github.com/tozny/e3db-java/blob/master/terms.pdf), as detailed in the linked document.
