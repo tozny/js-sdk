@@ -1,60 +1,142 @@
-# E3DB JavaScript SDK Client Interface
+# Tozny's Javascript Software Developers Kit
 
-The Tozny End-to-End Encrypted Database (E3DB) is a storage platform with powerful sharing and consent management features.
+The Tozny Platform offers powerful tools for developers, enabling them to incorporate strong end-to-end encryption into their code bases. The Software Developer Kits provide the tools necessary for implementing the Tozny Platform without needing high cryptography expertise.
 
-[Read more on our blog.](https://tozny.com/blog/announcing-project-e3db-the-end-to-end-encrypted-database/)
-
-This repository contains interfaces and code providing the core of the Tozny platform JS SDKs. It defines types, API
-behaviors, and more to keep interactions consistent across the various code bases, yet allowing each SDK to define the cryptography layer and any context specific helpers for use in the target environment.
-
-## Use
-
-Import this package
+## Install and Set UP
 
 ```sh
-npm install --save e3db-client-interface
+npm install --save @toznysecure/sdk
 ```
 
-Create a concrete crypto implementation.
+**Node**
 
 ```js
-// crypto.js
-import { Crypto as BaseCrypto } from 'e3db-client-interface'
-
-export default class Crypto extends BaseCrypto{
-  // implement the crypto for each of the methods.
-}
+const Tozny = require('@toznysecure/sdk/node')
 ```
 
-Create a concrete client implementation
+**Browser: ES6**
 
 ```js
-// client.js
-import Crypto from './crypto'
-import { Client as ClientBase } from 'e3db-client-interface'
+import Tozny from '@toznysecure/sdk/browser'
+```
 
-// instantiate a concrete crypto instance
-const crypto = new Crypto()
+**Browser: Script Tag**
 
-export default class Client {
-  // overload the getter for crypto to return the concrete instance
-  static get crypto() {
-    return crypto
+```html
+<script src="https://unpkg.com/@toznysecure/sdk@1.0.0/dist/tozny-sodium.min.js"><script>
+<!-- window.Tozny is now available -->
+```
+
+## Tozny Storage
+
+**Register A Client**
+
+Before you can register a storage client with Tozny platform you will need to [sign up for a Tozny Platform account](https://dashboard.tozny.com/register). Create a registration token and inject it into your code.
+
+```js
+const token = '...'
+
+async function main(name) {
+  try {
+
+    const cryptoKeys  = await Tozny.storage.generateKeypair();
+    const signingKeys = await Tozny.storage.generateSigningKeypair();
+    const clientInfo  = await Tozny.storage.register(token, name, cryptoKeys, signingKeys)
+
+    // Create a full client instance with the returned client details
+    const config = new Tozny.storage.Config(
+      clientInfo.clientId,
+      clientInfo.apiKeyId,
+      clientInfo.apiSecret,
+      cryptoKeys.publicKey,
+      cryptoKeys.privateKey,
+      signingKeys.publicKey,
+      signingKeys.privateKey
+    )
+    const client = new Tozny.storage.Client(config)
+
+    // Perform additional storage actions with this client...
+  } catch(e) {
+    console.error(e)
   }
 }
+main('example-client')
 ```
 
-Finally to make the standard Tozny platform primitives available from the implementing package by exporting the constructors and helpers.
+You can optionally back up the client credentials with the account owner. When credentials are registered with an account backup, the clients configuration is encrypted and shared with the account. In the [Tozny Dashboard](https://dashboard.tozny.com/) the account owner will have access to the client credentials and record tools for this client.
 
 ```js
-// index.js
-export { default as Client } from './client'
-export { Config, types } from 'e3db-client-interface'
-
-// optionally export context specific helpers
-export { default as helpers } from './helpers'
+const clientInfo  = await Tozny.storage.register(token, name, cryptoKeys, signingKeys, true)
 ```
 
+**Load Existing Client**
+
+```js
+/**
+ * Assuming your credentials are stored as defined constants in the application environment
+ */
+const config = Tozny.storage.Config.fromObject({
+  client_id: process.env.CLIENT_ID,
+  api_key_id: process.env.API_KEY_ID,
+  api_secret: process.env.API_SECRET,
+  public_key: process.env.PUBLIC_KEY,
+  private_key: process.env.PRIVATE_KEY,
+  public_signing_key: process.env.PRIVATE_KEY,
+  private_signing_key: process.env.PRIVATE_KEY,
+})
+
+const client = new Tozny.storage.Client(config)
+
+// Perform additional storage actions with this client...
+```
+
+### Records
+
+Records provide durable encryption protected documents to the Tozny Storage database. Once stored, a client can share records by type with any other client registered to the Tozny Platform.
+
+**Write, Read, Update, Delete**
+
+```js
+const client = new Tozny.storage.Client(/* config */)
+
+async function main() {
+  try {
+    // Write the data
+    // record type, data to encrypt, plain text meta
+    const written = await client.write(
+      'musicians',
+      {
+        first_name: 'Louis',
+        last_name: 'Armstrong',
+        phone: '555-555-1212',
+      },
+      {
+        instrument: 'Trumpet'
+      }
+    )
+    console.log(`Wrote record ${written.meta.recordId}`)
+
+    // Read the data directly by ID
+    const read = await client.read(written.meta.recordId)
+    console.log(`Full Name: ${read.data.first_name} ${read.data.last_name}`)
+
+    // Updated the data to change the phone number
+    // This replaces the stored document with the updated one
+    read.data.phone = '555-555-1234'
+    const updated = await client.update(read)
+    console.log(`Record ${updated.meta.recordId} was updated`)
+
+    // Delete the record from the database
+    // Sending the version ensures no updates have taken place before removal.
+    await client.delete(updated.meta.recordId, updated.meta.version
+    console.log('The record was deleted')
+  } catch(e) {
+    console.error(e)
+  }
+}
+
+main()
+```
 
 ## Terms of Service
 
