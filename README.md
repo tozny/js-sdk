@@ -1,4 +1,4 @@
-# Tozny's Javascript Software Developers Kit
+# Tozny's JavaScript Software Developers Kit
 
 The Tozny Platform offers powerful tools for developers, enabling them to incorporate strong end-to-end encryption into their code bases. The Software Developer Kits provide the tools necessary for implementing the Tozny Platform without needing high cryptography expertise.
 
