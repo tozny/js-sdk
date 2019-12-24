@@ -22,6 +22,15 @@ Write code
 
 Get code reviewed and approved
 
+Build a mininified version of the code for npm/unpkg to host
+
+```bash
+npm install
+npm build
+git add dist/
+git commit --amend --no-edit
+```
+
 Use the npm build tool to automatically update package.json to the new version
 
 ```bash
@@ -46,7 +55,7 @@ npm publish --tag=alpha
 Push the tag up to remote github repository
 
 ```bash
-git push --tags --all
+git push --tags
 ```
 
 Lastly, merge and delete the branch
