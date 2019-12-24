@@ -52,10 +52,11 @@ If doing an alpha release,
 npm publish --tag=alpha
 ```
 
-Push the tag up to remote github repository
+Push the tag and branch up to remote github repository
 
 ```bash
 git push --tags
+git push
 ```
 
 Lastly, merge and delete the branch
