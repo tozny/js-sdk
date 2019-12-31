@@ -20,15 +20,21 @@ class EmailEACP extends Serializable {
    * @param {string} template The notification service email template to use when sending the challenge.
    * @param {string} providerLink The URL of the endpoint that will handle the challenge when linked to in the email.
    * @param {object} templateFields Caller provided key values for substitution in emails sent as part of the EACP.
-   * @param {int} expiryMinutes The number of minutes EACP challenges should be valid for
+   * @param {int}    defaultExpirationMinutes The number of minutes EACP challenges should be valid for.
    */
-  constructor(email, template, providerLink, templateFields, expiryMinutes) {
+  constructor(
+    email,
+    template,
+    providerLink,
+    templateFields,
+    defaultExpirationMinutes
+  ) {
     super()
     this.emailAddress = email
     this.template = template
     this.provideLink = providerLink
-    this.expiryMinutes = expiryMinutes
     this.templateFields = templateFields
+    this.defaultExpirationMinutes = defaultExpirationMinutes
   }
 
   /**
@@ -43,7 +49,7 @@ class EmailEACP extends Serializable {
       template: this.template,
       provider_link: this.provideLink,
       template_fields: this.templateFields,
-      expiry_minutes: this.expiryMinutes,
+      default_expiration_minutes: this.defaultExpirationMinutes,
     }
     /* eslint-enable */
     return toSerialize
@@ -62,7 +68,7 @@ class EmailEACP extends Serializable {
       json.template,
       json.provider_link,
       json.template_fields,
-      json.expiry_minutes
+      json.default_expiration_minutes
     )
   }
 }
