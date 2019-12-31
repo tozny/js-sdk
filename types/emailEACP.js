@@ -19,12 +19,16 @@ class EmailEACP extends Serializable {
    * @param {string} email The email address to send the otp challenge to.
    * @param {string} template The notification service email template to use when sending the challenge.
    * @param {string} providerLink The URL of the endpoint that will handle the challenge when linked to in the email.
+   * @param {object} templateFields Caller provided key values for substitution in emails sent as part of the EACP.
+   * @param {int} expiryMinutes The number of minutes EACP challenges should be valid for
    */
-  constructor(email, template, providerLink) {
+  constructor(email, template, providerLink, templateFields, expiryMinutes) {
     super()
     this.emailAddress = email
     this.template = template
     this.provideLink = providerLink
+    this.expiryMinutes = expiryMinutes
+    this.templateFields = templateFields
   }
 
   /**
@@ -38,6 +42,8 @@ class EmailEACP extends Serializable {
       email_address: this.emailAddress,
       template: this.template,
       provider_link: this.provideLink,
+      template_fields: this.templateFields,
+      expiry_minutes: this.expiryMinutes,
     }
     /* eslint-enable */
     return toSerialize
@@ -51,7 +57,13 @@ class EmailEACP extends Serializable {
    * @return {EmailEACP} The constructed EmailEACP object based on the passed JS object.
    */
   static decode(json) {
-    return new EmailEACP(json.email_address, json.template, json.provider_link)
+    return new EmailEACP(
+      json.email_address,
+      json.template,
+      json.provider_link,
+      json.template_fields,
+      json.expiry_minutes
+    )
   }
 }
 
