@@ -2,7 +2,7 @@
 
 The Tozny Platform offers powerful tools for developers, enabling them to incorporate strong end-to-end encryption into their code bases. The Software Developer Kits provide the tools necessary for implementing the Tozny Platform without needing high cryptography expertise.
 
-## Install and Set UP
+## Install and Set Up
 
 ```sh
 npm install --save @toznysecure/sdk
@@ -25,7 +25,7 @@ import Tozny from '@toznysecure/sdk/browser'
 ```html
 <script type="text/javascript"  src="https://unpkg.com/@toznysecure/sdk@<version>/dist/tozny-sodium.min.js"></script>
 <script type="text/javascript">
-  // Tozny global is no available
+  // Tozny global is now available
   console.log(Tozny)
 </script>
 ```
