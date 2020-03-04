@@ -1,3 +1,5 @@
+const sodium = require('libsodium-wrappers')
+
 module.exports = {
   async checkCrypto() {
     try {
@@ -31,6 +33,9 @@ module.exports = {
         true,
         ['encrypt', 'decrypt']
       )
+      // finally make sure sodium is available and loaded
+      // this will reject if wasm or asmjs are can not load
+      await sodium.ready
       return true
     } catch (_) {
       return false
