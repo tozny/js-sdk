@@ -28,9 +28,9 @@ module.exports = {
                 info.apiSecret,
                 keys[0].publicKey,
                 keys[0].privateKey,
-                apiUrl,
                 keys[1].publicKey,
-                keys[1].privateKey
+                keys[1].privateKey,
+                apiUrl
               )
             })
             .then(JSON.stringify)
