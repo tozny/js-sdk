@@ -264,6 +264,8 @@ module.exports = {
           id,
           encryptionKeyPair,
           signingKeyPair,
+          {},
+          {},
           apiUrl
         ).then(function(note) {
           return note.stringify()
