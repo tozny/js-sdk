@@ -1,4 +1,5 @@
 const sodium = require('libsodium-wrappers')
+const { ArrayBuffer: MD5 } = require('spark-md5')
 const CryptoProvider = require('../../lib/crypto/cryptoProvider')
 const Platform = require('../platform')
 const { DEFAULT_KDF_ITERATIONS } = require('../../lib/utils/constants')
@@ -77,6 +78,21 @@ class SodiumCrypto extends CryptoProvider {
     return sodium.crypto_sign_SEEDBYTES
   }
 
+  async streamKeyBytes() {
+    await sodium.ready
+    return sodium.crypto_secretstream_xchacha20poly1305_KEYBYTES
+  }
+
+  async streamHeaderBytes() {
+    await sodium.ready
+    return sodium.crypto_secretstream_xchacha20poly1305_HEADERBYTES
+  }
+
+  async streamOverheadBytes() {
+    await sodium.ready
+    return sodium.crypto_secretstream_xchacha20poly1305_ABYTES
+  }
+
   async encryptSymmetric(plain, nonce, key) {
     await sodium.ready
     return sodium.crypto_secretbox_easy(plain, nonce, key)
@@ -153,6 +169,55 @@ class SodiumCrypto extends CryptoProvider {
   async hash(message) {
     await sodium.ready
     return sodium.crypto_generichash(sodium.crypto_generichash_BYTES, message)
+  }
+
+  checksum() {
+    const hash = new MD5()
+    return {
+      update: b => hash.append(b),
+      digest: () => {
+        const hex = hash.end()
+        const bytes = new Uint8Array(
+          hex.match(/.{1,2}/g).map(b => parseInt(b, 16))
+        )
+        return bytes
+      },
+    }
+  }
+
+  async encryptStream(key) {
+    await sodium.ready
+    const stream = sodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+    return {
+      header: stream.header,
+      encrypt: function(block, done) {
+        const tag = done
+          ? sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
+          : sodium.crypto_secretstream_xchacha20poly1305_TAG_MESSAGE
+        return sodium.crypto_secretstream_xchacha20poly1305_push(
+          stream.state,
+          block,
+          null,
+          tag
+        )
+      },
+    }
+  }
+
+  async decryptStream(key, header) {
+    await sodium.ready
+    const stream = sodium.crypto_secretstream_xchacha20poly1305_init_pull(
+      header,
+      key
+    )
+    return {
+      decrypt: function(block) {
+        return sodium.crypto_secretstream_xchacha20poly1305_pull(
+          stream.state,
+          block
+        )
+      },
+    }
   }
 }
 

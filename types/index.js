@@ -2,6 +2,7 @@ const AuthorizerPolicy = require('./authorizerPolicy')
 const ClientDetails = require('./clientDetails')
 const ClientInfo = require('./clientInfo')
 const EAKInfo = require('./eakInfo')
+const FileMeta = require('./fileMeta')
 const IncomingSharingPolicy = require('./incomingSharingPolicy')
 const KeyPair = require('./keyPair')
 const Meta = require('./meta')
@@ -34,6 +35,7 @@ module.exports = {
   ClientDetails,
   ClientInfo,
   EAKInfo,
+  FileMeta,
   IncomingSharingPolicy,
   KeyPair,
   Meta,
