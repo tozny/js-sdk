@@ -73,7 +73,7 @@ class FileMeta extends Serializable {
 
     for (let key in keyMap) {
       if (obj[keyMap[key]] !== undefined) {
-        this.key = obj[keyMap[key]]
+        meta[key] = obj[keyMap[key]]
       }
     }
 

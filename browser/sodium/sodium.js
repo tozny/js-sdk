@@ -206,16 +206,20 @@ class SodiumCrypto extends CryptoProvider {
 
   async decryptStream(key, header) {
     await sodium.ready
-    const stream = sodium.crypto_secretstream_xchacha20poly1305_init_pull(
+    const state = sodium.crypto_secretstream_xchacha20poly1305_init_pull(
       header,
       key
     )
     return {
       decrypt: function(block) {
-        return sodium.crypto_secretstream_xchacha20poly1305_pull(
-          stream.state,
+        const decrypted = sodium.crypto_secretstream_xchacha20poly1305_pull(
+          state,
           block
         )
+        if (!decrypted) {
+          throw new Error('Invalid cipher text')
+        }
+        return decrypted.message
       },
     }
   }

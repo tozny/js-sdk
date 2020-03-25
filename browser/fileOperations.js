@@ -1,5 +1,5 @@
 const FileOperationsBase = require('../lib/storage/fileOperations')
-const uuidv4 = require('uuid/v4')
+// const uuidv4 = require('uuid/v4')
 
 class FileOperations extends FileOperationsBase {
   validateHandle(handle) {
@@ -9,11 +9,12 @@ class FileOperations extends FileOperationsBase {
   }
 
   decryptDestination() {
-    return new DBTempFile()
+    return new DecryptedStream()
+    // return new DBTempFile(uuidv4())
   }
 
   encryptDestination() {
-    return new BlobTempFile(uuidv4())
+    return new BlobTempFile()
   }
 
   readStream(handle, blockSize) {
@@ -45,7 +46,7 @@ class FileOperations extends FileOperationsBase {
     return stream
   }
 
-  async downloadFile(url) {
+  async download(url) {
     const response = await fetch(url)
     if (!response.ok) {
       const err = new Error(
@@ -54,10 +55,10 @@ class FileOperations extends FileOperationsBase {
       err.statusCode = response.status
       throw err
     }
-    return response.body
+    return response.body.getReader()
   }
 
-  async uploadFile(url, body, checksum, size) {
+  async upload(url, body, checksum, size) {
     const req = await fetch(url, {
       method: 'PUT',
       headers: {
@@ -90,92 +91,159 @@ class BlobTempFile {
   }
 }
 
-class DBTempFile {
-  constructor(fileName) {
-    this.fileName = fileName
-    this.version = 1
-    this._tableName = 'chunks'
-    this._open = true
-    this._pointer = false
-    this._db = new Promise((resolve, reject) => {
-      // Open the indexedDB.
-      const r = indexedDB.open(this._storeName, this.version)
-      r.onupgradeneeded = e => {
-        const db = e.target.result
-        db.createObjectStore(this._tableName, { autoIncrement: true })
-      }
-      r.onsuccess = e => {
-        this._request = r
-        resolve(e.target.result)
-      }
-      r.onerror = e => {
-        reject(e)
-      }
+class DecryptedStream {
+  constructor() {
+    this.stream = new ReadableStream({
+      start: controller => {
+        this.controller = controller
+      },
+      // controller.close()
+      // controller.enqueue(value)
     })
   }
 
   write(chunk) {
-    this._db
-      .then(db => {
-        db.transaction([this._tableName], 'readwrite')
-          .objectStore(this._tableName)
-          .add(chunk)
-      })
-      .then(trans => {
-        return new Promise((resolve, reject) => {
-          trans.onerror = reject
-          trans.onsuccess = e => resolve(e.target.result)
-        })
-      })
+    this.controller.enqueue(chunk)
   }
 
-  read() {
-    // So that read returns a new promise each time, store the pending promise
-    // in the pointer.
-    let nextValSet
-    const nextValue = new Promise((resolve, reject) => {
-      nextValSet = { resolve, reject }
-    })
-    if (!this._pointer) {
-      this._db.then(db => {
-        const store = db
-          .transaction([this._tableName])
-          .objectStore(this._tableName)
-        const cursor = store.openCursor()
-        this._traverse = {
-          store,
-          nextValue: nextValSet,
-        }
-        cursor.onsuccess = e => {
-          const { result } = e.target
-          const val =
-            result && result.value instanceof Uint8Array
-              ? result.value
-              : new Uint8Array()
-          if (!val.length) {
-            this._traverse.nextValue.resolve(val)
-            delete this._traverse
-          } else {
-            this._traverse.cursor = result
-            this._traverse.nextValue.resolve(val)
-          }
-        }
-        cursor.onerror = e => this._traverse.nextValue.reject(e)
-      })
-    } else {
-      this._traverse.nextValue = nextValSet
-      this._traverse.cursor.continue()
-    }
-    return nextValue
+  close() {
+    this.controller.close()
   }
 
-  expire() {
-    return new Promise((resolve, reject) => {
-      const r = indexedDB.deleteDatabase(this._storeName)
-      r.onsuccess = () => resolve(true)
-      r.onerror = () => reject(false)
-    })
+  getReader() {
+    return this.stream
   }
 }
+
+// class DBTempFile {
+//   constructor(fileName) {
+//     this.fileName = fileName
+//     this.version = 1
+//     this._tableName = 'chunks'
+//     this._open = true
+//     this._pointer = {
+//       index: 0,
+//     }
+//     this._db = new Promise((resolve, reject) => {
+//       // Open the indexedDB.
+//       const r = indexedDB.open(this.fileName, this.version)
+//       r.onupgradeneeded = e => {
+//         const db = e.target.result
+//         db.createObjectStore(this._tableName, { autoIncrement: true })
+//       }
+//       r.onsuccess = e => resolve(e.target.result)
+//       r.onerror = e => reject(e)
+//     })
+//   }
+
+//   async write(chunk) {
+//     const db = await this._db
+//     // store the crypto key in the index DB
+//     const trans = db
+//       .transaction([this._tableName], 'readwrite')
+//       .objectStore(this._tableName)
+//       .add(chunk)
+//     return new Promise((resolve, reject) => {
+//       trans.onerror = reject
+//       trans.onsuccess = e => resolve(e.target.result)
+//     })
+//   }
+
+//   close() {
+//     this._open = false
+//   }
+
+//   async read() {
+//     // If this is done, just return the done flag
+//     if (this._pointer.done) {
+//       return Promise.resolve(this._pointer)
+//     }
+//     // Make sure we have a control promise for the next value available
+//     const nextValue = new Promise((resolve, reject) => {
+//       this._pointer.control = { resolve, reject }
+//     })
+//     // Make sure we have a cursor open to the database to fetch the value
+//     if (!this._pointer.cursor) {
+//       const db = await this._db
+//       const trans = db.transaction([this._tableName])
+//       // If the transaction is completed, which can happen when writes and
+//       // reads are interspersed, remove the cursor reference.
+//       trans.oncomplete = () => delete this._pointer.cursor
+//       // Create the cursor advancing it to the current point index
+//       // and setting up success/error handlers
+//       const store = trans.objectStore(this._tableName)
+//       const request = store.openCursor()
+//       request.onsuccess = e => {
+//         const { result } = e.target
+//         if (result === null) {
+//           // If the file is still open, wait for half a second and try again
+//           if (this._open) {
+//             setTimeout(() => {
+//               const originalControl = this._pointer.control
+//               this.read()
+//                 .then(originalControl.resolve)
+//                 .catch(originalControl.reject)
+//             }, 500)
+//             return
+//           }
+//           this._pointer.done = true
+//         }
+//         if (this._pointer.done === true) {
+//           const { control } = this._pointer
+//           this._pointer = { value: null, done: true }
+//           control.resolve(this._pointer)
+//           return
+//         }
+//         if (!this._pointer.cursor && this._pointer.index > 0) {
+//           result.advance(this._pointer.index)
+//           this._pointer.cursor = result
+//           return
+//         } else {
+//           this._pointer.cursor = result
+//         }
+//         this._pointer.index++
+//         this._pointer.control.resolve({ value: result.value, done: false })
+//       }
+//       request.onerror = e => this._pointer.control.reject(e)
+//     } else {
+//       this._pointer.cursor.continue()
+//     }
+//     return nextValue
+//   }
+
+//   async delete() {
+//     // First close the DB connection and remove reference to it
+//     const db = await this._db
+//     await db.close()
+//     delete this.db
+//     // Now delete it
+//     return new Promise((resolve, reject) => {
+//       const r = indexedDB.deleteDatabase(this.fileName)
+//       r.onsuccess = () => resolve(true)
+//       r.onerror = e => reject(e)
+//     })
+//   }
+
+//   getReader() {
+//     const stream = new ReadableStream({
+//       pull: async controller => {
+//         while (this._open) {
+//           await new Promise(r => setTimeout(r, 500))
+//         }
+//         const { value, done } = await this.read()
+//         // If there is no more data, clean up
+//         if (done) {
+//           this.delete()
+//           controller.close()
+//           return
+//         }
+//         // Get the data and send it to the browser via the controller
+//         controller.enqueue(value)
+//       },
+//     })
+
+//     return new Response(stream)
+//   }
+// }
 
 module.exports = FileOperations

@@ -117,9 +117,9 @@ class Meta extends Serializable {
     }
 
     if (typeof json.file_meta !== 'object') {
-      meta.file_meta = null
+      meta.fileMeta = null
     } else {
-      meta.file_meta = FileMeta.decode(json.file_meta)
+      meta.fileMeta = FileMeta.decode(json.file_meta)
     }
 
     meta.recordId = json.record_id || null
