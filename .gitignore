@@ -4,6 +4,7 @@ coverage
 .DS_Store
 testingbot_tunnel
 scratch.js
+scratch
 .env
 
 # Make sure the very big dev version doesn't bloat the git repo. The normal compiled version is plenty already.
