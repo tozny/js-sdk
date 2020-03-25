@@ -35,23 +35,23 @@
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",
     "libsodium-wrappers": "^0.7.6",
-    "uuid": "^3.3.3"
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",
-    "eslint": "^6.6.0",
-    "eslint-config-prettier": "^6.7.0",
-    "eslint-plugin-jest": "^23.0.4",
-    "eslint-plugin-prettier": "^3.1.1",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-jest": "^23.8.2",
+    "eslint-plugin-prettier": "^3.1.2",
     "husky": "^3.1.0",
     "jest": "^25.1.0",
     "jest-cli": "^25.1.0",
     "jest-fetch-mock": "^2.1.2",
-    "lint-staged": "^9.4.3",
+    "lint-staged": "^9.5.0",
     "prettier": "^1.19.1",
-    "selenium-webdriver": "^4.0.0-alpha.5",
-    "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.10"
+    "selenium-webdriver": "^4.0.0-alpha.7",
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.11"
   },
   "husky": {
     "hooks": {
