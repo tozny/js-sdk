@@ -1,6 +1,6 @@
 const sodium = require('libsodium-wrappers')
 
-module.exports = {
+const helpers = {
   async checkCrypto() {
     try {
       // first detect basic subtle crypto support
@@ -41,4 +41,32 @@ module.exports = {
       return false
     }
   },
+  async fileAsResponse(file, mimeType) {
+    const stream = await file.read()
+    return new Response(stream, {
+      headers: { 'Content-Type': mimeType },
+    })
+  },
+  async fileAsBlob(file, mimeType) {
+    const response = await helpers.fileAsResponse(file, mimeType)
+    return await response.blob()
+  },
+  async fileAsUrl(file, mimeType) {
+    const blob = await helpers.fileAsBlob(file, mimeType)
+    return window.URL.createObjectURL(blob)
+  },
+  async fileAsJSON(file) {
+    const response = await helpers.fileAsResponse(file, 'application/json')
+    return response.json()
+  },
+  async fileAsText(file) {
+    const response = await helpers.fileAsResponse(file, 'text/plain')
+    return response.text()
+  },
+  async fileAsBuffer(file) {
+    const blob = await helpers.fileAsBlob(file, 'application/octet-stream')
+    return blob.arrayBuffer()
+  },
 }
+
+module.exports = helpers

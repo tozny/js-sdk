@@ -251,6 +251,300 @@ async function main() {
 main()
 ```
 
+#### Files
+
+Files are a special type of Tozny Storage record that had additional meta data attached which connects you with a connect blob of up to 5GB. To work with files. File records will be returned from search, just as any other record. However, the blob itself is only available when using the File API for a Tozny Storage client.
+
+Due to the fact that browsers and Node have _very_ different primitives available when it comes to files and the file system, the Files API in our Javascript SDK varies a bit by platform. These environment specific differences are called out as they come up.
+
+**Write a file**
+
+```js
+const client = new Tozny.storage.Client(/* config */)
+const type = 'large-file'
+const meta = {plaintext: 'metadata'}
+const fileHandle = getFileHandle() // Platform specific!
+
+async function main() {
+  try {
+    // This return a File object, which contains the written record
+    const file = await client.writeFile(type, handle, meta)
+    // This fetches the record out of the File object
+    const record = await file.record()
+    console.log(`Wrote file to record ${record.meta.recordId}.`)
+  } catch(e) {
+    console.error(e)
+  }
+}
+
+main()
+```
+
+_**Platform Notes**_
+
+> _Node:_ In Node, the handle is any [Readable Stream](https://nodejs.org/api/stream.html#stream_readable_streams). This can come from `fs.createReadStream`, an HTTP request or be created on the Fly.
+>
+> _Browser:_ In Browsers, the handle is a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob) object. This could be a file from a file input form element, created from a fetch request, or even custom constructed.
+
+**Read a File**
+
+```js
+const client = new Tozny.storage.Client(/* config */)
+const fileId = '000000000000-0000-0000-0000-00000000'
+
+async function main() {
+  try {
+    // This could be a record ID, or a file Record object
+    const file = await client.getFile(fileId)
+    // Once you have a file object, you can do various things
+    // depending on your program's needs. Normally a helper is
+    // used read the file instead of calling read directly.
+    // See platform notes for helper documentation.
+    const handle = await file.read() // Platform specific return.
+  } catch(e) {
+    console.error(e)
+  }
+}
+
+main()
+```
+
+_**Platform Notes**_
+
+> _Node:_ In Node, the handle is a [Readable Stream](https://nodejs.org/api/stream.html#stream_readable_streams). This can be piped to something else, saved using the fs module, or used in any other module that uses streams.
+>
+> _Browser:_ In Browsers, the handle is a [ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream). This is _different_ than the Node stream, and is Native to browser. Read the documentation for information what can be done with a stream. Helpers are provided for easier processing.
+
+##### Helpers
+
+**Browser**
+
+_URL_<br />
+Takes a file object and a MIME Type and create an object URL for the file. This is useful for things such as displaying an image, video, or offering the file as a download. Do note that object URLs can use a lot of memory, so when you are done with the URL make sure to revoke it with `window.URL.revokeObjectURL(url)`.
+
+
+```js
+const file = await client.getFile(fileId)
+const url = await Tozny.helpers.fileAsUrl(file, 'image/jpeg')
+```
+
+_Blob_<br />
+Takes a file object and returns a blob with the supplied MIME Type.
+
+```js
+const file = await client.getFile(fileId)
+const blob = await Tozny.helpers.fileAsBlob(file, 'application/octet-stream')
+```
+
+_Buffer_<br />
+Takes a file object and returns and ArrayBuffer containing the entire contents of the file. You will need to add a [TypeArray view on the ArrayBuffer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray) to get access to the contents.
+
+```js
+const file = await client.getFile(fileId)
+const buffer = await Tozny.helpers.fileAsBuffer(file)
+const byteArray = new Uint8Array(buffer)
+```
+
+_Text_<br />
+Takes a file object and returns the raw text as a UTF-8 string.
+
+```js
+const file = await client.getFile(fileId)
+const fileText = await Tozny.helpers.fileAsText(file)
+```
+
+_JSON_<br />
+Take a file object and returns a parse JSON object from the file content. UTF-8 encoding is assumed.
+
+```js
+const file = await client.getFile(fileId)
+const fileObj = await Tozny.helpers.fileAsJSON(file)
+console.log(fileObj.myData)
+```
+
+**Node**
+
+_Save the File_<br />
+Takes a file object, a path, and an options object. This saves the file to the specified path with the provided options. This is an abstraction over the [createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options) method from Node core. Review the `createWriteStream` documentation for the available options. Under the hood the writable stream is created and the readable stream is piped to it.
+
+
+```js
+const file = await client.getFile(fileId)
+const record = await file.record()
+const url = await Tozny.helpers.save(
+  file,
+  `./${record.meta.fileName}`,
+  { encoding: `${record.meta.encoding}`, mode: 0o644 }
+)
+console.log('File saved!')
+```
+
+##### Examples
+
+**Save a file from a form**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload A File</title>
+</head>
+<body>
+  <div>
+    <h1>Upload A File</h1>
+    <form id="uploadForm">
+      <p>
+        <label for="fileToUpload">Select a file:</label><br />
+        <input name="fileToUpload" id="fileToUpload" type="file" ><br />
+      </p>
+      <p>
+        <button>Upload</button>
+      </p>
+    </form>
+  </div>
+  <div id="results"></div>
+  <script src="https://unpkg.com/@toznysecure/sdk@{{{VERSION}}}/dist/tozny-sodium.min.js"></script>
+  <script>
+    const form = document.getElementById('uploadForm')
+    const results = document.getElementById('results')
+    const creds = {/*...Tozny Client Credentials...*/}
+    const client = new Tozny.storage.Client(Tozny.storage.Config.fromObject(creds))
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      results.innerHTML = ''
+      const formData = new FormData(form)
+      const selectedFile = formData.get('fileToUpload')
+      async function upload(blob) {
+        try {
+          const file = await client.writeFile('test-file', blob, {test: 'meta'})
+          const record = await file.record()
+          const h2 = document.createElement('H2')
+          const pre = document.createElement('PRE')
+          h2.innerText = 'File Uploaded'
+          pre.innerText = JSON.stringify(record, undefined, '  ')
+          results.appendChild(h2)
+          results.appendChild(pre)
+        } catch(e) {
+          console.error(e)
+        }
+      }
+      upload(selectedFile)
+    })
+  </script>
+</body>
+</html>
+```
+
+**Display a file as an Image**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Display Encrypted Image</title>
+</head>
+<body>
+  <div>
+    <h1>Display Encrypted Image</h1>
+    <form id="downloadForm">
+      <p>
+        <label for="recordId">Record ID:</label><br />
+        <input type="text" name="recordId" id="recordId" />
+      </p>
+      <p><button>Download</button></p>
+    </form>
+  </div>
+  <div id="downloadResult"></div>
+  <script src="https://unpkg.com/@toznysecure/sdk@{{{VERSION}}}/dist/tozny-sodium.min.js"></script>
+  <script>
+    const form = document.getElementById('downloadForm')
+    const result = document.getElementById('downloadResult')
+    const creds = {/*...Tozny Client Credentials...*/}
+    const client = new Tozny.storage.Client(Tozny.storage.Config.fromObject(creds))
+    let currentURL
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(form)
+      const recordId = formData.get('recordId')
+      async function download(blob) {
+        try {
+          const file = await client.getFile(recordId)
+          if (currentURL) {
+            result.innerHTML = ''
+            // Make sure to revoke URLs we no longer need!
+            window.URL.revokeObjectURL(currentURL)
+          }
+          currentURL = await Tozny.helpers.fileAsUrl(file)
+          const img = document.createElement('IMG')
+          img.src = currentURL
+          result.appendChild(img)
+        } catch(e) {
+          console.error(e)
+        }
+      }
+      download(recordId)
+    })
+  </script>
+</body>
+</html>
+```
+
+**Provide a Downloadable Link**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download Encrypted File</title>
+</head>
+<body>
+  <div>
+    <h1>Download Encrypted File</h1>
+    <form id="downloadForm">
+      <p>
+        <label for="recordId">Record ID:</label><br />
+        <input type="text" name="recordId" id="recordId" />
+      </p>
+      <p><button>Decrypt</button></p>
+    </form>
+  </div>
+  <p>Right click and save the file with the link below after decrypting the file.</p>
+  <div id="downloadLink"></div>
+  <script src="https://unpkg.com/@toznysecure/sdk@{{{VERSION}}}/dist/tozny-sodium.min.js"></script>
+  <script>
+    const form = document.getElementById('downloadForm')
+    const result = document.getElementById('downloadLink')
+    const creds = {/*...Tozny Client Credentials...*/}
+    const client = new Tozny.storage.Client(Tozny.storage.Config.fromObject(creds))
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(form)
+      const recordId = formData.get('recordId')
+      async function download(blob) {
+        try {
+          const file = await client.getFile(recordId)
+          const url = await Tozny.helpers.fileAsUrl(file)
+          const a = document.createElement('A')
+          a.href = url
+          a.download = true
+          result.appendChild(a)
+        } catch(e) {
+          console.error(e)
+        }
+      }
+      download(recordId)
+    })
+  </script>
+</body>
+</html>
+```
+
 ### Notes
 
 Notes provide a mechanism transfer or save data encrypted for a single specified set of cryptographic keys. These keys may or may not belong to another client in the TozStore system. This is a one way transfer. The writer of a note can update or delete the note contents, but they can not read it. The reader of the note can read it, but can not update or delete it. The writer and reader keys on a note can be the same.
