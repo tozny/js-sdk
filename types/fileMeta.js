@@ -70,10 +70,11 @@ class FileMeta extends Serializable {
    */
   static decode(obj) {
     const meta = new FileMeta()
-
-    for (let key in keyMap) {
-      if (obj[keyMap[key]] !== undefined) {
-        meta[key] = obj[keyMap[key]]
+    if (obj) {
+      for (let key in keyMap) {
+        if (obj[keyMap[key]] !== undefined) {
+          meta[key] = obj[keyMap[key]]
+        }
       }
     }
 
