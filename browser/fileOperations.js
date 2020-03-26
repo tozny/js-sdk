@@ -1,5 +1,21 @@
 const FileOperationsBase = require('../lib/storage/fileOperations')
 
+/**
+ * Handle browser specific file operations
+ *
+ * *Uploads*
+ * In this version, browsers take a Blob object as the source of a file. This can
+ * be an in-memory blob, but is just as likely a File object from an input
+ * element. The blob is read in slices, encrypted, and collected in memory to
+ * a new blob, which is uploaded using the fetch API.
+ *
+ * *Download*
+ * In this version, browsers use fetch to download the file, returning the
+ * ReadableStream body. This stream is decrypted and the decrypted bytes are
+ * sent into a new ReadableStream which emits the unencrypted bytes. Only when
+ * the return is converted to an object, string, or other type are the bytes
+ * completely held in memory, the rest is processed via web streams API.
+ */
 class FileOperations extends FileOperationsBase {
   validateHandle(handle) {
     if (!(handle instanceof Blob)) {
@@ -15,7 +31,7 @@ class FileOperations extends FileOperationsBase {
     return new BlobTempFile()
   }
 
-  readStream(handle, blockSize) {
+  sourceReader(handle, blockSize) {
     return new BlobReader(handle, blockSize)
   }
 
@@ -49,6 +65,9 @@ class FileOperations extends FileOperationsBase {
   }
 }
 
+/**
+ * Reads Blob objects in chunks based on blockSize
+ */
 class BlobReader {
   constructor(blob, blockSize) {
     this._blob = blob
@@ -83,6 +102,12 @@ class BlobReader {
   }
 }
 
+/**
+ * Collects bytes into a blob file, usable in browser upload bodies.
+ *
+ * To prevent extra bytes being necessary, we collect all of the byte arrays
+ * in the `blocks` array and pass that to the Blob constructor all at once.
+ */
 class BlobTempFile {
   constructor() {
     this.blocks = []
@@ -98,6 +123,12 @@ class BlobTempFile {
   }
 }
 
+/**
+ * Converts decrypted bytes into a standardized ReadableStream.
+ *
+ * ReadableStream is the item returned as the response body from Fetch, so in
+ * general any browser supporting fetch also supports ReadableStream.
+ */
 class DecryptedStream {
   constructor() {
     this.stream = new ReadableStream({

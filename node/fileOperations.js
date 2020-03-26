@@ -7,6 +7,27 @@ const https = require('https')
 const { tmpdir } = require('os')
 const uuidv4 = require('uuid/v4')
 
+/**
+ * Handle Node specific file operations
+ *
+ * Node works with files in a completely streaming manner. At no point are the
+ * entire set of bytes from a file held in memory. The file system is used for
+ * temporary storage of encrypted bytes due to the need to fully calculate the
+ * checksum before streaming the file to the upload URL.
+ *
+ * *Uploads*
+ * In this version, Node takes stream.Readable object as the source of a file.
+ * Any stream.Readable is valid. The stream is encrypted and collected into a
+ * temporary file on the OS. When complete, a stream.Readable to that file is
+ * opened and streamed to the upload URL using build in node HTTP.
+ *
+ * *Download*
+ * In this version, Node uses the core HTTP library to download the file,
+ * returning the stream.Readable body. This stream is decrypted and the
+ * decrypted bytes are sent into a new stream.Readable which emits the
+ * unencrypted bytes. This can be piped or used as any stream.Readable, such as
+ * saved to a file, send to stdOut, etc.
+ */
 class FileOperations extends FileOperationsBase {
   validateHandle(handle) {
     if (!(handle instanceof stream.Readable)) {
@@ -43,8 +64,8 @@ class FileOperations extends FileOperationsBase {
     }
   }
 
-  readStream(handle, blockSize) {
-    return new StreamReadable(handle, blockSize)
+  sourceReader(handle, blockSize) {
+    return new StreamReader(handle, blockSize)
   }
 
   download(url) {
@@ -57,7 +78,7 @@ class FileOperations extends FileOperationsBase {
             rej(new Error(`Unable to download file: ${response.statusText}`))
             return
           }
-          res(new StreamReadable(response))
+          res(new StreamReader(response))
         })
         .on('error', rej)
         .on('abort', () => rej(new Error('Download aborted.')))
@@ -91,7 +112,19 @@ class FileOperations extends FileOperationsBase {
   }
 }
 
-class StreamReadable {
+/**
+ * StreamReader wraps a stream.Readable for more consistent read operations.
+ *
+ * stream.Readable can return false from the read() operation when no bytes are
+ * available. This wrapper ensures when read is called, bytes are always
+ * returned unless the underlying stream is done and empty.
+ *
+ * This also allows specifying a block size at construction time, so that each
+ * read operation returns a consistently sized block without sending that size
+ * to each read operation. A size _can_ be sent to .read(size) to override the
+ * block size.
+ */
+class StreamReader {
   constructor(readableStream, blockSize) {
     this._blockSize = blockSize
     this._stream = readableStream
