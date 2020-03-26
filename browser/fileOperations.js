@@ -16,39 +16,14 @@ class FileOperations extends FileOperationsBase {
   }
 
   readStream(handle, blockSize) {
-    let index = 0
-    let bytesLeft = handle.size
-    let chain = Promise.resolve()
-    const stream = {
-      done: false,
-      next() {
-        chain = chain.then(async () => {
-          const chunkSize = Math.min(blockSize, bytesLeft)
-          const slice = handle.slice(index, index + chunkSize)
-          const reader = new FileReader()
-          return new Promise((res, rej) => {
-            reader.onload = () => {
-              res(new Uint8Array(reader.result))
-            }
-            reader.onerror = rej
-            reader.readAsArrayBuffer(slice)
-            index += chunkSize
-            bytesLeft -= chunkSize
-            // Detect if this is the last chuck and set the hasMore property
-            stream.done = chunkSize !== blockSize || bytesLeft < 1
-          })
-        })
-        return chain
-      },
-    }
-    return stream
+    return new BlobReader(handle, blockSize)
   }
 
   async download(url) {
     const response = await fetch(url)
     if (!response.ok) {
       const err = new Error(
-        `unable to download file: ${(await response).statusText}`
+        `Unable to download file: ${(await response).statusText}`
       )
       err.statusCode = response.status
       throw err
@@ -67,10 +42,44 @@ class FileOperations extends FileOperationsBase {
       body,
     })
     if (!req.ok) {
-      const err = new Error(`Upload error: ${req.statusText}`)
+      const err = new Error(`Unable to upload file: ${req.statusText}`)
       err.statusCode = req.status
       throw err
     }
+  }
+}
+
+class BlobReader {
+  constructor(blob, blockSize) {
+    this._blob = blob
+    this._blockSize = blockSize
+    this._index = 0
+    this._remainingBytes = blob.size
+    this._chain = Promise.resolve()
+  }
+
+  read() {
+    // Doing this organized in a chain of promises ensures that each chunk is
+    // processed and returned sequentially -- byte order is maintained.
+    this._chain = this._chain.then(() => {
+      return new Promise((res, rej) => {
+        const chunkSize = Math.min(this._blockSize, this._remainingBytes)
+        const slice = this._blob.slice(this._index, this._index + chunkSize)
+        const reader = new FileReader()
+        reader.onload = () => {
+          this._index += chunkSize
+          this._remainingBytes -= chunkSize
+          const chunk = {
+            value: new Uint8Array(reader.result),
+            done: chunkSize !== this._blockSize || this._remainingBytes < 1,
+          }
+          res(chunk)
+        }
+        reader.onerror = rej
+        reader.readAsArrayBuffer(slice)
+      })
+    })
+    return this._chain
   }
 }
 

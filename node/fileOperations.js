@@ -44,54 +44,17 @@ class FileOperations extends FileOperationsBase {
   }
 
   readStream(handle, blockSize) {
-    let doneFired = false
-    const readUntilData = async () => {
-      let chunk
-      while (!doneFired) {
-        chunk = handle.read(blockSize)
-        if (chunk !== null) {
-          return chunk
-        }
-        // no chunk available, wait for 1 milliseconds and try again
-        // this basically kicks us to the next tick, but process.nextTick is
-        // not letting this because of the await.
-        await new Promise(r => setTimeout(r, 1))
-      }
-      return null
-    }
-    let buffer = readUntilData()
-    const readable = {
-      done: false,
-      next: async () => {
-        while (buffer) {
-          const currentChunk = await buffer
-          if (!currentChunk) {
-            throw new Error('No bytes returned, but not done reading file.')
-          }
-          const nextChunk = await readUntilData()
-          // If there is no next chunk (null), and done has been fired
-          // this is the last chunk. Mark this queue as done.
-          readable.done = doneFired && !nextChunk
-          // Get the current buffer and send
-          buffer = nextChunk
-          return currentChunk
-        }
-      },
-    }
-    handle.on('end', () => {
-      doneFired = true
-    })
-    return readable
+    return new StreamReadable(handle, blockSize)
   }
 
-  async download(url) {
+  download(url) {
     const requestLib = url.startsWith('https') ? https : http
     return new Promise((res, rej) => {
       requestLib
         .get(url, response => {
           // handle http errors
           if (response.statusCode < 200 || response.statusCode > 299) {
-            rej(new Error(`Upload failed : ${response.statusCode}`))
+            rej(new Error(`Unable to download file: ${response.statusText}`))
             return
           }
           res(new StreamReadable(response))
@@ -101,7 +64,7 @@ class FileOperations extends FileOperationsBase {
     })
   }
 
-  async upload(url, body, checksum, size) {
+  upload(url, body, checksum, size) {
     const requestLib = url.startsWith('https') ? https : http
     const options = {
       method: 'PUT',
@@ -116,11 +79,10 @@ class FileOperations extends FileOperationsBase {
       const request = requestLib.request(url, options, response => {
         // handle http errors
         if (response.statusCode < 200 || response.statusCode > 299) {
-          rej(new Error(`Upload failed : ${response.statusCode}`))
+          rej(new Error(`Unable to upload file: ${response.statusCode}`))
           return
         }
         res()
-        response.on('data', console.log)
       })
       request.on('error', rej)
       request.on('abort', () => rej(new Error('Upload aborted.')))
