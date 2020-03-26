@@ -2,6 +2,7 @@ const Sodium = require('./sodium')
 const Platform = require('./platform')
 const FileOperations = require('./fileOperations')
 const Tozny = require('../lib/tozny')
+const helpers = require('./helpers')
 
 // Option to overwrite default (Crypto)Type mode.
 const platform = new Platform()
@@ -15,4 +16,4 @@ switch (mode) {
     break
 }
 
-module.exports = new Tozny(crypto, platform, fileOperations)
+module.exports = new Tozny(crypto, platform, fileOperations, helpers)

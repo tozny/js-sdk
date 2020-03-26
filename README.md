@@ -371,7 +371,7 @@ Takes a file object, a path, and an options object. This saves the file to the s
 ```js
 const file = await client.getFile(fileId)
 const record = await file.record()
-const url = await Tozny.helpers.save(
+const url = await Tozny.helpers.saveFile(
   file,
   `./${record.meta.fileName}`,
   { encoding: `${record.meta.encoding}`, mode: 0o644 }

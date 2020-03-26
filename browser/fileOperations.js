@@ -1,5 +1,4 @@
 const FileOperationsBase = require('../lib/storage/fileOperations')
-// const uuidv4 = require('uuid/v4')
 
 class FileOperations extends FileOperationsBase {
   validateHandle(handle) {
@@ -10,7 +9,6 @@ class FileOperations extends FileOperationsBase {
 
   decryptDestination() {
     return new DecryptedStream()
-    // return new DBTempFile(uuidv4())
   }
 
   encryptDestination() {
@@ -97,8 +95,6 @@ class DecryptedStream {
       start: controller => {
         this.controller = controller
       },
-      // controller.close()
-      // controller.enqueue(value)
     })
   }
 

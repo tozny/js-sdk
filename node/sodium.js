@@ -47,6 +47,21 @@ class SodiumCrypto extends CryptoProvider {
     return sodium.crypto_sign_SEEDBYTES
   }
 
+  async streamKeyBytes() {
+    await sodium.ready
+    return sodium.crypto_secretstream_xchacha20poly1305_KEYBYTES
+  }
+
+  async streamHeaderBytes() {
+    await sodium.ready
+    return sodium.crypto_secretstream_xchacha20poly1305_HEADERBYTES
+  }
+
+  async streamOverheadBytes() {
+    await sodium.ready
+    return sodium.crypto_secretstream_xchacha20poly1305_ABYTES
+  }
+
   async encryptSymmetric(plain, nonce, key) {
     await sodium.ready
     return sodium.crypto_secretbox_easy(plain, nonce, key)
@@ -123,6 +138,49 @@ class SodiumCrypto extends CryptoProvider {
   async hash(message) {
     await sodium.ready
     return sodium.crypto_generichash(sodium.crypto_generichash_BYTES, message)
+  }
+
+  checksum() {
+    return crypto.createHash('md5')
+  }
+
+  async encryptStream(key) {
+    await sodium.ready
+    const stream = sodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+    return {
+      header: stream.header,
+      encrypt: function(block, done) {
+        const tag = done
+          ? sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
+          : sodium.crypto_secretstream_xchacha20poly1305_TAG_MESSAGE
+        return sodium.crypto_secretstream_xchacha20poly1305_push(
+          stream.state,
+          block,
+          null,
+          tag
+        )
+      },
+    }
+  }
+
+  async decryptStream(key, header) {
+    await sodium.ready
+    const state = sodium.crypto_secretstream_xchacha20poly1305_init_pull(
+      header,
+      key
+    )
+    return {
+      decrypt: function(block) {
+        const decrypted = sodium.crypto_secretstream_xchacha20poly1305_pull(
+          state,
+          block
+        )
+        if (!decrypted) {
+          throw new Error('Invalid cipher text')
+        }
+        return decrypted.message
+      },
+    }
   }
 }
 
