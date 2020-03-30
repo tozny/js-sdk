@@ -47,11 +47,11 @@ const helpers = {
     }
   },
   /**
-   * Converts a file object into a native Response object for processing.
+   * Converts a File object into a native Response object for processing.
    *
-   * @param {File} file A file object ready to be read.
-   * @param {string} mimeType The MIME type to assign to the file.
-   * @return {Promise<Response>} A response object to process the file with.
+   * @param {File} file A File object ready for reading.
+   * @param {string} mimeType The MIME type to assign the Response.
+   * @return {Promise<Response>} A Response object to process the file with.
    */
   async fileAsResponse(file, mimeType) {
     const stream = await file.read()
@@ -60,9 +60,9 @@ const helpers = {
     })
   },
   /**
-   * Converts a file object into a native Blob object.
+   * Converts a File object into a native Blob object.
    *
-   * @param {File} file A file object ready to be read.
+   * @param {File} file A File object ready for reading.
    * @param {string} mimeType The MIME type to assign to the blob.
    * @return {Promise<Blob>} A Blob object containing the decrypted file bytes.
    */
@@ -76,7 +76,7 @@ const helpers = {
    * Make sure to revoke this url using `window.URL.revokeObjectURL(url)` when
    * the URL is no longer needed or you risk memory leaks.
    *
-   * @param {File} file A file object ready to be read.
+   * @param {File} file A File object ready for reading.
    * @param {string} mimeType The MIME type to assign to the file.
    * @return {Promise<string>} An object URL to the download file.
    */
@@ -87,7 +87,7 @@ const helpers = {
   /**
    * Reads the decrypted file bytes and parses them as a JSON object.
    *
-   * @param {File} file A file object ready to be read.
+   * @param {File} file A File object ready for reading.
    * @return {Promise<object>} The JavaScript object represented in the file.
    */
   async fileAsJSON(file) {
@@ -97,8 +97,8 @@ const helpers = {
   /**
    * Reads the decrypted file bytes and parses them as a UTF8 string.
    *
-   * @param {File} file A file object ready to be read.
-   * @return {Promise<string>} The text contained in the encrypted file.
+   * @param {File} file A File object ready for reading.
+   * @return {Promise<string>} The UTF8 text contained in the encrypted file.
    */
   async fileAsText(file) {
     const response = await helpers.fileAsResponse(file, 'text/plain')
@@ -107,10 +107,10 @@ const helpers = {
   /**
    * Reads the decrypted file bytes into a new ArrayBuffer.
    *
-   * To use the buffer, you will need to wrap in in some kind of view, such as
+   * To use the buffer, you will need to wrap it in some kind of view, such as
    * a TypedArray.
    *
-   * @param {File} file A file object ready to be read.
+   * @param {File} file A File object ready for reading.
    * @return {Promise<ArrayBuffer>} An ArrayBuffer containing the decrypted bytes.
    */
   async fileAsBuffer(file) {

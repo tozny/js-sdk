@@ -6,15 +6,15 @@ const FileOperationsBase = require('../lib/storage/fileOperations')
  * *Uploads*
  * In this version, browsers take a Blob object as the source of a file. This can
  * be an in-memory blob, but is just as likely a File object from an input
- * element. The blob is read in slices, encrypted, and collected in memory to
- * a new blob, which is uploaded using the fetch API.
+ * element. The blob is read in slices, encrypted, and collected in memory before
+ * conversion into a new Blob, which is uploaded using the fetch API.
  *
  * *Download*
  * In this version, browsers use fetch to download the file, returning the
  * ReadableStream body. This stream is decrypted and the decrypted bytes are
  * sent into a new ReadableStream which emits the unencrypted bytes. Only when
  * the return is converted to an object, string, or other type are the bytes
- * completely held in memory, the rest is processed via web streams API.
+ * completely held in memory, the rest is processed via the Web Streams API.
  */
 class FileOperations extends FileOperationsBase {
   validateHandle(handle) {

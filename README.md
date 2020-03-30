@@ -253,9 +253,9 @@ main()
 
 #### Files
 
-Files are a special type of Tozny Storage record that had additional meta data attached which connects you with a connect blob of up to 5GB. To work with files. File records will be returned from search, just as any other record. However, the blob itself is only available when using the File API for a Tozny Storage client.
+Files are a special type of Tozny Storage record that has additional meta data attached which connects you with a content blob of up to 5GB. File records will be returned from search, just as any other record. However, the blob itself is only available when using the Files API in the Tozny Storage client.
 
-Due to the fact that browsers and Node have _very_ different primitives available when it comes to files and the file system, the Files API in our Javascript SDK varies a bit by platform. These environment specific differences are called out as they come up.
+Due to the fact that browsers and Node have _very_ different primitives available when it comes to files and the file system, the inputs and outputs fro the Files API in our Javascript SDK varies by platform. These environment specific differences are called out as they come up.
 
 **Write a file**
 
@@ -267,7 +267,7 @@ const fileHandle = getFileHandle() // Platform specific!
 
 async function main() {
   try {
-    // This return a File object, which contains the written record
+    // This returns a File object, which contains the written record
     const file = await client.writeFile(type, handle, meta)
     // This fetches the record out of the File object
     const record = await file.record()
@@ -282,9 +282,9 @@ main()
 
 _**Platform Notes**_
 
-> _Node:_ In Node, the handle is any [Readable Stream](https://nodejs.org/api/stream.html#stream_readable_streams). This can come from `fs.createReadStream`, an HTTP request or be created on the Fly.
+> _Node:_ In Node, a file handle is any [Readable Stream](https://nodejs.org/api/stream.html#stream_readable_streams). This can come from `fs.createReadStream`, an HTTP request or be created on the fly.
 >
-> _Browser:_ In Browsers, the handle is a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob) object. This could be a file from a file input form element, created from a fetch request, or even custom constructed.
+> _Browser:_ In Browsers, a file handle is a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob) object. This could come from a file input element, created from a fetch response, or even custom constructed.
 
 **Read a File**
 
@@ -296,10 +296,10 @@ async function main() {
   try {
     // This could be a record ID, or a file Record object
     const file = await client.getFile(fileId)
-    // Once you have a file object, you can do various things
-    // depending on your program's needs. Normally a helper is
-    // used read the file instead of calling read directly.
-    // See platform notes for helper documentation.
+    // Once you have a File object, you can do various things
+    // depending on the needs of your program. Normally a helper is
+    // used read the file instead of calling `.read()` directly.
+    // See platform notes for available helpers in each platform.
     const handle = await file.read() // Platform specific return.
   } catch(e) {
     console.error(e)
@@ -311,16 +311,16 @@ main()
 
 _**Platform Notes**_
 
-> _Node:_ In Node, the handle is a [Readable Stream](https://nodejs.org/api/stream.html#stream_readable_streams). This can be piped to something else, saved using the fs module, or used in any other module that uses streams.
+> _Node:_ In Node, the handle returned is a [Readable Stream](https://nodejs.org/api/stream.html#stream_readable_streams). This can be piped to a writable stream, saved to disk using the fs module, or consumed by any code that accepts a readable stream.
 >
-> _Browser:_ In Browsers, the handle is a [ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream). This is _different_ than the Node stream, and is Native to browser. Read the documentation for information what can be done with a stream. Helpers are provided for easier processing.
+> _Browser:_ In Browsers, the handle returned is a [ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream). This is _different_ than a Node readable stream, and is native to browsers. Read the linked MDN documentation for more information on what can be done with a ReadableStream. The platform helpers provided allow for easier processing so you do not have to concern yourself with the ReadableStream unless you want to.
 
 ##### Helpers
 
 **Browser**
 
 _URL_<br />
-Takes a file object and a MIME Type and create an object URL for the file. This is useful for things such as displaying an image, video, or offering the file as a download. Do note that object URLs can use a lot of memory, so when you are done with the URL make sure to revoke it with `window.URL.revokeObjectURL(url)`.
+Takes a File object and a MIME Type and creates an object URL for the file. This is useful for things such as displaying an image, video, or offering the file as a download. Note that object URLs can use a lot of memory, so when your program no longer needs the URL make sure to revoke it with `window.URL.revokeObjectURL(url)`.
 
 
 ```js
@@ -329,7 +329,7 @@ const url = await Tozny.helpers.fileAsUrl(file, 'image/jpeg')
 ```
 
 _Blob_<br />
-Takes a file object and returns a blob with the supplied MIME Type.
+Takes a File object and returns a Blob with the supplied MIME Type.
 
 ```js
 const file = await client.getFile(fileId)
@@ -337,7 +337,7 @@ const blob = await Tozny.helpers.fileAsBlob(file, 'application/octet-stream')
 ```
 
 _Buffer_<br />
-Takes a file object and returns and ArrayBuffer containing the entire contents of the file. You will need to add a [TypeArray view on the ArrayBuffer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray) to get access to the contents.
+Takes a File object and returns an ArrayBuffer containing the entire contents of the file. You will need to add a [TypeArray view on the ArrayBuffer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray) to get access to the raw contents.
 
 ```js
 const file = await client.getFile(fileId)
@@ -346,7 +346,7 @@ const byteArray = new Uint8Array(buffer)
 ```
 
 _Text_<br />
-Takes a file object and returns the raw text as a UTF-8 string.
+Takes a File object and returns the raw text as a UTF-8 string.
 
 ```js
 const file = await client.getFile(fileId)
@@ -354,7 +354,7 @@ const fileText = await Tozny.helpers.fileAsText(file)
 ```
 
 _JSON_<br />
-Take a file object and returns a parse JSON object from the file content. UTF-8 encoding is assumed.
+Take a File object and returns a JSON parsed object from the file contents. UTF-8 encoding is assumed.
 
 ```js
 const file = await client.getFile(fileId)
@@ -364,8 +364,8 @@ console.log(fileObj.myData)
 
 **Node**
 
-_Save the File_<br />
-Takes a file object, a path, and an options object. This saves the file to the specified path with the provided options. This is an abstraction over the [createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options) method from Node core. Review the `createWriteStream` documentation for the available options. Under the hood the writable stream is created and the readable stream is piped to it.
+_Save the file to disk_<br />
+Takes a File object, a path, and an options object. This saves the file to the specified path with the provided options. This is an abstraction over the [createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options) method from Node core. Review the `createWriteStream` documentation for available options.
 
 
 ```js
@@ -381,7 +381,7 @@ console.log('File saved!')
 
 ##### Examples
 
-**Save a file from a form**
+**Write a file record using a form**
 
 ```html
 <!DOCTYPE html>
@@ -389,11 +389,11 @@ console.log('File saved!')
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upload A File</title>
+  <title>Upload File</title>
 </head>
 <body>
   <div>
-    <h1>Upload A File</h1>
+    <h1>Upload File</h1>
     <form id="uploadForm">
       <p>
         <label for="fileToUpload">Select a file:</label><br />
@@ -493,7 +493,7 @@ console.log('File saved!')
 </html>
 ```
 
-**Provide a Downloadable Link**
+**Provide a downloadable Link**
 
 ```html
 <!DOCTYPE html>
@@ -533,6 +533,11 @@ console.log('File saved!')
           const a = document.createElement('A')
           a.href = url
           a.download = true
+          // Note, one issue in browser to be aware of. There is no way to tell
+          // when a download is complete. However, if you revoke the Object URL
+          // before it is complete, the download will fail. Be sure to research
+          // The latest best practices for revoking object URLs used to offer
+          // downloads to the user.
           result.appendChild(a)
         } catch(e) {
           console.error(e)

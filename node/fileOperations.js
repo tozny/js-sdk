@@ -10,23 +10,23 @@ const uuidv4 = require('uuid/v4')
 /**
  * Handle Node specific file operations
  *
- * Node works with files in a completely streaming manner. At no point are the
+ * Node works with files in a completely streaming manner. At no point is the
  * entire set of bytes from a file held in memory. The file system is used for
  * temporary storage of encrypted bytes due to the need to fully calculate the
  * checksum before streaming the file to the upload URL.
  *
  * *Uploads*
- * In this version, Node takes stream.Readable object as the source of a file.
+ * In this version, Node takes a stream.Readable object as the source of a file.
  * Any stream.Readable is valid. The stream is encrypted and collected into a
  * temporary file on the OS. When complete, a stream.Readable to that file is
- * opened and streamed to the upload URL using build in node HTTP.
+ * opened and streamed to the upload URL using built in node HTTP module.
  *
  * *Download*
  * In this version, Node uses the core HTTP library to download the file,
  * returning the stream.Readable body. This stream is decrypted and the
  * decrypted bytes are sent into a new stream.Readable which emits the
  * unencrypted bytes. This can be piped or used as any stream.Readable, such as
- * saved to a file, send to stdOut, etc.
+ * saved to a file, sent to stdOut, etc.
  */
 class FileOperations extends FileOperationsBase {
   validateHandle(handle) {
@@ -121,8 +121,8 @@ class FileOperations extends FileOperationsBase {
  *
  * This also allows specifying a block size at construction time, so that each
  * read operation returns a consistently sized block without sending that size
- * to each read operation. A size _can_ be sent to .read(size) to override the
- * block size.
+ * to each read operation. A size _can_ be sent with `.read(size)` to override
+ * the block size.
  */
 class StreamReader {
   constructor(readableStream, blockSize) {
@@ -142,8 +142,8 @@ class StreamReader {
         return chunk
       }
       // no chunk available, wait for 1 milliseconds and try again
-      // this basically kicks us to the next tick, but process.nextTick is
-      // not letting this because of the await.
+      // this basically kicks us to the next tick, but process.nextTick does
+      // not work here because of the await.
       await new Promise(r => setTimeout(r, 1))
     }
     return null
@@ -162,7 +162,7 @@ class StreamReader {
       // If there is no next chunk (null), and done has been fired
       // this is the last chunk. Indicate this in the return.
       currentChunk.done = this._doneFired && !nextChunk
-      // Get the current buffer and send
+      // Rotate the buffer and send back the current chunk
       this._buffer = nextChunk
       return currentChunk
     }
