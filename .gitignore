@@ -3,7 +3,6 @@ coverage
 .vscode
 .DS_Store
 testingbot_tunnel
-scratch.js
 scratch
 .env
 

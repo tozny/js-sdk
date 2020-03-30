@@ -1,4 +1,5 @@
 const Meta = require('./meta')
+const FileMeta = require('./fileMeta')
 const RecordData = require('./recordData')
 const Signable = require('./signable')
 
@@ -30,6 +31,15 @@ class Record extends Signable {
     }
 
     this.signature = signature
+  }
+
+  /**
+   * Whether or not this record has a file attached to it.
+   *
+   * @return {boolean} If file meta is present.
+   */
+  get isFile() {
+    return this.meta.fileMeta instanceof FileMeta
   }
 
   /* eslint-disable camelcase */

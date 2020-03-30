@@ -1,4 +1,5 @@
 const Serializable = require('./serializable')
+const FileMeta = require('./fileMeta')
 
 /**
  * Describe the meta information attributed to a specific encrypted record.
@@ -24,6 +25,7 @@ class Meta extends Serializable {
     this.created = null
     this.lastModified = null
     this.version = null
+    this.fileMeta = null
   }
 
   /* eslint-disable camelcase */
@@ -52,6 +54,11 @@ class Meta extends Serializable {
       toSerialize.plain = this.plain
     }
 
+    // If file meta is present, serialize it
+    if (this.fileMeta instanceof FileMeta) {
+      toSerialize.file_meta = this.fileMeta.serializable()
+    }
+
     for (let key in toSerialize) {
       // eslint-disable-next-line no-prototype-builtins
       if (toSerialize.hasOwnProperty(key)) {
@@ -78,15 +85,16 @@ class Meta extends Serializable {
    * server. The array expected for deserializing back into an object requires:
    *
    * <code>
-   * $meta = Meta::decode({
-   *   'record_id'     => '',
-   *   'writer_id'     => '',
-   *   'user_id'       => '',
-   *   'type'          => '',
-   *   'plain'         => {},
-   *   'created'       => ''
-   *   'last_modified' => ''
-   *   'version'       => ''
+   * const meta = Meta.decode({
+   *   writer_id: '',
+   *   record_id: '',
+   *   user_id: '',
+   *   type: '',
+   *   plain: {},
+   *   created: '',
+   *   last_modified: '',
+   *   version: '',
+   *   file_meta: {} // or null/undefined
    * });
    * </code>
    *
@@ -106,6 +114,12 @@ class Meta extends Serializable {
       meta.lastModified = null
     } else {
       meta.lastModified = new Date(json.last_modified)
+    }
+
+    if (typeof json.file_meta !== 'object') {
+      meta.fileMeta = null
+    } else {
+      meta.fileMeta = FileMeta.decode(json.file_meta)
     }
 
     meta.recordId = json.record_id || null
