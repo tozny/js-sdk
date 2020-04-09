@@ -18,9 +18,12 @@ console.log(process.env.TRAVIS)
 console.log(process.env.TRAVIS_PULL_REQUEST)
 console.log(process.env.TRAVIS_BRANCH)
 console.log(process.env)
-if (process.env.TRAVIS && process.env.TRAVIS_PULL_REQUEST) {
+if (
+  process.env.TRAVIS === 'true' &&
+  process.env.TRAVIS_PULL_REQUEST !== 'false'
+) {
   TestRemoteBranch = process.env.TRAVIS_PULL_REQUEST
-} else if (process.env.TRAVIS && process.env.TRAVIS_BRANCH) {
+} else if (process.env.TRAVIS === 'true' && process.env.TRAVIS_BRANCH) {
   TestRemoteBranch = process.env.TRAVIS_BRANCH
 } else {
   TestRemoteBranch = process.env.TEST_REMOTE_BRANCH
