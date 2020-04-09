@@ -4,7 +4,7 @@ const testTarget = process.env.TEST_TARGET
 const clientRegistrationToken = process.env.CLIENT_REGISTRATION_TOKEN
 const idRealmName = process.env.ID_REALM_NAME
 const idAppName = process.env.ID_APP_NAME
-const apiUrl = process.env.API_URL
+const apiUrl = process.env.API_URL || 'https://api.e3db.com'
 
 class Environment extends NodeEnvironment {
   constructor(config, options) {

@@ -12,16 +12,26 @@ const TestBrowserPlatform = process.env.TEST_BROWSER_PLATFORM
 const TestBrowserVersion = process.env.TEST_BROWSER_VERSION
 const TestRemoteUsername = process.env.TEST_REMOTE_USERNAME
 const TestRemotePassword = process.env.TEST_REMOTE_PASSWORD
+// Support the Travis testing environment
+let TestRemoteBranch
+if (process.env.TRAVIS && process.env.TRAVIS_PULL_REQUEST) {
+  TestRemoteBranch = process.env.TRAVIS_PULL_REQUEST
+} else if (process.env.TRAVIS && process.env.TRAVIS_BRANCH) {
+  TestRemoteBranch = process.env.TRAVIS_BRANCH
+} else {
+  TestRemoteBranch = process.env.TEST_REMOTE_BRANCH
+}
+
 /* Max wait between test actions */
 const TestIdleTimeoutMilliseconds = parseInt(
   process.env.TEST_IDLE_TIMEOUT_MILLISECONDS,
   10
 )
 const TestEnvironment = process.env.TEST_ENVIRONMENT
-const TestRemoteBranch = process.env.TEST_REMOTE_BRANCH
 const TestLocalUseProd = process.env.TEST_LOCAL_USE_PROD
+const TestLocalUseCDN = process.env.TEST_LOCAL_USE_CDN
 /* Continuous Integration / Build Server Execution UID */
-const TestBuildNumber = process.env.TEST_BUILD_NUMBER
+const TestBuildNumber = process.env.TRAVIS_JOB_NUMBER
 
 /* TestDriver initialize a webdriver client as specified by environment variables
  * and it's session (if a remote client) for use in a Selenium based automated browser test function.
@@ -39,8 +49,8 @@ async function getDriver() {
         'sauce:options': {
           username: TestRemoteUsername,
           accessKey: TestRemotePassword,
-          build: 'Dashboard Canary Tests',
-          name: `Dashboard Canary Jenkins Job Build #${TestBuildNumber}`,
+          build: 'SDK',
+          name: `SDK Automated Test #${TestBuildNumber}`,
           maxDuration: 3600,
           idleTimeout: TestIdleTimeoutMilliseconds,
         },
@@ -73,7 +83,7 @@ async function getDriver() {
 
 async function configure(driver) {
   let testEnvironment
-  if (TestEnvironment === 'remote') {
+  if (TestEnvironment === 'remote' || TestLocalUseCDN) {
     testEnvironment = `https://raw.githack.com/tozny/js-sdk/${TestRemoteBranch}/dist/test.html`
   } else {
     const suffix = TestLocalUseProd ? 'html' : 'dev.html'

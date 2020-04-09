@@ -3,7 +3,7 @@
 // const Tozny = require('../node')
 // const ops = require('./utils/operations')
 
-// // Set really high for slower browser runs.
+// Set really high for slower browser runs.
 // jest.setTimeout(100000)
 
 // let realmConfig
@@ -35,8 +35,12 @@
 // })
 
 describe('Tozny', () => {
-  it('can skip identity test', async () => {
-    return expect(true).toBe(true)
+  it('skip identity tests (validate test environment)', async () => {
+    const result = await global.runInEnvironment(function(boolJSON) {
+      var boolVal = JSON.parse(boolJSON)
+      return boolVal
+    }, JSON.stringify(true))
+    return expect(JSON.parse(result)).toBe(true)
   })
   // it('can register an identity client', async () => {
   //   const user = await ops.registerIdentity(realmConfig, realm)
