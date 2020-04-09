@@ -1,0 +1,30 @@
+sudo: false
+language: node_js
+git:
+  depth: 1
+  quiet: true
+branches:
+  except:
+    - /^hack\/.*$/
+env:
+  global:
+    - TEST_LOCAL_USE_PROD=false
+    - TEST_LOCAL_USE_CDN=false
+    - TEST_IDLE_TIMEOUT_MILLISECONDS=100000
+    - TEST_ENVIRONMENT=remote
+    - TEST_BROWSER_VERSION=latest
+jobs:
+  include:
+    - name: "Node Environments"
+      node_js:
+        - 6 # Earliest supported version
+        - 12 #Latest supported version
+      env: TEST_TARGET=node
+    # - name: "Browser Environments"
+    #   node_js: 12 # This just runs the tests, versions are managed by Sauce Labs
+    #   addons:
+    #     sauce_connect: true
+    #   env:
+    #     - TEST_TARGET=browser TEST_BROWSER=safari TEST_BROWSER_PLATFORM='macOS 10.14'
+    #     - TEST_TARGET=browser TEST_BROWSER=firefox TEST_BROWSER_PLATFORM='macOS 10.14'
+    #     - TEST_TARGET=browser TEST_BROWSER=chrome TEST_BROWSER_PLATFORM='macOS 10.14'
