@@ -14,10 +14,6 @@ const TestRemoteUsername = process.env.TEST_REMOTE_USERNAME
 const TestRemotePassword = process.env.TEST_REMOTE_PASSWORD
 // Support the Travis testing environment
 let TestRemoteBranch
-console.log(process.env.TRAVIS)
-console.log(process.env.TRAVIS_PULL_REQUEST)
-console.log(process.env.TRAVIS_BRANCH)
-console.log(process.env)
 if (
   process.env.TRAVIS === 'true' &&
   process.env.TRAVIS_PULL_REQUEST !== 'false'
@@ -47,6 +43,8 @@ const TestBuildNumber = `#${process.env.TRAVIS_JOB_NUMBER}` || 'Local'
 async function getDriver() {
   let builder
   if (TestEnvironment === 'remote') {
+    /* https://wiki.saucelabs.com/display/DOCS/Node.js+Test+Setup+Example */
+    /* https://saucelabs.com/blog/repost-testing-in-a-real-browser-with-sauce-labs-travis-ci */
     let server = 'https://ondemand.saucelabs.com/wd/hub'
     let capabilities = {
       browserName: TestBrowser,
@@ -68,9 +66,7 @@ async function getDriver() {
       capabilities['sauce:options'].username = TestRemoteUsername
       capabilities['sauce:options'].accessKey = TestRemotePassword
     }
-    console.log(`Connecting to ${server}`)
-    console.log(`Capabilities \n ${JSON.stringify(capabilities, null, '  ')}`)
-    /* https://wiki.saucelabs.com/display/DOCS/Node.js+Test+Setup+Example */
+
     builder = await new Builder()
       .withCapabilities(capabilities)
       .usingServer(server)
