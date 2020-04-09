@@ -14,6 +14,10 @@ const TestRemoteUsername = process.env.TEST_REMOTE_USERNAME
 const TestRemotePassword = process.env.TEST_REMOTE_PASSWORD
 // Support the Travis testing environment
 let TestRemoteBranch
+console.log(process.env.TRAVIS)
+console.log(process.env.TRAVIS_PULL_REQUEST)
+console.log(process.env.TRAVIS_BRANCH)
+console.log(process.env)
 if (process.env.TRAVIS && process.env.TRAVIS_PULL_REQUEST) {
   TestRemoteBranch = process.env.TRAVIS_PULL_REQUEST
 } else if (process.env.TRAVIS && process.env.TRAVIS_BRANCH) {
