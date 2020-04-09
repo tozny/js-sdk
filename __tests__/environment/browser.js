@@ -55,10 +55,14 @@ async function getDriver() {
     if (process.env.TRAVIS) {
       server = `http://${process.env.SAUCE_USERNAME}:${process.env.SAUCE_ACCESS_KEY}@ondemand.saucelabs.com:80/wd/hub`
       capabilities['tunnel-identifier'] = process.env.TRAVIS_JOB_NUMBER
+      capabilities.username = process.env.SAUCE_USERNAME
+      capabilities.accessKey = process.env.SAUCE_ACCESS_KEY
     } else {
       capabilities['sauce:options'].username = TestRemoteUsername
       capabilities['sauce:options'].accessKey = TestRemotePassword
     }
+    console.log(`Connecting to ${server}`)
+    console.log(`Capabilities \n ${JSON.stringify(capabilities, null, '  ')}`)
     /* https://wiki.saucelabs.com/display/DOCS/Node.js+Test+Setup+Example */
     builder = await new Builder()
       .withCapabilities(capabilities)
