@@ -6,8 +6,7 @@ git:
 branches:
   except:
     - /^hack\/.*$/
-install: npm ci --production
-script: npm run ci-test
+script: npx jest
 env:
   global:
     - TEST_LOCAL_USE_PROD=false
