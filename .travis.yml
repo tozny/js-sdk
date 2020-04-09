@@ -6,6 +6,7 @@ git:
 branches:
   except:
     - /^hack\/.*$/
+install: npm ci --production
 env:
   global:
     - TEST_LOCAL_USE_PROD=false
