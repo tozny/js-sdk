@@ -23,22 +23,10 @@ env:
     - TEST_TARGET=browser TEST_BROWSER=firefox TEST_BROWSER_PLATFORM='macOS 10.14'
     - TEST_TARGET=browser TEST_BROWSER=chrome TEST_BROWSER_PLATFORM='macOS 10.14'
 jobs:
-  exclude:
+  include:
     - node_js: 8.3
       env:
-      - TEST_TARGET=browser TEST_BROWSER=safari TEST_BROWSER_PLATFORM='macOS 10.14'
-      - TEST_TARGET=browser TEST_BROWSER=firefox TEST_BROWSER_PLATFORM='macOS 10.14'
-      - TEST_TARGET=browser TEST_BROWSER=chrome TEST_BROWSER_PLATFORM='macOS 10.14'
+        - TEST_TARGET=node
     - node_js: 12
       env:
-      - TEST_TARGET=browser TEST_BROWSER=safari TEST_BROWSER_PLATFORM='macOS 10.14'
-      - TEST_TARGET=browser TEST_BROWSER=firefox TEST_BROWSER_PLATFORM='macOS 10.14'
-      - TEST_TARGET=browser TEST_BROWSER=chrome TEST_BROWSER_PLATFORM='macOS 10.14'
-    # - name: "Browser Environments"
-    #   node_js: 12 # This just runs the tests, versions are managed by Sauce Labs
-    #   addons:
-    #     sauce_connect: true
-    #   env:
-    #     - TEST_TARGET=browser TEST_BROWSER=safari TEST_BROWSER_PLATFORM='macOS 10.14'
-    #     - TEST_TARGET=browser TEST_BROWSER=firefox TEST_BROWSER_PLATFORM='macOS 10.14'
-    #     - TEST_TARGET=browser TEST_BROWSER=chrome TEST_BROWSER_PLATFORM='macOS 10.14'
+        - TEST_TARGET=node
