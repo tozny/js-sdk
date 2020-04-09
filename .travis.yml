@@ -17,7 +17,7 @@ jobs:
   include:
     - name: "Node Environments"
       node_js:
-        - 6 # Earliest supported version
+        - 8 # Earliest supported version
         - 12 #Latest supported version
       env: TEST_TARGET=node
     # - name: "Browser Environments"
