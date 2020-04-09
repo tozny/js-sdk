@@ -1,4 +1,3 @@
-sudo: false
 language: node_js
 node_js:
   - 12
@@ -19,14 +18,12 @@ env:
     - TEST_BROWSER_VERSION=latest
   jobs:
     - TEST_TARGET=node
-    - TEST_TARGET=browser TEST_BROWSER=safari TEST_BROWSER_PLATFORM='macOS 10.14'
-    - TEST_TARGET=browser TEST_BROWSER=firefox TEST_BROWSER_PLATFORM='macOS 10.14'
-    - TEST_TARGET=browser TEST_BROWSER=chrome TEST_BROWSER_PLATFORM='macOS 10.14'
+    - TEST_TARGET=browser TEST_BROWSER=safari TEST_BROWSER_PLATFORM="macOS 10.14"
+    - TEST_TARGET=browser TEST_BROWSER=firefox TEST_BROWSER_PLATFORM="macOS 10.14"
+    - TEST_TARGET=browser TEST_BROWSER=chrome TEST_BROWSER_PLATFORM="macOS 10.14"
 jobs:
   include:
     - node_js: 8.3
-      env:
-        - TEST_TARGET=node
+      env: TEST_TARGET=node
     - node_js: 12
-      env:
-        - TEST_TARGET=node
+      env: TEST_TARGET=node
