@@ -31,7 +31,7 @@ const TestEnvironment = process.env.TEST_ENVIRONMENT
 const TestLocalUseProd = process.env.TEST_LOCAL_USE_PROD
 const TestLocalUseCDN = process.env.TEST_LOCAL_USE_CDN
 /* Continuous Integration / Build Server Execution UID */
-const TestBuildNumber = process.env.TRAVIS_JOB_NUMBER
+const TestBuildNumber = `#${process.env.TRAVIS_JOB_NUMBER}` || 'Local'
 
 /* TestDriver initialize a webdriver client as specified by environment variables
  * and it's session (if a remote client) for use in a Selenium based automated browser test function.
@@ -40,22 +40,29 @@ const TestBuildNumber = process.env.TRAVIS_JOB_NUMBER
 async function getDriver() {
   let builder
   if (TestEnvironment === 'remote') {
+    let server = 'https://ondemand.saucelabs.com/wd/hub'
+    let capabilities = {
+      browserName: TestBrowser,
+      platformName: TestBrowserPlatform,
+      browserVersion: TestBrowserVersion,
+      'sauce:options': {
+        build: 'JS SDK Test Suite',
+        name: `SDK Automated Test From ${TestBuildNumber}`,
+        maxDuration: 3600,
+        idleTimeout: TestIdleTimeoutMilliseconds,
+      },
+    }
+    if (process.env.TRAVIS) {
+      server = `http://${process.env.SAUCE_USERNAME}:${process.env.SAUCE_ACCESS_KEY}@ondemand.saucelabs.com:80/wd/hub`
+      capabilities['tunnel-identifier'] = process.env.TRAVIS_JOB_NUMBER
+    } else {
+      capabilities['sauce:options'].username = TestRemoteUsername
+      capabilities['sauce:options'].accessKey = TestRemotePassword
+    }
     /* https://wiki.saucelabs.com/display/DOCS/Node.js+Test+Setup+Example */
     builder = await new Builder()
-      .withCapabilities({
-        browserName: TestBrowser,
-        platformName: TestBrowserPlatform,
-        browserVersion: TestBrowserVersion,
-        'sauce:options': {
-          username: TestRemoteUsername,
-          accessKey: TestRemotePassword,
-          build: 'SDK',
-          name: `SDK Automated Test #${TestBuildNumber}`,
-          maxDuration: 3600,
-          idleTimeout: TestIdleTimeoutMilliseconds,
-        },
-      })
-      .usingServer('https://ondemand.saucelabs.com/wd/hub')
+      .withCapabilities(capabilities)
+      .usingServer(server)
   } // By default create a webdriver client for use against a local selenium server
   else {
     builder = await new Builder().forBrowser(TestBrowser)
