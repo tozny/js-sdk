@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "ci-test": "jest",
     "pretest": "npm run build:dev",
     "build": "webpack --config webpack.config.js --env=production",
     "build:dev": "webpack --config webpack.config.js"
