@@ -31,13 +31,15 @@ const TestEnvironment = process.env.TEST_ENVIRONMENT
 const TestLocalUseProd = process.env.TEST_LOCAL_USE_PROD
 const TestLocalUseCDN = process.env.TEST_LOCAL_USE_CDN
 /* Continuous Integration / Build Server Execution UID */
-const TestBuildNumber = `#${process.env.TRAVIS_JOB_NUMBER}` || 'Local'
+const TestBuildNumber = process.env.TRAVIS_JOB_NUMBER
+  ? `#${process.env.TRAVIS_JOB_NUMBER}`
+  : 'Local'
 
 /* TestDriver initialize a webdriver client as specified by environment variables
  * and it's session (if a remote client) for use in a Selenium based automated browser test function.
  * @param env {string} - The test environment(remote or local) to construct the webdriver client for use.
  */
-async function getDriver() {
+async function getDriver(testPath) {
   let builder
   if (TestEnvironment === 'remote') {
     /* https://wiki.saucelabs.com/display/DOCS/Node.js+Test+Setup+Example */
@@ -49,7 +51,7 @@ async function getDriver() {
       browserVersion: TestBrowserVersion,
       'sauce:options': {
         build: 'JS SDK Test Suite',
-        name: `SDK Automated Test From ${TestBuildNumber}`,
+        name: `[${TestBuildNumber}] ${testPath || 'Unknown path'}`,
         maxDuration: 3600,
         idleTimeout: TestIdleTimeoutMilliseconds,
       },
@@ -120,11 +122,16 @@ function executeSeleniumScript(func, args, done) {
 let driver
 
 module.exports = {
-  async setup() {
-    driver = await getDriver()
+  async setup(testPath) {
+    driver = await getDriver(testPath)
     await configure(driver)
   },
-  async teardown() {
+  async teardown(success) {
+    if (TestEnvironment === 'remote') {
+      await driver.executeScript(
+        `sauce:job-result=${success ? 'passed' : 'failed'}`
+      )
+    }
     await driver.quit()
   },
   async run(func, ...args) {
