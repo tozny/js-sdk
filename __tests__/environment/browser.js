@@ -4,6 +4,7 @@
 
 const { Builder } = require('selenium-webdriver')
 const path = require('path')
+const uuidv4 = require('uuid/v4')
 
 /* The webdriver browser configuration to use for the test execution runtime */
 const TestBrowser = process.env.TEST_BROWSER
@@ -12,40 +13,66 @@ const TestBrowserPlatform = process.env.TEST_BROWSER_PLATFORM
 const TestBrowserVersion = process.env.TEST_BROWSER_VERSION
 const TestRemoteUsername = process.env.TEST_REMOTE_USERNAME
 const TestRemotePassword = process.env.TEST_REMOTE_PASSWORD
+// Support the Travis testing environment
+let TestRemoteBranch
+if (process.env.TRAVIS === 'true' && process.env.TRAVIS_PULL_REQUEST_BRANCH) {
+  TestRemoteBranch = process.env.TRAVIS_PULL_REQUEST_BRANCH
+} else if (process.env.TRAVIS === 'true' && process.env.TRAVIS_BRANCH) {
+  TestRemoteBranch = process.env.TRAVIS_BRANCH
+} else {
+  TestRemoteBranch = process.env.TEST_REMOTE_BRANCH
+}
+
 /* Max wait between test actions */
 const TestIdleTimeoutMilliseconds = parseInt(
   process.env.TEST_IDLE_TIMEOUT_MILLISECONDS,
   10
 )
 const TestEnvironment = process.env.TEST_ENVIRONMENT
-const TestRemoteBranch = process.env.TEST_REMOTE_BRANCH
 const TestLocalUseProd = process.env.TEST_LOCAL_USE_PROD
+const TestLocalUseCDN = process.env.TEST_LOCAL_USE_CDN
 /* Continuous Integration / Build Server Execution UID */
-const TestBuildNumber = process.env.TEST_BUILD_NUMBER
+const TestJobNumber = process.env.TRAVIS_JOB_NUMBER
+  ? `#${process.env.TRAVIS_JOB_NUMBER}`
+  : 'Local' // Give a random number to differentiate in Sauce Labs
+const TestBuildNumber = process.env.TRAVIS_BUILD_NUMBER
+  ? `#${process.env.TRAVIS_BUILD_NUMBER}`
+  : `Local #${uuidv4()}`
 
 /* TestDriver initialize a webdriver client as specified by environment variables
  * and it's session (if a remote client) for use in a Selenium based automated browser test function.
  * @param env {string} - The test environment(remote or local) to construct the webdriver client for use.
  */
-async function getDriver() {
+async function getDriver(testPath) {
   let builder
   if (TestEnvironment === 'remote') {
     /* https://wiki.saucelabs.com/display/DOCS/Node.js+Test+Setup+Example */
+    /* https://saucelabs.com/blog/repost-testing-in-a-real-browser-with-sauce-labs-travis-ci */
+    let server = 'https://ondemand.saucelabs.com/wd/hub'
+    let capabilities = {
+      browserName: TestBrowser,
+      platformName: TestBrowserPlatform,
+      browserVersion: TestBrowserVersion,
+      'sauce:options': {
+        build: `[${TestBuildNumber}] JS SDK Integration Tests`,
+        name: `[${TestJobNumber}] ${testPath || 'Unknown path'}`,
+        maxDuration: 3600,
+        idleTimeout: TestIdleTimeoutMilliseconds,
+      },
+    }
+    if (process.env.TRAVIS) {
+      server = `http://${process.env.SAUCE_USERNAME}:${process.env.SAUCE_ACCESS_KEY}@ondemand.saucelabs.com:80/wd/hub`
+      capabilities['tunnel-identifier'] = process.env.TRAVIS_JOB_NUMBER
+      capabilities.username = process.env.SAUCE_USERNAME
+      capabilities.accessKey = process.env.SAUCE_ACCESS_KEY
+    } else {
+      capabilities['sauce:options'].username = TestRemoteUsername
+      capabilities['sauce:options'].accessKey = TestRemotePassword
+    }
+
     builder = await new Builder()
-      .withCapabilities({
-        browserName: TestBrowser,
-        platformName: TestBrowserPlatform,
-        browserVersion: TestBrowserVersion,
-        'sauce:options': {
-          username: TestRemoteUsername,
-          accessKey: TestRemotePassword,
-          build: 'Dashboard Canary Tests',
-          name: `Dashboard Canary Jenkins Job Build #${TestBuildNumber}`,
-          maxDuration: 3600,
-          idleTimeout: TestIdleTimeoutMilliseconds,
-        },
-      })
-      .usingServer('https://ondemand.saucelabs.com/wd/hub')
+      .withCapabilities(capabilities)
+      .usingServer(server)
   } // By default create a webdriver client for use against a local selenium server
   else {
     builder = await new Builder().forBrowser(TestBrowser)
@@ -73,7 +100,7 @@ async function getDriver() {
 
 async function configure(driver) {
   let testEnvironment
-  if (TestEnvironment === 'remote') {
+  if (TestEnvironment === 'remote' || TestLocalUseCDN) {
     testEnvironment = `https://raw.githack.com/tozny/js-sdk/${TestRemoteBranch}/dist/test.html`
   } else {
     const suffix = TestLocalUseProd ? 'html' : 'dev.html'
@@ -99,11 +126,16 @@ function executeSeleniumScript(func, args, done) {
 let driver
 
 module.exports = {
-  async setup() {
-    driver = await getDriver()
+  async setup(testPath) {
+    driver = await getDriver(testPath)
     await configure(driver)
   },
-  async teardown() {
+  async teardown(success) {
+    if (TestEnvironment === 'remote') {
+      await driver.executeScript(
+        `sauce:job-result=${success ? 'passed' : 'failed'}`
+      )
+    }
     await driver.quit()
   },
   async run(func, ...args) {
