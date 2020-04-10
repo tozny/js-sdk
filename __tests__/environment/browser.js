@@ -32,9 +32,12 @@ const TestEnvironment = process.env.TEST_ENVIRONMENT
 const TestLocalUseProd = process.env.TEST_LOCAL_USE_PROD
 const TestLocalUseCDN = process.env.TEST_LOCAL_USE_CDN
 /* Continuous Integration / Build Server Execution UID */
-const TestBuildNumber = process.env.TRAVIS_JOB_NUMBER
+const TestJobNumber = process.env.TRAVIS_JOB_NUMBER
   ? `#${process.env.TRAVIS_JOB_NUMBER}`
-  : `Local - ${uuidv4()}` // Give a random number to differentiate in Sauce Labs
+  : 'Local' // Give a random number to differentiate in Sauce Labs
+const TestBuildNumber = process.env.TRAVIS_BUILD_NUMBER
+  ? `#${process.env.TRAVIS_BUILD_NUMBER}`
+  : `Local #${uuidv4()}`
 
 /* TestDriver initialize a webdriver client as specified by environment variables
  * and it's session (if a remote client) for use in a Selenium based automated browser test function.
@@ -52,7 +55,7 @@ async function getDriver(testPath) {
       browserVersion: TestBrowserVersion,
       'sauce:options': {
         build: `[${TestBuildNumber}] JS SDK Integration Tests`,
-        name: `[${TestBuildNumber}] ${testPath || 'Unknown path'}`,
+        name: `[${TestJobNumber}] ${testPath || 'Unknown path'}`,
         maxDuration: 3600,
         idleTimeout: TestIdleTimeoutMilliseconds,
       },
