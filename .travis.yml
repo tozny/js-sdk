@@ -3,6 +3,9 @@ git:
   depth: 1
   quiet: true
 branches:
+  only:
+    - master
+    - /^test\/.*$/
   except:
     - /^hack\/.*$/
 script: npx jest
