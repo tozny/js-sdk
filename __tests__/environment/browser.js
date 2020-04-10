@@ -4,6 +4,7 @@
 
 const { Builder } = require('selenium-webdriver')
 const path = require('path')
+const uuidv4 = require('uuid/v4')
 
 /* The webdriver browser configuration to use for the test execution runtime */
 const TestBrowser = process.env.TEST_BROWSER
@@ -33,7 +34,7 @@ const TestLocalUseCDN = process.env.TEST_LOCAL_USE_CDN
 /* Continuous Integration / Build Server Execution UID */
 const TestBuildNumber = process.env.TRAVIS_JOB_NUMBER
   ? `#${process.env.TRAVIS_JOB_NUMBER}`
-  : 'Local'
+  : `Local - ${uuidv4()}` // Give a random number to differentiate in Sauce Labs
 
 /* TestDriver initialize a webdriver client as specified by environment variables
  * and it's session (if a remote client) for use in a Selenium based automated browser test function.
@@ -50,7 +51,7 @@ async function getDriver(testPath) {
       platformName: TestBrowserPlatform,
       browserVersion: TestBrowserVersion,
       'sauce:options': {
-        build: 'JS SDK Test Suite',
+        build: `[${TestBuildNumber}] JS SDK Integration Tests`,
         name: `[${TestBuildNumber}] ${testPath || 'Unknown path'}`,
         maxDuration: 3600,
         idleTimeout: TestIdleTimeoutMilliseconds,
