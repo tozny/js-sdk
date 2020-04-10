@@ -115,7 +115,9 @@ TEST_REMOTE_BRANCH=master
 
 ### Testing with TravisCI
 
-When a new branch is pushed or PR opened, Travis runs the full suite of tests against several node environemnts and connects with Sauce Labs to run browser tests. The Sauce Labs configuration is managed with encrypted values injected from the Travis project configuration. They must be updated in the Travis project settings if any of the configuration changes.
+Travis runs the full suite of tests against several node environments and connects with Sauce Labs to run browser tests for pull requests and on the master branch. The Sauce Labs configuration is managed with encrypted values injected from the Travis project configuration. They must be updated in the Travis project settings if any of the configuration changes.
+
+If you would like to test a branch other than master or a pull request, you can push a branch to github prefixed with `test/` and all commits to that branch will be tested with Travis.
 
 #### Failing Browser Tests
 
