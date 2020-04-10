@@ -116,3 +116,15 @@ TEST_REMOTE_BRANCH=master
 ### Testing with TravisCI
 
 When a new branch is pushed or PR opened, Travis runs the full suite of tests against several node environemnts and connects with Sauce Labs to run browser tests. The Sauce Labs configuration is managed with encrypted values injected from the Travis project configuration. They must be updated in the Travis project settings if any of the configuration changes.
+
+#### Failing Browser Tests
+
+When troubleshooting Browser tests, it can be a good idea to turn off the other tests. In the `.travis.yml` file, comment out all but one job that runs a browser test. When That test is passing, make sure to uncomment all the tests so the full suite is run. It's just helpful to reduce the noise when dealing with failed builds on Sauce Labs.
+
+To troubleshoot, try the following:
+
+- Check to make sure we are not out of test time in Sauce Labs
+- Check the video for the test in Sauce Labs to see the page that loaded
+  - If the page 404ed or failed to load review the code to determine where the failure occurred, adjust configuration, and re-test.
+- Make sure you have run `npm run build` for your branch
+- If everything looks correct, try restarting the build in TravisCI
