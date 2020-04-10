@@ -16,9 +16,9 @@ const TestRemotePassword = process.env.TEST_REMOTE_PASSWORD
 let TestRemoteBranch
 if (
   process.env.TRAVIS === 'true' &&
-  process.env.TRAVIS_PULL_REQUEST !== 'false'
+  process.env.TRAVIS_PULL_REQUEST_BRANCH !== 'false'
 ) {
-  TestRemoteBranch = process.env.TRAVIS_PULL_REQUEST
+  TestRemoteBranch = process.env.TRAVIS_PULL_REQUEST_BRANCH
 } else if (process.env.TRAVIS === 'true' && process.env.TRAVIS_BRANCH) {
   TestRemoteBranch = process.env.TRAVIS_BRANCH
 } else {
