@@ -29,6 +29,7 @@ const SignedString = require('./signedString')
 const SigningKey = require('./signingKey')
 const TozIdEACP = require('./tozIdEACP')
 const ToznyOTPEACP = require('./toznyOTPEACP')
+const errors = require('./errors')
 
 module.exports = {
   AuthorizerPolicy,
@@ -62,4 +63,5 @@ module.exports = {
   SigningKey,
   TozIdEACP,
   ToznyOTPEACP,
+  errors,
 }
