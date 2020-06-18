@@ -17,10 +17,12 @@ class TozIDEACP extends Serializable {
    * Configuration for a tozny ID token based EACP.
    *
    * @param {string} realmName The name of the realm the token should associate with
+   * @param {boolean} basic When true, no nonce enforcement is done when validating
    */
-  constructor(realmName) {
+  constructor(realmName, basic) {
     super()
     this.realmName = realmName
+    this.basic = basic
   }
 
   /**
@@ -32,6 +34,7 @@ class TozIDEACP extends Serializable {
     /* eslint-disable camelcase */
     return {
       realm_name: this.realmName,
+      basic: this.basic,
     }
     /* eslint-enable */
   }
@@ -44,7 +47,7 @@ class TozIDEACP extends Serializable {
    * @return {LastAccessEACP} The constructed TozIDEACP object based on the passed JS object.
    */
   static decode(json) {
-    return new TozIDEACP(json.realm_name)
+    return new TozIDEACP(json.realm_name, json.basic)
   }
 }
 
