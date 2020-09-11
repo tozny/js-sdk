@@ -51,7 +51,7 @@
     "jest": "^25.3.0",
     "jest-circus": "^25.3.0",
     "jest-cli": "^25.3.0",
-    "jest-fetch-mock": "^2.1.2",
+    "jest-fetch-mock": "^3.0.3",
     "lint-staged": "^9.5.0",
     "prettier": "^1.19.1",
     "selenium-webdriver": "^4.0.0-alpha.7",
