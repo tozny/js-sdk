@@ -5,7 +5,7 @@ const fs = require('fs')
 const http = require('http')
 const https = require('https')
 const { tmpdir } = require('os')
-const uuidv4 = require('uuid/v4')
+const { v4: uuidv4 } = require('uuid')
 
 /**
  * Handle Node specific file operations

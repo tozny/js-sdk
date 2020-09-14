@@ -4,7 +4,7 @@
 
 const { Builder } = require('selenium-webdriver')
 const path = require('path')
-const uuidv4 = require('uuid/v4')
+const { v4: uuidv4 } = require('uuid')
 
 /* The webdriver browser configuration to use for the test execution runtime */
 const TestBrowser = process.env.TEST_BROWSER
