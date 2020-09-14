@@ -1,4 +1,4 @@
-// const uuidv4 = require('uuid/v4')
+// const { v4: uuidv4 } = require('uuid')
 // const { apiUrl, clientRegistrationToken, idRealmName, idAppName } = global
 // const Tozny = require('../node')
 // const ops = require('./utils/operations')
