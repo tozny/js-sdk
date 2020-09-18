@@ -37,7 +37,7 @@
   "homepage": "https://github.com/tozny/js-sdk#readme",
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",
-    "libsodium-wrappers": "^0.7.6",
+    "libsodium-wrappers": "0.7.6",
     "spark-md5": "^3.0.1",
     "uuid": "^8.3.0"
   },
