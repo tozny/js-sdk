@@ -213,4 +213,17 @@ describe('Tozny', () => {
     const deleted = await ops.deleteAnonymousNote(written.noteId, signingPair)
     expect(deleted).toBe(true)
   })
+  it('can create groups', async () => {
+    const data = { groupName: `testGroup-${uuidv4()}` }
+    const createTest = {
+      groupName: data.groupName,
+      publicKey: writerClient.publicKey,
+    }
+    const created = await ops.createGroup(
+      writerClient,
+      data,
+      readerClient.publicKey
+    )
+    expect(created).toMatchObject(createTest)
+  })
 })
