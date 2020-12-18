@@ -488,7 +488,6 @@ module.exports = {
       function(configJSON, name, capabilitiesJson) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
-        // var data = JSON.parse(dataJSON)
         var capabilities = JSON.parse(capabilitiesJson)
         return client.createGroup(name, capabilities).then(function(group) {
           return group.stringify()
