@@ -214,16 +214,12 @@ describe('Tozny', () => {
     expect(deleted).toBe(true)
   })
   it('can create groups', async () => {
-    const data = { groupName: `testGroup-${uuidv4()}` }
+    const groupName = `testGroup-${uuidv4()}`
     const createTest = {
-      groupName: data.groupName,
+      groupName: groupName,
       publicKey: writerClient.publicKey,
     }
-    const created = await ops.createGroup(
-      writerClient,
-      data,
-      readerClient.publicKey
-    )
+    const created = await ops.createGroup(writerClient, groupName)
     expect(created).toMatchObject(createTest)
   })
 })
