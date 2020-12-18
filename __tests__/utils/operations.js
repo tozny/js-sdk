@@ -501,4 +501,18 @@ module.exports = {
     )
     return Tozny.types.Group.decode(JSON.parse(groupJSON))
   },
+  async readGroup(config, id) {
+    const groupJson = await runInEnvironment(
+      function(configJson, id) {
+        var config = Tozny.storage.Config.fromObject(configJson)
+        var client = new Tozny.storage.Client(config)
+        return client.readGroup(id).then(function(group) {
+          return group.stringify()
+        })
+      },
+      JSON.stringify(config),
+      id
+    )
+    return Tozny.types.Group.decode(JSON.parse(groupJson))
+  },
 }
