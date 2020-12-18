@@ -1,15 +1,17 @@
 const Signable = require('./signable')
 
 class GroupData extends Signable {
-  constructor(data) {
+  constructor(name, capabilities) {
     super()
-
-    for (let key in data) {
-      // eslint-disable-next-line no-prototype-builtins
-      if (data.hasOwnProperty(key)) {
-        this[key] = data[key]
-      }
+    this.groupName = name
+    if (capabilities !== undefined) {
+      this.capabilities = []
     }
+    capabilities.forEach((item, index) => {
+      if (typeof item === 'string') {
+        this.capabilities[index] = item
+      }
+    })
   }
 }
 

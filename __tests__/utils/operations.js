@@ -483,21 +483,19 @@ module.exports = {
     )
     return JSON.parse(userConfig)
   },
-  async createGroup(config, data, recipientEncryptionKey) {
+  async createGroup(config, name, capabilities = []) {
     const groupJSON = await runInEnvironment(
-      function(configJSON, dataJSON, recipientEncryptionKey) {
+      function(configJSON, name, capabilitiesJson) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
-        var data = JSON.parse(dataJSON)
-        return client
-          .createGroup(data, recipientEncryptionKey)
-          .then(function(group) {
-            return group.stringify()
-          })
+        var capabilities = JSON.parse(capabilitiesJson)
+        return client.createGroup(name, capabilities).then(function(group) {
+          return group.stringify()
+        })
       },
       JSON.stringify(config),
-      JSON.stringify(data),
-      recipientEncryptionKey
+      name,
+      JSON.stringify(capabilities)
     )
     return Tozny.types.Group.decode(JSON.parse(groupJSON))
   },
