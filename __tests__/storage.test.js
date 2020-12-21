@@ -213,7 +213,7 @@ describe('Tozny', () => {
     const deleted = await ops.deleteAnonymousNote(written.noteId, signingPair)
     expect(deleted).toBe(true)
   })
-  it('can create groups', async () => {
+  it('can create, read and list groups', async () => {
     const groupName = `testGroup-${uuidv4()}`
     const createTest = {
       groupName: groupName,
@@ -229,5 +229,14 @@ describe('Tozny', () => {
     }
     const read = await ops.readGroup(readerClient, created.groupID)
     expect(read).toMatchObject(readTest)
+    // const clientID = writerClient.clientID
+    const list = await ops.listGroups(
+      writerClient,
+      writerClient.clientId,
+      null,
+      0,
+      10
+    )
+    console.log(list)
   })
 })

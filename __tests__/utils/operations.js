@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require('uuid')
+// const { listGroups } = require('../../lib/storage/shared')
 const { runInEnvironment, apiUrl, clientRegistrationToken } = global
 const Tozny = require('../../node')
 
@@ -512,5 +513,33 @@ module.exports = {
       id
     )
     return Tozny.types.Group.decode(JSON.parse(groupJson))
+  },
+  async listGroups(
+    config,
+    clientID = null,
+    groupNames = null,
+    nextToken = null,
+    max = null
+  ) {
+    const groupsJson = await runInEnvironment(
+      function(configJSON, clientID, groupNamesJson, nextToken, max) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        var groupNames = JSON.parse(groupNamesJson)
+        return client
+          .listGroups(clientID, groupNames, nextToken, max)
+          .then(function(groups) {
+            // maybe this needs to be done differently
+            return groups.stringify()
+          })
+      },
+      JSON.stringify(config),
+      clientID,
+      JSON.stringify(groupNames),
+      nextToken,
+      max
+    )
+    // maybe create another type for listGroups & call this from within that.
+    return Tozny.types.Group.decode(JSON.parse(groupsJson))
   },
 }
