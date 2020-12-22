@@ -1,5 +1,4 @@
 const { v4: uuidv4 } = require('uuid')
-// const { listGroups } = require('../../lib/storage/shared')
 const { runInEnvironment, apiUrl, clientRegistrationToken } = global
 const Tozny = require('../../node')
 
