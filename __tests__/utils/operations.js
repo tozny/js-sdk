@@ -526,12 +526,7 @@ module.exports = {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
         var groupNames = JSON.parse(groupNamesJson)
-        return client
-          .listGroups(clientID, groupNames, nextToken, max)
-          .then(function(groups) {
-            // maybe this needs to be done differently
-            return groups.stringify()
-          })
+        return client.listGroups(clientID, groupNames, nextToken, max)
       },
       JSON.stringify(config),
       clientID,
@@ -539,7 +534,6 @@ module.exports = {
       nextToken,
       max
     )
-    // maybe create another type for listGroups & call this from within that.
-    return Tozny.types.Group.decode(JSON.parse(groupsJson))
+    return groupsJson
   },
 }

@@ -6,7 +6,9 @@ class Group extends Serializable {
     super()
     this.groupName = data.groupName
     this.publicKey = membershipKeys.publicKey
-    this.encryptedGroupKey = membershipKeys.encryptedGroupKey
+    if (membershipKeys.encryptedGroupKey !== null) {
+      this.encryptedGroupKey = membershipKeys.encryptedGroupKey
+    }
     if (membership !== null) {
       this.clientID = membership.clientID
     }
