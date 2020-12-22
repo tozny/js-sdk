@@ -231,11 +231,11 @@ describe('Tozny', () => {
     expect(read).toMatchObject(readTest)
     // const clientID = writerClient.clientID
     const list = await ops.listGroups(
-      writerClient,
-      writerClient.clientId,
-      null,
-      0,
-      10
+      writerClient
+      // writerClient.clientId,
+      // null,
+      // 0,
+      // 10
     )
     console.log(list)
   })
