@@ -1,6 +1,6 @@
 const Serializable = require('./serializable')
 
-class GroupKeys extends Serializable {
+class GroupMembershipKeys extends Serializable {
   constructor(publicKey, encryptedGroupKey) {
     super()
     this.publicKey = publicKey
@@ -25,8 +25,8 @@ class GroupKeys extends Serializable {
     let publicKey = json.public_key === undefined ? null : json.public_key
     let encryptedGroupKey =
       json.encrypted_group_key === undefined ? null : json.encrypted_group_key
-    return new GroupKeys(publicKey, encryptedGroupKey)
+    return new GroupMembershipKeys(publicKey, encryptedGroupKey)
   }
 }
 
-module.exports = GroupKeys
+module.exports = GroupMembershipKeys

@@ -1,13 +1,14 @@
-const GroupKeys = require('./groupKeys')
+const GroupMembershipKeys = require('./groupMembershipKeys')
 const Serializable = require('./serializable')
 
 class Group extends Serializable {
-  constructor(data, groupKeys) {
+  constructor(data, membership, membershipKeys) {
     super()
     this.groupName = data.groupName
-    this.publicKey = groupKeys.publicKey
-    if (groupKeys.encryptedGroupKey) {
-      this.encryptedGroupKey = groupKeys.encryptedGroupKey
+    this.publicKey = membershipKeys.publicKey
+    this.encryptedGroupKey = membershipKeys.encryptedGroupKey
+    if (membership !== null) {
+      this.clientID = membership.clientID
     }
     this.createdAt = null
     this.lastModified = null
@@ -38,8 +39,8 @@ class Group extends Serializable {
     var data = {
       groupName: groupName,
     }
-    let groupKeys = GroupKeys.decode(json)
-    var group = new Group(data, groupKeys)
+    let membershipKeys = GroupMembershipKeys.decode(json)
+    var group = new Group(data, null, membershipKeys)
 
     // server defined values
     let createdAt = json.created_at === null ? null : json.created_at
@@ -51,11 +52,6 @@ class Group extends Serializable {
     group.groupID = groupID
     group.accountID = accountID
     return group
-  }
-  static clone(group) {
-    let jsonGroup = group.serializable()
-    let cloneGroup = Group.decode(jsonGroup)
-    return cloneGroup
   }
 }
 
