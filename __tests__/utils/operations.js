@@ -499,4 +499,16 @@ module.exports = {
     )
     return Tozny.types.Group.decode(JSON.parse(groupJSON))
   },
+  async deleteGroup(config, groupID) {
+    const result = await runInEnvironment(
+      function(configJSON, groupID) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.deleteGroup(groupID).then(JSON.stringify)
+      },
+      JSON.stringify(config),
+      groupID
+    )
+    return JSON.parse(result)
+  },
 }

@@ -222,4 +222,10 @@ describe('Tozny', () => {
     const created = await ops.createGroup(writerClient, groupName)
     expect(created).toMatchObject(createTest)
   })
+  it('can delete a group', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const created = await ops.createGroup(writerClient, groupName)
+    const deleted = await ops.deleteGroup(writerClient, created.groupID)
+    expect(deleted).toBe(true)
+  })
 })
