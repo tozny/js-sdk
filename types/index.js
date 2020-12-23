@@ -33,7 +33,7 @@ const errors = require('./errors')
 const Group = require('./group')
 const GroupData = require('./groupData')
 const GroupMembershipKeys = require('./groupMembershipKeys')
-const Membership = require('./membership')
+const GroupMembership = require('./groupMembership')
 
 module.exports = {
   AuthorizerPolicy,
@@ -71,5 +71,5 @@ module.exports = {
   Group,
   GroupData,
   GroupMembershipKeys,
-  Membership,
+  GroupMembership,
 }
