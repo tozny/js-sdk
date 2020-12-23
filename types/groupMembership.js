@@ -1,7 +1,7 @@
 const { GroupData } = require('./groupData')
 const Serializable = require('./serializable')
 
-class Membership extends Serializable {
+class GroupMembership extends Serializable {
   constructor(clientID, membershipKey, capabilities) {
     super()
     this.clientID = clientID
@@ -28,8 +28,8 @@ class Membership extends Serializable {
       json.membership_key === undefined ? null : json.membership_key
     let capabilities =
       json.capabilities === undefined ? null : json.capabilities
-    return new Membership(clientID, membershipKey, capabilities)
+    return new GroupMembership(clientID, membershipKey, capabilities)
   }
 }
 
-module.exports = Membership
+module.exports = GroupMembership
