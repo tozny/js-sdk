@@ -213,17 +213,18 @@ describe('Tozny', () => {
     const deleted = await ops.deleteAnonymousNote(written.noteId, signingPair)
     expect(deleted).toBe(true)
   })
-  it('can create, read and list groups', async () => {
+  it('can create groups', async () => {
     const groupName = `testGroup-${uuidv4()}`
-    const groupName2 = `testGroup-${uuidv4()}`
     const createTest = {
       groupName: groupName,
       publicKey: writerClient.publicKey,
     }
     const created = await ops.createGroup(writerClient, groupName)
-    const created2 = await ops.createGroup(writerClient, groupName2)
-
     expect(created).toMatchObject(createTest)
+  })
+  it('can read a group by groupID', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const created = await ops.createGroup(writerClient, groupName)
     const readTest = {
       groupName: created.groupName,
       publicKey: created.publicKey,
@@ -232,27 +233,33 @@ describe('Tozny', () => {
     }
     const read = await ops.readGroup(readerClient, created.groupID)
     expect(read).toMatchObject(readTest)
-    const list = await ops.listGroups(
-      writerClient,
-      writerClient.clientId,
-      null,
-      0,
-      10
-    )
+  })
+  it('can list groups', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const created = await ops.createGroup(writerClient, groupName)
     const listTest = [
+      {
+        publicKey: created.publicKey,
+        accountID: created.accountID,
+      },
+      {
+        publicKey: created.publicKey,
+        accountID: created.accountID,
+      },
       {
         groupName: created.groupName,
         publicKey: created.publicKey,
         groupID: created.groupID,
         accountID: created.accountID,
       },
-      {
-        groupName: created2.groupName,
-        publicKey: created2.publicKey,
-        groupID: created2.groupID,
-        accountID: created2.accountID,
-      },
     ]
+    const list = await ops.listGroups(
+      writerClient,
+      writerClient.clientId,
+      [],
+      0,
+      10
+    )
     expect(list).toMatchObject(listTest)
   })
 })

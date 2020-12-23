@@ -6,12 +6,8 @@ class Group extends Serializable {
     super()
     this.groupName = data.groupName
     this.publicKey = membershipKeys.publicKey
-    if (membershipKeys.encryptedGroupKey !== null) {
-      this.encryptedGroupKey = membershipKeys.encryptedGroupKey
-    }
-    if (membership !== null) {
-      this.clientID = membership.clientID
-    }
+    this.encryptedGroupKey = membershipKeys.encryptedGroupKey
+    this.clientID = membership.clientID
     this.createdAt = null
     this.lastModified = null
     this.groupID = null
@@ -42,7 +38,7 @@ class Group extends Serializable {
       groupName: groupName,
     }
     let membershipKeys = GroupMembershipKeys.decode(json)
-    var group = new Group(data, null, membershipKeys)
+    var group = new Group(data, {}, membershipKeys)
 
     // server defined values
     let createdAt = json.created_at === null ? null : json.created_at
