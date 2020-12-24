@@ -484,19 +484,17 @@ module.exports = {
     return JSON.parse(userConfig)
   },
   async createGroup(config, name, capabilities = []) {
-    const groupJSON = await runInEnvironment(
-      function(configJSON, name, capabilitiesJson) {
+    const groupMembership = await runInEnvironment(
+      function(configJSON, name, capabilities) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
-        var capabilities = JSON.parse(capabilitiesJson)
-        return client.createGroup(name, capabilities).then(function(group) {
-          return group.stringify()
-        })
+        capabilities = new Tozny.types.Capabilities(capabilities)
+        return client.createGroup(name, capabilities)
       },
       JSON.stringify(config),
       name,
-      JSON.stringify(capabilities)
+      capabilities
     )
-    return Tozny.types.Group.decode(JSON.parse(groupJSON))
+    return groupMembership
   },
 }
