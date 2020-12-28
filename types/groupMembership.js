@@ -1,6 +1,5 @@
 const Capabilities = require('./capabilities')
 const Group = require('./group')
-// const { Group } = require('.')
 const Serializable = require('./serializable')
 
 class GroupMembership extends Serializable {

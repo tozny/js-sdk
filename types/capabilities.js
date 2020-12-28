@@ -1,8 +1,5 @@
-const Serializable = require('./serializable')
-
-class Capabilities extends Serializable {
+class Capabilities {
   constructor(capabilities) {
-    super()
     this.manage = true
     this.share = capabilities['share']
     this.read = capabilities['read']
