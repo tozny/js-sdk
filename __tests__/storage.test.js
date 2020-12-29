@@ -233,6 +233,46 @@ describe('Tozny', () => {
     const deleted = await ops.deleteGroup(writerClient, created.group.groupID)
     expect(deleted).toBe(true)
   })
+  it('can read a group by groupID', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const created = await ops.createGroup(writerClient, groupName)
+    const readTest = {
+      groupName: created.group.groupName,
+      publicKey: created.group.publicKey,
+      groupID: created.group.groupID,
+      accountID: created.group.accountID,
+    }
+    const read = await ops.readGroup(readerClient, created.group.groupID)
+    expect(read).toMatchObject(readTest)
+  })
+  it('can list groups', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const created = await ops.createGroup(writerClient, groupName)
+    const listTest = [
+      {
+        publicKey: created.group.publicKey,
+        accountID: created.group.accountID,
+      },
+      {
+        publicKey: created.group.publicKey,
+        accountID: created.group.accountID,
+      },
+      {
+        groupName: created.group.groupName,
+        publicKey: created.group.publicKey,
+        groupID: created.group.groupID,
+        accountID: created.group.accountID,
+      },
+    ]
+    const list = await ops.listGroups(
+      writerClient,
+      writerClient.clientId,
+      [],
+      0,
+      10
+    )
+    expect(list).toMatchObject(listTest)
+  })
   it('can create groups with specified capabilities', async () => {
     const groupName = `testGroup-${uuidv4()}`
     const capabilities = {
