@@ -31,9 +31,9 @@ const TozIdEACP = require('./tozIdEACP')
 const ToznyOTPEACP = require('./toznyOTPEACP')
 const errors = require('./errors')
 const Group = require('./group')
-const GroupData = require('./groupData')
 const GroupMembershipKeys = require('./groupMembershipKeys')
 const GroupMembership = require('./groupMembership')
+const Capabilities = require('./capabilities')
 
 module.exports = {
   AuthorizerPolicy,
@@ -69,7 +69,7 @@ module.exports = {
   ToznyOTPEACP,
   errors,
   Group,
-  GroupData,
   GroupMembershipKeys,
   GroupMembership,
+  Capabilities,
 }
