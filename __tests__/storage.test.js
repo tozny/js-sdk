@@ -213,4 +213,36 @@ describe('Tozny', () => {
     const deleted = await ops.deleteAnonymousNote(written.noteId, signingPair)
     expect(deleted).toBe(true)
   })
+  it('can create groups', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const createTest = {
+      group: {
+        groupName: groupName,
+        publicKey: writerClient.publicKey,
+      },
+      capabilities: {
+        manage: true,
+      },
+    }
+    const created = await ops.createGroup(writerClient, groupName)
+    expect(created).toMatchObject(createTest)
+  })
+  it('can create groups with specified capabilities', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const capabilities = {
+      read: true,
+    }
+    const createTest = {
+      group: {
+        groupName: groupName,
+        publicKey: writerClient.publicKey,
+      },
+      capabilities: {
+        manage: true,
+        read: true,
+      },
+    }
+    const created = await ops.createGroup(writerClient, groupName, capabilities)
+    expect(created).toMatchObject(createTest)
+  })
 })

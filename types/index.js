@@ -30,6 +30,10 @@ const SigningKey = require('./signingKey')
 const TozIdEACP = require('./tozIdEACP')
 const ToznyOTPEACP = require('./toznyOTPEACP')
 const errors = require('./errors')
+const Group = require('./group')
+const GroupMembershipKeys = require('./groupMembershipKeys')
+const GroupMembership = require('./groupMembership')
+const Capabilities = require('./capabilities')
 
 module.exports = {
   AuthorizerPolicy,
@@ -64,4 +68,8 @@ module.exports = {
   TozIdEACP,
   ToznyOTPEACP,
   errors,
+  Group,
+  GroupMembershipKeys,
+  GroupMembership,
+  Capabilities,
 }
