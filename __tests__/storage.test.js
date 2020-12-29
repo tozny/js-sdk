@@ -231,12 +231,12 @@ describe('Tozny', () => {
     const groupName = `testGroup-${uuidv4()}`
     const created = await ops.createGroup(writerClient, groupName)
     const readTest = {
-      groupName: created.groupName,
-      publicKey: created.publicKey,
-      groupID: created.groupID,
-      accountID: created.accountID,
+      groupName: created.group.groupName,
+      publicKey: created.group.publicKey,
+      groupID: created.group.groupID,
+      accountID: created.group.accountID,
     }
-    const read = await ops.readGroup(readerClient, created.groupID)
+    const read = await ops.readGroup(readerClient, created.group.groupID)
     expect(read).toMatchObject(readTest)
   })
   it('can list groups', async () => {
@@ -244,18 +244,18 @@ describe('Tozny', () => {
     const created = await ops.createGroup(writerClient, groupName)
     const listTest = [
       {
-        publicKey: created.publicKey,
-        accountID: created.accountID,
+        publicKey: created.group.publicKey,
+        accountID: created.group.accountID,
       },
       {
-        publicKey: created.publicKey,
-        accountID: created.accountID,
+        publicKey: created.group.publicKey,
+        accountID: created.group.accountID,
       },
       {
-        groupName: created.groupName,
-        publicKey: created.publicKey,
-        groupID: created.groupID,
-        accountID: created.accountID,
+        groupName: created.group.groupName,
+        publicKey: created.group.publicKey,
+        groupID: created.group.groupID,
+        accountID: created.group.accountID,
       },
     ]
     const list = await ops.listGroups(
