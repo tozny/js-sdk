@@ -227,6 +227,12 @@ describe('Tozny', () => {
     const created = await ops.createGroup(writerClient, groupName)
     expect(created).toMatchObject(createTest)
   })
+  it('can delete a group', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const created = await ops.createGroup(writerClient, groupName)
+    const deleted = await ops.deleteGroup(writerClient, created.group.groupID)
+    expect(deleted).toBe(true)
+  })
   it('can read a group by groupID', async () => {
     const groupName = `testGroup-${uuidv4()}`
     const created = await ops.createGroup(writerClient, groupName)

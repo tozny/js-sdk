@@ -497,6 +497,18 @@ module.exports = {
     )
     return groupMembership
   },
+  async deleteGroup(config, groupID) {
+    const result = await runInEnvironment(
+      function(configJSON, groupID) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.deleteGroup(groupID).then(JSON.stringify)
+      },
+      JSON.stringify(config),
+      groupID
+    )
+    return JSON.parse(result)
+  },
   async readGroup(config, id) {
     const groupJson = await runInEnvironment(
       function(configJson, id) {
