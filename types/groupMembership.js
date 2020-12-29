@@ -1,19 +1,18 @@
-const { Group } = require('.')
-const { GroupData } = require('./groupData')
+const Capabilities = require('./capabilities')
+const Group = require('./group')
 const Serializable = require('./serializable')
 
 class GroupMembership extends Serializable {
-  constructor(clientID, group, membershipKey, capabilities) {
+  constructor(clientID, group, capabilities) {
     super()
     this.clientID = clientID
     this.group = group
-    this.membershipKey = membershipKey
-    this.capabilities = new GroupData(null, capabilities)
+    this.capabilities = Capabilities.toObject(capabilities)
   }
   serializable() {
     let toSerialize = {
       client_id: this.clientID,
-      membership_key: this.membershipKey,
+      group: this.group.stringify(),
       capabilities: this.capabilities,
     }
     const serializedKeys = Object.keys(toSerialize)
@@ -26,12 +25,9 @@ class GroupMembership extends Serializable {
   }
   static decode(json) {
     let clientID = json.client_id === undefined ? null : json.client_id
-    let membershipKey =
-      json.membership_key === undefined ? null : json.membership_key
-    let capabilities =
-      json.capabilities === undefined ? null : json.capabilities
-    let group = Group.decode(json)
-    return new GroupMembership(clientID, group, membershipKey, capabilities)
+    let capabilities = Capabilities.toArray(json.capabilities)
+    let group = Group.decode(json.group)
+    return new GroupMembership(clientID, group, capabilities)
   }
 }
 

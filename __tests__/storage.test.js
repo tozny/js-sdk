@@ -216,8 +216,13 @@ describe('Tozny', () => {
   it('can create groups', async () => {
     const groupName = `testGroup-${uuidv4()}`
     const createTest = {
-      groupName: groupName,
-      publicKey: writerClient.publicKey,
+      group: {
+        groupName: groupName,
+        publicKey: writerClient.publicKey,
+      },
+      capabilities: {
+        manage: true,
+      },
     }
     const created = await ops.createGroup(writerClient, groupName)
     expect(created).toMatchObject(createTest)
@@ -225,7 +230,25 @@ describe('Tozny', () => {
   it('can delete a group', async () => {
     const groupName = `testGroup-${uuidv4()}`
     const created = await ops.createGroup(writerClient, groupName)
-    const deleted = await ops.deleteGroup(writerClient, created.groupID)
+    const deleted = await ops.deleteGroup(writerClient, created.group.groupID)
     expect(deleted).toBe(true)
+  })
+  it('can create groups with specified capabilities', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const capabilities = {
+      read: true,
+    }
+    const createTest = {
+      group: {
+        groupName: groupName,
+        publicKey: writerClient.publicKey,
+      },
+      capabilities: {
+        manage: true,
+        read: true,
+      },
+    }
+    const created = await ops.createGroup(writerClient, groupName, capabilities)
+    expect(created).toMatchObject(createTest)
   })
 })

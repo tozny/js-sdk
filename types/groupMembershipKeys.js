@@ -1,17 +1,17 @@
 const Serializable = require('./serializable')
 
 class GroupMembershipKeys extends Serializable {
-  constructor(publicKey, encryptedGroupKey) {
+  constructor(keyMaterial, authorizerPublicKey, authorizerID) {
     super()
-    this.publicKey = publicKey
-    if (encryptedGroupKey) {
-      this.encryptedGroupKey = encryptedGroupKey
-    }
+    this.keyMaterial = keyMaterial
+    this.authorizerPublicKey = authorizerPublicKey
+    this.authorizerID = authorizerID
   }
   serializable() {
     let toSerialize = {
-      public_key: this.publicKey,
-      encrypted_group_key: this.encryptedGroupKey,
+      key_material: this.keyMaterial,
+      authorizer_public_key: this.authorizerPublicKey,
+      authorizer_id: this.authorizerID,
     }
     const serializedKeys = Object.keys(toSerialize)
     for (const key of serializedKeys) {
@@ -22,10 +22,18 @@ class GroupMembershipKeys extends Serializable {
     return toSerialize
   }
   static decode(json) {
-    let publicKey = json.public_key === undefined ? null : json.public_key
-    let encryptedGroupKey =
-      json.encrypted_group_key === undefined ? null : json.encrypted_group_key
-    return new GroupMembershipKeys(publicKey, encryptedGroupKey)
+    let keyMaterial = json.key_material === undefined ? null : json.key_material
+    let authorizerPublicKey =
+      json.authorizer_public_key === undefined
+        ? null
+        : json.authorizer_public_key
+    let authorizerID =
+      json.authorizer_id === undefined ? null : json.authorizer_id
+    return new GroupMembershipKeys(
+      keyMaterial,
+      authorizerPublicKey,
+      authorizerID
+    )
   }
 }
 
