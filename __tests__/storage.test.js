@@ -213,7 +213,7 @@ describe('Tozny', () => {
     const deleted = await ops.deleteAnonymousNote(written.noteId, signingPair)
     expect(deleted).toBe(true)
   })
-  it('can handle list groups when no groups exist', async () => {
+  it('can handle list groups when no groups are returned', async () => {
     const list = await ops.listGroups(
       writerClient,
       writerClient.clientId,
