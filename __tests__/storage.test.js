@@ -214,7 +214,7 @@ describe('Tozny', () => {
     const deleted = await ops.deleteAnonymousNote(written.noteId, signingPair)
     expect(deleted).toBe(true)
   })
-  it('can handle list groups when no groups are returned', async () => {
+  it('can handle list groups when no groups exist', async () => {
     const list = await ops.listGroups(
       writerClient,
       writerClient.clientId,
@@ -222,11 +222,7 @@ describe('Tozny', () => {
       0,
       10
     )
-    const listTest = {
-      groups: [],
-      nextToken: 0,
-    }
-    expect(list).toMatchObject(listTest)
+    expect(list).toMatchObject([])
   })
   it('can create groups', async () => {
     const groupName = `testGroup-${uuidv4()}`
