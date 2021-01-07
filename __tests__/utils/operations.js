@@ -545,4 +545,17 @@ module.exports = {
     )
     return groupsJson
   },
+  async addGroupMembers(config, groupMembers) {
+    const result = await runInEnvironment(
+      function(configJSON, groupMembersJSON) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        groupMembers = new Tozny.types.GroupMember(groupMembersJSON)
+        return client.addGroupMembers(groupMembers)
+      },
+      JSON.stringify(config),
+      groupMembers
+    )
+    return result
+  },
 }
