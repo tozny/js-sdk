@@ -546,6 +546,7 @@ module.exports = {
     )
     return groupsJson
   },
+<<<<<<< HEAD
   async addGroupMembers(config, groupId, groupMembers = []) {
     const result = await runInEnvironment(
       function(configJSON, groupId, groupMembersJSON) {
@@ -625,6 +626,18 @@ module.exports = {
       JSON.stringify(config),
       groupId,
       recordType
+=======
+  async addGroupMembers(config, groupMembers) {
+    const result = await runInEnvironment(
+      function(configJSON, groupMembersJSON) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        groupMembers = new Tozny.types.GroupMember(groupMembersJSON)
+        return client.addGroupMembers(groupMembers)
+      },
+      JSON.stringify(config),
+      groupMembers
+>>>>>>> 41e99e6... Add group members
     )
     return result
   },
