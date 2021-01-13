@@ -545,16 +545,85 @@ module.exports = {
     )
     return groupsJson
   },
-  async addGroupMembers(config, groupMembers) {
+  async addGroupMembers(config, groupId, groupMembers = []) {
     const result = await runInEnvironment(
-      function(configJSON, groupMembersJSON) {
+      function(configJSON, groupId, groupMembersJSON) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
-        groupMembers = new Tozny.types.GroupMember(groupMembersJSON)
-        return client.addGroupMembers(groupMembers)
+        var groupMembersParsed = JSON.parse(groupMembersJSON)
+        groupMembers = groupMembersParsed
+        return client.addGroupMembers(groupId, groupMembers)
       },
       JSON.stringify(config),
-      groupMembers
+      groupId,
+      JSON.stringify(groupMembers)
+    )
+    return result
+  },
+  async removeGroupMembers(config, groupId, clientIds = []) {
+    const result = await runInEnvironment(
+      function(configJSON, groupId, clientIdsJSON) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        var clientIDParsed = JSON.parse(clientIdsJSON)
+        clientIds = clientIDParsed
+        return client.removeGroupMembers(groupId, clientIds)
+      },
+      JSON.stringify(config),
+      groupId,
+      JSON.stringify(clientIds)
+    )
+    return JSON.parse(result)
+  },
+  async listGroupMembers(config, id) {
+    const result = await runInEnvironment(
+      function(configJson, id) {
+        var config = Tozny.storage.Config.fromObject(configJson)
+        var client = new Tozny.storage.Client(config)
+        return client.listGroupMembers(id)
+      },
+      JSON.stringify(config),
+      id
+    )
+    return result
+  },
+  async listRecordsSharedWithGroup(
+    config,
+    groupId,
+    writerIds = [],
+    nextToken = null,
+    max = null
+  ) {
+    const result = await runInEnvironment(
+      function(configJson, groupId, writerIdsJSON, nextToken, max) {
+        var config = Tozny.storage.Config.fromObject(configJson)
+        var client = new Tozny.storage.Client(config)
+        var writerIds = JSON.parse(writerIdsJSON)
+        return client.listRecordsSharedWithGroup(
+          groupId,
+          writerIds,
+          nextToken,
+          max
+        )
+      },
+      JSON.stringify(config),
+      groupId,
+      JSON.stringify(writerIds),
+      nextToken,
+      max
+    )
+    return result
+  },
+  async shareRecordWithGroup(config, groupId, recordType) {
+    const result = await runInEnvironment(
+      function(configJson, groupId, recordType) {
+        var config = Tozny.storage.Config.fromObject(configJson)
+        var client = new Tozny.storage.Client(config)
+        return client.shareRecordWithGroup(groupId, recordType)
+      },
+      JSON.stringify(config),
+      groupId,
+      recordType
     )
     return result
   },
