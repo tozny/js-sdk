@@ -219,7 +219,6 @@ describe('Tozny', () => {
     const createTest = {
       group: {
         groupName: groupName,
-        publicKey: writerClient.publicKey,
       },
       capabilities: {
         manage: true,
@@ -251,16 +250,13 @@ describe('Tozny', () => {
     const created = await ops.createGroup(writerClient, groupName)
     const listTest = [
       {
-        publicKey: created.group.publicKey,
         accountID: created.group.accountID,
       },
       {
-        publicKey: created.group.publicKey,
         accountID: created.group.accountID,
       },
       {
         groupName: created.group.groupName,
-        publicKey: created.group.publicKey,
         groupID: created.group.groupID,
         accountID: created.group.accountID,
       },
@@ -282,7 +278,6 @@ describe('Tozny', () => {
     const createTest = {
       group: {
         groupName: groupName,
-        publicKey: writerClient.publicKey,
       },
       capabilities: {
         manage: true,
@@ -391,8 +386,13 @@ describe('Tozny', () => {
       read: true,
       share: true,
     })
+    const groupMember2 = new GroupMember(authorizerClient.clientId, {
+      read: true,
+      share: true,
+    })
     let groupMembersToAdd = []
     groupMembersToAdd.push(groupMember)
+    groupMembersToAdd.push(groupMember2)
     await ops.addGroupMembers(
       writerClient,
       created.group.groupID,
@@ -404,12 +404,62 @@ describe('Tozny', () => {
     let recordInfo = await ops.writeRecord(readerClient, type, data, meta)
     await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
     let sharedWithGroup = await ops.listRecordsSharedWithGroup(
-      readerClient,
+      authorizerClient,
       created.group.groupID,
       [],
       0,
       10
     )
     expect(sharedWithGroup[0][0].meta.recordId).toBe(recordInfo.meta.recordId)
+  })
+  it('can paginate through records shared with group', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const created = await ops.createGroup(writerClient, groupName)
+    const groupMember = new GroupMember(readerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    const groupMember2 = new GroupMember(authorizerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    let groupMembersToAdd = []
+    groupMembersToAdd.push(groupMember)
+    groupMembersToAdd.push(groupMember2)
+    await ops.addGroupMembers(
+      writerClient,
+      created.group.groupID,
+      groupMembersToAdd
+    )
+    const type = 'say-hello'
+    const data1 = { hi: 'world' }
+    const meta1 = { hola: 'mundo' }
+    await ops.writeRecord(readerClient, type, data1, meta1)
+    const data2 = { hello: 'realWorld' }
+    const meta2 = { hola: 'mundo' }
+    await ops.writeRecord(readerClient, type, data2, meta2)
+    const data3 = { hola: 'toznyAmazing!' }
+    const meta3 = { hola: 'mundo' }
+    await ops.writeRecord(readerClient, type, data3, meta3)
+    const data4 = { commo: 'toznygreat' }
+    const meta4 = { hola: 'mundo' }
+    await ops.writeRecord(readerClient, type, data4, meta4)
+    await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
+    let sharedWithGroup = await ops.listRecordsSharedWithGroup(
+      authorizerClient,
+      created.group.groupID,
+      [],
+      0,
+      3
+    )
+    expect(sharedWithGroup[0].length).toBe(3)
+    let sharedWithGroup2 = await ops.listRecordsSharedWithGroup(
+      authorizerClient,
+      created.group.groupID,
+      [],
+      0,
+      10
+    )
+    expect(sharedWithGroup2[0].length).toBe(5)
   })
 })
