@@ -140,6 +140,9 @@ Write code
 Get code reviewed and approved
 
 Use the npm build tool to automatically update package.json to the new version
+```bash
+npm run build
+```
 
 ```bash
 # mainline release
@@ -148,7 +151,23 @@ npm version 1.0.1
 npm version 1.0.1-alpha.1
 ```
 
-Use the npm build tool to make a new commit with the updated version, create a git tag to have as a github release, and push the package to npm for consumption
+Use the npm build tool to make a new commit with the updated version and create a git tag to have as a github release
+```bash
+npm run build
+# mainline realease
+git tag v1.0.1
+# preview release
+git tag v1.0.1-alpha.1
+```
+
+
+Create a npm account, request access to the Tozny Organization on npm, create a publishing token
+
+Create a `.npmrc` file, replace the ${NPM_TOKEN} with your generated token. 
+Do not push up this file
+```sh
+//registry.npmjs.org/:_authToken=${NPM_TOKEN}
+``` 
 
 ```bash
 npm publish
