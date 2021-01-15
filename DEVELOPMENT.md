@@ -130,3 +130,59 @@ To troubleshoot, try the following:
   - If the page 404ed or failed to load review the code to determine where the failure occurred, adjust configuration, and re-test.
 - Make sure you have run `npm run build` for your branch
 - If everything looks correct, try restarting the build in TravisCI
+
+## Publishing
+
+Checkout branch
+
+Write code
+
+Get code reviewed and approved
+
+Use the npm build tool to automatically update package.json to the new version
+```bash
+npm run build
+```
+
+```bash
+# mainline release
+npm version 1.0.1
+# preview release
+npm version 1.0.1-alpha.1
+```
+
+Use the npm build tool to make a new commit with the updated version and create a git tag to have as a github release
+```bash
+npm run build
+# mainline realease
+git tag v1.0.1
+# preview release
+git tag v1.0.1-alpha.1
+```
+
+
+Create a npm account, request access to the Tozny Organization on npm, create a publishing token
+
+Create a `.npmrc` file, replace the ${NPM_TOKEN} with your generated token. 
+Do not push up this file
+```sh
+//registry.npmjs.org/:_authToken=${NPM_TOKEN}
+``` 
+
+```bash
+npm publish
+```
+
+If doing an alpha release,
+
+```bash
+npm publish --tag=alpha
+```
+
+Push the tag up to remote github repository
+
+```bash
+git push --tags --all
+```
+
+Lastly, merge and delete the branch
