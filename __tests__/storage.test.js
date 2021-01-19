@@ -248,19 +248,22 @@ describe('Tozny', () => {
   it('can list groups', async () => {
     const groupName = `testGroup-${uuidv4()}`
     const created = await ops.createGroup(writerClient, groupName)
-    const listTest = [
-      {
-        accountID: created.group.accountID,
-      },
-      {
-        accountID: created.group.accountID,
-      },
-      {
-        groupName: created.group.groupName,
-        groupID: created.group.groupID,
-        accountID: created.group.accountID,
-      },
-    ]
+    const listTest = {
+      groups: [
+        {
+          accountID: created.group.accountID,
+        },
+        {
+          accountID: created.group.accountID,
+        },
+        {
+          groupName: created.group.groupName,
+          groupID: created.group.groupID,
+          accountID: created.group.accountID,
+        },
+      ],
+      nextToken: 0,
+    }
     const list = await ops.listGroups(
       writerClient,
       writerClient.clientId,
