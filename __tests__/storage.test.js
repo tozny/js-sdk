@@ -216,6 +216,7 @@ describe('Tozny', () => {
   })
   it('can create groups', async () => {
     const groupName = `testGroup-${uuidv4()}`
+    const groupDesciption = 'this is a test group'
     const createTest = {
       group: {
         groupName: groupName,
@@ -224,18 +225,32 @@ describe('Tozny', () => {
         manage: true,
       },
     }
-    const created = await ops.createGroup(writerClient, groupName)
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
     expect(created).toMatchObject(createTest)
   })
   it('can delete a group', async () => {
     const groupName = `testGroup-${uuidv4()}`
-    const created = await ops.createGroup(writerClient, groupName)
+    const groupDesciption = 'this is a test group'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
     const deleted = await ops.deleteGroup(writerClient, created.group.groupID)
     expect(deleted).toBe(true)
   })
   it('can read a group by groupID', async () => {
     const groupName = `testGroup-${uuidv4()}`
-    const created = await ops.createGroup(writerClient, groupName)
+    const groupDesciption = 'this is a test group'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
     const readTest = {
       groupName: created.group.groupName,
       publicKey: created.group.publicKey,
@@ -247,7 +262,12 @@ describe('Tozny', () => {
   })
   it('can list groups', async () => {
     const groupName = `testGroup-${uuidv4()}`
-    const created = await ops.createGroup(writerClient, groupName)
+    const groupDesciption = 'this is a test group'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
     const listTest = {
       groups: [
         {
@@ -275,6 +295,7 @@ describe('Tozny', () => {
   })
   it('can create groups with specified capabilities', async () => {
     const groupName = `testGroup-${uuidv4()}`
+    const groupDesciption = 'this is a test group'
     const capabilities = {
       read: true,
     }
@@ -287,13 +308,23 @@ describe('Tozny', () => {
         read: true,
       },
     }
-    const created = await ops.createGroup(writerClient, groupName, capabilities)
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      capabilities,
+      groupDesciption
+    )
     expect(created).toMatchObject(createTest)
   })
   it('can add a group member to a group', async () => {
     // Make a group to be able to add members to
     const groupName = `testGroup-${uuidv4()}`
-    const created = await ops.createGroup(writerClient, groupName)
+    const groupDesciption = 'this is a test group'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
     const groupMember = new GroupMember(readerClient.clientId, { read: true })
     let groupMembersToAdd = []
     groupMembersToAdd.push(groupMember)
@@ -314,7 +345,12 @@ describe('Tozny', () => {
   it('can remove a group member from a group', async () => {
     // Make a group, add a group member, and now remove that group member
     const groupName = `testGroup-${uuidv4()}`
-    const created = await ops.createGroup(writerClient, groupName)
+    const groupDesciption = 'this is a test group'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
     const groupMember = new GroupMember(readerClient.clientId, { read: true })
     let groupMembersToAdd = []
     groupMembersToAdd.push(groupMember)
@@ -335,7 +371,12 @@ describe('Tozny', () => {
   })
   it('can list group members from a group', async () => {
     const groupName = `testGroup-${uuidv4()}`
-    const created = await ops.createGroup(writerClient, groupName)
+    const groupDesciption = 'this is a test group'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
     const groupMember = new GroupMember(readerClient.clientId, { read: true })
     let groupMembersToAdd = []
     groupMembersToAdd.push(groupMember)
@@ -363,7 +404,12 @@ describe('Tozny', () => {
   })
   it('can list records shared with groups', async () => {
     const groupName = `testGroup-${uuidv4()}`
-    const created = await ops.createGroup(writerClient, groupName)
+    const groupDesciption = 'this is a test group'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
     const groupMember = new GroupMember(readerClient.clientId, { read: true })
     let groupMembersToAdd = []
     groupMembersToAdd.push(groupMember)
@@ -384,7 +430,12 @@ describe('Tozny', () => {
   })
   it('can share records with a group and list the record', async () => {
     const groupName = `testGroup-${uuidv4()}`
-    const created = await ops.createGroup(writerClient, groupName)
+    const groupDesciption = 'this is a test group'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
     const groupMember = new GroupMember(readerClient.clientId, {
       read: true,
       share: true,
@@ -417,7 +468,12 @@ describe('Tozny', () => {
   })
   it('can paginate through records shared with group', async () => {
     const groupName = `testGroup-${uuidv4()}`
-    const created = await ops.createGroup(writerClient, groupName)
+    const groupDesciption = 'this is a test group'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
     const groupMember = new GroupMember(readerClient.clientId, {
       read: true,
       share: true,
