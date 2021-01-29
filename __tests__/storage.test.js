@@ -304,7 +304,7 @@ describe('Tozny', () => {
     )
     const addGroupResultExpected = [
       {
-        client_ids: readerClient.clientId,
+        client_id: readerClient.clientId,
         membership_key: addGroupMembers[0].membership_key,
         capability_names: ['READ_CONTENT'],
       },
@@ -350,11 +350,11 @@ describe('Tozny', () => {
     )
     let groupMemberListExpected = [
       {
-        client_ids: writerClient.clientId,
+        client_id: writerClient.clientId,
         capability_names: ['MANAGE_MEMBERSHIP'],
       },
       {
-        client_ids: readerClient.clientId,
+        client_id: readerClient.clientId,
         membership_key: addMembers[0].membership_key,
         capability_names: ['READ_CONTENT'],
       },
