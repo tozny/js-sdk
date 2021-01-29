@@ -220,6 +220,7 @@ describe('Tozny', () => {
     const createTest = {
       group: {
         groupName: groupName,
+        description: groupDesciption,
       },
       capabilities: {
         manage: true,
@@ -311,8 +312,8 @@ describe('Tozny', () => {
     const created = await ops.createGroup(
       writerClient,
       groupName,
-      capabilities,
-      groupDesciption
+      groupDesciption,
+      capabilities
     )
     expect(created).toMatchObject(createTest)
   })
