@@ -222,7 +222,11 @@ describe('Tozny', () => {
       0,
       10
     )
-    expect(list).toMatchObject([])
+    const listTest = {
+      groups: [],
+      nextToken: 0,
+    }
+    expect(list).toMatchObject(listTest)
   })
   it('can create groups', async () => {
     const groupName = `testGroup-${uuidv4()}`
