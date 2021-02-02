@@ -526,7 +526,7 @@ module.exports = {
   async listGroups(
     config,
     clientID = null,
-    groupNames = null,
+    groupNames = [],
     nextToken = null,
     max = null
   ) {
