@@ -222,7 +222,11 @@ describe('Tozny', () => {
       0,
       10
     )
-    expect(list).toMatchObject([])
+    const listTest = {
+      groups: [],
+      nextToken: 0,
+    }
+    expect(list).toMatchObject(listTest)
   })
   it('can create groups', async () => {
     const groupName = `testGroup-${uuidv4()}`
@@ -258,23 +262,48 @@ describe('Tozny', () => {
   it('can list groups', async () => {
     const groupName = `testGroup-${uuidv4()}`
     const created = await ops.createGroup(writerClient, groupName)
-    const listTest = [
-      {
-        accountID: created.group.accountID,
-      },
-      {
-        accountID: created.group.accountID,
-      },
-      {
-        groupName: created.group.groupName,
-        groupID: created.group.groupID,
-        accountID: created.group.accountID,
-      },
-    ]
+    const listTest = {
+      groups: [
+        {
+          accountID: created.group.accountID,
+        },
+        {
+          accountID: created.group.accountID,
+        },
+        {
+          groupName: created.group.groupName,
+          groupID: created.group.groupID,
+          accountID: created.group.accountID,
+        },
+      ],
+      nextToken: 0,
+    }
     const list = await ops.listGroups(
       writerClient,
       writerClient.clientId,
       [],
+      0,
+      10
+    )
+    expect(list).toMatchObject(listTest)
+  })
+  it('can list groups with specific names', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const created = await ops.createGroup(writerClient, groupName)
+    const listTest = {
+      groups: [
+        {
+          groupName: created.group.groupName,
+          groupID: created.group.groupID,
+          accountID: created.group.accountID,
+        },
+      ],
+      nextToken: 0,
+    }
+    const list = await ops.listGroups(
+      writerClient,
+      writerClient.clientId,
+      [groupName],
       0,
       10
     )
@@ -311,7 +340,7 @@ describe('Tozny', () => {
     )
     const addGroupResultExpected = [
       {
-        client_ids: readerClient.clientId,
+        client_id: readerClient.clientId,
         membership_key: addGroupMembers[0].membership_key,
         capability_names: ['READ_CONTENT'],
       },
@@ -357,11 +386,11 @@ describe('Tozny', () => {
     )
     let groupMemberListExpected = [
       {
-        client_ids: writerClient.clientId,
+        client_id: writerClient.clientId,
         capability_names: ['MANAGE_MEMBERSHIP'],
       },
       {
-        client_ids: readerClient.clientId,
+        client_id: readerClient.clientId,
         membership_key: addMembers[0].membership_key,
         capability_names: ['READ_CONTENT'],
       },
