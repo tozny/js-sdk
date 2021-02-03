@@ -10,6 +10,7 @@ class Group extends Serializable {
     this.lastModified = null
     this.groupID = null
     this.accountID = null
+    this.memberCount = null
   }
 
   serializable() {
@@ -17,6 +18,7 @@ class Group extends Serializable {
       group_name: this.groupName,
       public_key: this.publicKey,
       description: this.description,
+      memberCount: this.memberCount,
       group_id: this.groupID,
       account_id: this.accountID,
       created_at: this.createdAt,
@@ -41,10 +43,12 @@ class Group extends Serializable {
     let lastModified = json.last_modified === null ? null : json.last_modified
     let groupID = json.group_id === null ? null : json.group_id
     let accountID = json.account_id === null ? null : json.account_id
+    let memberCount = json.member_count === null ? null : json.member_count
     group.createdAt = createdAt
     group.lastModified = lastModified
     group.groupID = groupID
     group.accountID = accountID
+    group.memberCount = memberCount
     return group
   }
 }
