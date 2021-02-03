@@ -214,6 +214,20 @@ describe('Tozny', () => {
     const deleted = await ops.deleteAnonymousNote(written.noteId, signingPair)
     expect(deleted).toBe(true)
   })
+  it('can handle list groups when no groups are returned', async () => {
+    const list = await ops.listGroups(
+      writerClient,
+      writerClient.clientId,
+      [],
+      0,
+      10
+    )
+    const listTest = {
+      groups: [],
+      nextToken: 0,
+    }
+    expect(list).toMatchObject(listTest)
+  })
   it('can create groups', async () => {
     const groupName = `testGroup-${uuidv4()}`
     const groupDesciption = 'this is a test group'
@@ -289,6 +303,28 @@ describe('Tozny', () => {
       writerClient,
       writerClient.clientId,
       [],
+      0,
+      10
+    )
+    expect(list).toMatchObject(listTest)
+  })
+  it('can list groups with specific names', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const created = await ops.createGroup(writerClient, groupName)
+    const listTest = {
+      groups: [
+        {
+          groupName: created.group.groupName,
+          groupID: created.group.groupID,
+          accountID: created.group.accountID,
+        },
+      ],
+      nextToken: 0,
+    }
+    const list = await ops.listGroups(
+      writerClient,
+      writerClient.clientId,
+      [groupName],
       0,
       10
     )
