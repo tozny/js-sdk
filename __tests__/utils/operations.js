@@ -426,16 +426,15 @@ module.exports = {
           realmConfig.brokerTargetUrl,
           realmConfig.apiUrl
         )
-        return realm
-          .register(
-            username,
-            password,
-            clientRegistrationToken,
-            `${username}@example.com`
-          )
-          .then(function(user) {
-            return user.stringify()
-          })
+        return realm.register(
+          username,
+          password,
+          clientRegistrationToken,
+          `${username}@example.com`
+        )
+        // .then(function(user) {
+        //   return user.stringify()
+        // })
       },
       JSON.stringify(config),
       clientRegistrationToken,
@@ -627,5 +626,24 @@ module.exports = {
       recordType
     )
     return result
+  },
+  async createSecret(config, user, secret) {
+    const secretResp = await runInEnvironment(
+      function(realmJSON, userJSON, secret) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user['createSecret'](secret)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      secret
+    )
+    return secretResp
   },
 }
