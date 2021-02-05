@@ -545,87 +545,6 @@ module.exports = {
     )
     return groupsJson
   },
-<<<<<<< HEAD
-  async addGroupMembers(config, groupId, groupMembers = []) {
-    const result = await runInEnvironment(
-      function(configJSON, groupId, groupMembersJSON) {
-        var config = Tozny.storage.Config.fromObject(configJSON)
-        var client = new Tozny.storage.Client(config)
-        var groupMembersParsed = JSON.parse(groupMembersJSON)
-        groupMembers = groupMembersParsed
-        return client.addGroupMembers(groupId, groupMembers)
-      },
-      JSON.stringify(config),
-      groupId,
-      JSON.stringify(groupMembers)
-    )
-    return result
-  },
-  async removeGroupMembers(config, groupId, clientIds = []) {
-    const result = await runInEnvironment(
-      function(configJSON, groupId, clientIdsJSON) {
-        var config = Tozny.storage.Config.fromObject(configJSON)
-        var client = new Tozny.storage.Client(config)
-        var clientIDParsed = JSON.parse(clientIdsJSON)
-        clientIds = clientIDParsed
-        return client.removeGroupMembers(groupId, clientIds)
-      },
-      JSON.stringify(config),
-      groupId,
-      JSON.stringify(clientIds)
-    )
-    return JSON.parse(result)
-  },
-  async listGroupMembers(config, id) {
-    const result = await runInEnvironment(
-      function(configJson, id) {
-        var config = Tozny.storage.Config.fromObject(configJson)
-        var client = new Tozny.storage.Client(config)
-        return client.listGroupMembers(id)
-      },
-      JSON.stringify(config),
-      id
-    )
-    return result
-  },
-  async listRecordsSharedWithGroup(
-    config,
-    groupId,
-    writerIds = [],
-    nextToken = null,
-    max = null
-  ) {
-    const result = await runInEnvironment(
-      function(configJson, groupId, writerIdsJSON, nextToken, max) {
-        var config = Tozny.storage.Config.fromObject(configJson)
-        var client = new Tozny.storage.Client(config)
-        var writerIds = JSON.parse(writerIdsJSON)
-        return client.listRecordsSharedWithGroup(
-          groupId,
-          writerIds,
-          nextToken,
-          max
-        )
-      },
-      JSON.stringify(config),
-      groupId,
-      JSON.stringify(writerIds),
-      nextToken,
-      max
-    )
-    return result
-  },
-  async shareRecordWithGroup(config, groupId, recordType) {
-    const result = await runInEnvironment(
-      function(configJson, groupId, recordType) {
-        var config = Tozny.storage.Config.fromObject(configJson)
-        var client = new Tozny.storage.Client(config)
-        return client.shareRecordWithGroup(groupId, recordType)
-      },
-      JSON.stringify(config),
-      groupId,
-      recordType
-=======
   async addGroupMembers(config, groupMembers) {
     const result = await runInEnvironment(
       function(configJSON, groupMembersJSON) {
@@ -636,7 +555,6 @@ module.exports = {
       },
       JSON.stringify(config),
       groupMembers
->>>>>>> 41e99e6... Add group members
     )
     return result
   },
@@ -658,5 +576,44 @@ module.exports = {
       secret
     )
     return secretResp
+  },
+  async getSecrets(config, user, limit) {
+    const secretList = await runInEnvironment(
+      function(realmJSON, userJSON, limit) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user['getSecrets'](limit)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      limit
+    )
+    return secretList
+  },
+  async loadMoreSecrets(config, user, limit, nextToken) {
+    const secretList = await runInEnvironment(
+      function(realmJSON, userJSON, limit, nextToken) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user['loadMoreSecrets'](limit, nextToken)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      limit,
+      nextToken
+    )
+    return secretList
   },
 }
