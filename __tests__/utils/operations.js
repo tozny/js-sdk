@@ -426,15 +426,16 @@ module.exports = {
           realmConfig.brokerTargetUrl,
           realmConfig.apiUrl
         )
-        return realm.register(
-          username,
-          password,
-          clientRegistrationToken,
-          `${username}@example.com`
-        )
-        // .then(function(user) {
-        //   return user.stringify()
-        // })
+        return realm
+          .register(
+            username,
+            password,
+            clientRegistrationToken,
+            `${username}@example.com`
+          )
+          .then(function(user) {
+            return user.stringify()
+          })
       },
       JSON.stringify(config),
       clientRegistrationToken,
