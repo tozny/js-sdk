@@ -66,6 +66,12 @@ describe('Tozny identity client', () => {
       secretValue: 'secret-value',
       description: 'this is a description',
     }
+    const secretTypeInvalid = {
+      secretType: 'Cred',
+      secretName: 'SecretName',
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
     const secretNameEmpty = {
       secretType: 'Credential',
       secretName: '',
@@ -73,7 +79,7 @@ describe('Tozny identity client', () => {
       description: 'this is a description',
     }
     const secretNameInvalid = {
-      secretType: '',
+      secretType: 'Credential',
       secretName: `test-secret#-${uuidv4()}`,
       secretValue: 'secret-value',
       description: 'this is a description',
@@ -85,6 +91,7 @@ describe('Tozny identity client', () => {
       description: 'this is a description',
     }
     expect(ops.createSecret(secretTypeEmpty)).rejects.toThrow()
+    expect(ops.createSecret(secretTypeInvalid)).rejects.toThrow()
     expect(ops.createSecret(secretNameEmpty)).rejects.toThrow()
     expect(ops.createSecret(secretNameInvalid)).rejects.toThrow()
     expect(ops.createSecret(secretValueEmpty)).rejects.toThrow()
