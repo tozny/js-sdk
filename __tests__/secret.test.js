@@ -89,4 +89,18 @@ describe('Tozny identity client', () => {
     expect(ops.createSecret(secretNameInvalid)).rejects.toThrow()
     expect(ops.createSecret(secretValueEmpty)).rejects.toThrow()
   })
+  it('can create a secret, and list it', async () => {
+    const secret = {
+      secretType: 'Credential',
+      secretName: `test-secret-${uuidv4()}`,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    await ops.createSecret(realmConfig, identity, secret)
+    await new Promise(r => setTimeout(r, 1000))
+    const query = await ops.getSecrets(realmConfig, identity, 10)
+    const result = await query.next()
+    expect(result[0].data.secretValue).toBe('secret-value')
+    expect(result[0].meta.plain.secretType).toBe('Credential')
+  })
 })
