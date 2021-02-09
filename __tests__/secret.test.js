@@ -177,4 +177,38 @@ describe('Tozny identity client', () => {
       ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
     ).rejects.toThrow()
   })
+  it('gets the latest version of a secret', async () => {
+    const oldSecret = {
+      secretType: 'Credential',
+      secretName: `test-secret-updatetest35558800`,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const newSecret = {
+      secretType: 'Credential',
+      secretName: `test-secret-updatetest35558800`,
+      secretValue: 'updatedSecretValue',
+      description: 'this is a description',
+    }
+    await ops.createSecret(realmConfig, identity, oldSecret)
+    await ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
+    await new Promise(r => setTimeout(r, 10000))
+    let latestVersion = await ops.getLatestSecret(
+      realmConfig,
+      identity,
+      `test-secret-updatetest35558800`,
+      'Credential'
+    )
+    expect(latestVersion.exists).toBe(true)
+    expect(latestVersion.result.data.secretValue).toBe('updatedSecretValue')
+  })
+  it('gets the latest version of an invalid secret', async () => {
+    let latestVersion = await ops.getLatestSecret(
+      realmConfig,
+      identity,
+      `fakeName`,
+      'fakeType'
+    )
+    expect(latestVersion.exists).toBe(false)
+  })
 })

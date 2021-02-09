@@ -686,4 +686,24 @@ module.exports = {
     )
     return secretResponse
   },
+  async getLatestSecret(config, user, secretName, secretType) {
+    const secretList = await runInEnvironment(
+      function(realmJSON, userJSON, secretName, secretType) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user['getLatestSecret'](secretName, secretType)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      secretName,
+      secretType
+    )
+    return secretList
+  },
 }
