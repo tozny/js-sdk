@@ -686,4 +686,22 @@ module.exports = {
     )
     return secretResponse
   },
+  async waitForNext(query) {
+    // Start with a very short delay as immediate fetch of results right after writing
+    // sometimes failes, but even with a very short window of wait it can succeed
+    // first try.
+    await new Promise(r => setTimeout(r, 200))
+    // 10-second timeout period, 50 rounds of 200 miliseconds rounds.
+    let found
+    for (let i = 0; i < 50; i++) {
+      query.done = false
+      found = await query.next()
+      if (found.length > 0) {
+        break
+      }
+      // delay half a second between tries
+      await new Promise(r => setTimeout(r, i * 200))
+    }
+    return found
+  },
 }

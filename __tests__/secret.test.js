@@ -104,9 +104,8 @@ describe('Tozny identity client', () => {
       description: 'this is a description',
     }
     await ops.createSecret(realmConfig, identity, secret)
-    await new Promise(r => setTimeout(r, 1000))
     let query = await ops.getSecrets(realmConfig, identity, 10)
-    const result = await query.next()
+    let result = await ops.waitForNext(query)
     expect(result[0].data.secretValue).toBe('secret-value')
     expect(result[0].meta.plain.secretType).toBe('Credential')
   })
@@ -124,19 +123,11 @@ describe('Tozny identity client', () => {
       description: 'this is a description',
     }
     await ops.createSecret(realmConfig, identity, oldSecret)
-    await new Promise(r => setTimeout(r, 1000))
-    const query = await ops.getSecrets(realmConfig, identity, 10)
-    let secrets = await query.next()
-    let lengthSecrets = secrets.length
     await ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
-    await new Promise(r => setTimeout(r, 10000))
-    const query2 = await ops.getSecrets(realmConfig, identity, 100)
-    let secretsWithUpdatedRecord = await query2.next()
+    let query = await ops.getSecrets(realmConfig, identity, 100)
+    let secretsWithUpdatedRecord = await ops.waitForNext(query)
     let newLengthSecrets = secretsWithUpdatedRecord.length
     // Tests
-    expect(secretsWithUpdatedRecord[newLengthSecrets - 2].meta.recordId).toBe(
-      secrets[lengthSecrets - 1].meta.recordId
-    ) // This shows that the "oldSecret" is still on the list
     expect(
       secretsWithUpdatedRecord[newLengthSecrets - 1].data.secretValue
     ).toBe('updatedSecretValue') // the new Secret is also created
