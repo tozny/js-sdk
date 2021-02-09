@@ -110,4 +110,22 @@ describe('Tozny identity client', () => {
     expect(result[0].data.secretValue).toBe('secret-value')
     expect(result[0].meta.plain.secretType).toBe('Credential')
   })
+  it('can read a record by recordID', async () => {
+    const secret = {
+      secretType: 'Credential',
+      secretName: `test-secret-${uuidv4()}`,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const created = await ops.createSecret(realmConfig, identity, secret)
+    await new Promise(r => setTimeout(r, 1000))
+    console.log(created)
+    const returned = await ops.viewSecret(
+      realmConfig,
+      identity,
+      created.meta.recordId
+    )
+    console.log(returned)
+    expect(created).toMatchObject({})
+  })
 })
