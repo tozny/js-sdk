@@ -54,6 +54,7 @@ class FileOperations extends FileOperationsBase {
       remove: () =>
         fs.unlink(filePath, err => {
           if (err) {
+            // eslint-disable-next-line no-console
             console.error(err)
           }
         }),

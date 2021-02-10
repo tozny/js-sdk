@@ -639,13 +639,15 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user['createSecret'](secret)
+        return user.createSecret(secret).then(function(secret) {
+          return secret.stringify()
+        })
       },
       JSON.stringify(config),
       user.stringify(),
       secret
     )
-    return secretResp
+    return Tozny.types.Record.decode(JSON.parse(secretResp))
   },
   async getSecrets(config, user, limit) {
     const secretList = await runInEnvironment(
@@ -658,13 +660,44 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user['getSecrets'](limit)
+        return user
+          .getSecrets(limit)
+          .then(function(r) {
+            return r.next()
+          })
+          .then(function(list) {
+            return list.map(function(record) {
+              return record.serializable()
+            })
+          })
+          .then(JSON.stringify)
       },
       JSON.stringify(config),
       user.stringify(),
       limit
     )
-    return secretList
+    return Promise.all(JSON.parse(secretList).map(Tozny.types.Record.decode))
+  },
+  async viewSecret(config, user, secretID) {
+    const secret = await runInEnvironment(
+      function(realmJSON, userJSON, secretID) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.viewSecret(secretID).then(function(secret) {
+          return secret.stringify()
+        })
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      secretID
+    )
+    return Tozny.types.Record.decode(JSON.parse(secret))
   },
   async updateSecret(config, user, oldSecret, newSecret) {
     const secretResponse = await runInEnvironment(
@@ -677,14 +710,41 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user['updateSecret'](oldSecret, newSecret)
+        return user.updateSecret(oldSecret, newSecret).then(function(secret) {
+          return secret.stringify()
+        })
       },
       JSON.stringify(config),
       user.stringify(),
       oldSecret,
       newSecret
     )
-    return secretResponse
+    return Tozny.types.Record.decode(JSON.parse(secretResponse))
+  },
+  async waitForNext(query, test = f => f.length > 0) {
+    // short circuit for already done queries
+    if (query.done) {
+      return []
+    }
+    const originalAfterIndex = query.afterIndex
+    // Start with a very short delay as immediate fetch of results right after writing
+    // sometimes fails, but even with a very short window of wait it can succeed
+    // first try.
+    await new Promise(r => setTimeout(r, 200))
+    // 30-second timeout period
+    const start = new Date()
+    let found
+    while (new Date() - start < 30000) {
+      query.done = false
+      query.afterIndex = originalAfterIndex
+      found = await query.next()
+      if (test(found)) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise(r => setTimeout(r, 200))
+    }
+    return found
   },
   async getLatestSecret(config, user, secretName, secretType) {
     const secretList = await runInEnvironment(
