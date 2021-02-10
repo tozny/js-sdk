@@ -29,8 +29,8 @@ const TestIdleTimeoutMilliseconds = parseInt(
   10
 )
 const TestEnvironment = process.env.TEST_ENVIRONMENT
-const TestLocalUseProd = process.env.TEST_LOCAL_USE_PROD
-const TestLocalUseCDN = process.env.TEST_LOCAL_USE_CDN
+const TestLocalUseProd = process.env.TEST_LOCAL_USE_PROD === 'true'
+const TestLocalUseCDN = process.env.TEST_LOCAL_USE_CDN === 'true'
 /* Continuous Integration / Build Server Execution UID */
 const TestJobNumber = process.env.TRAVIS_JOB_NUMBER
   ? `#${process.env.TRAVIS_JOB_NUMBER}`
