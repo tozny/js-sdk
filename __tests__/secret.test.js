@@ -194,31 +194,44 @@ describe('Tozny identity client', () => {
     ).rejects.toThrow()
   })
   it('gets the latest version of a secret', async () => {
+    const testName = `test-secret-${uuidv4()}`
     const oldSecret = {
       secretType: 'Credential',
-      secretName: `test-secret-updatetest35558800`,
+      secretName: testName,
       secretValue: 'secret-value',
       description: 'this is a description',
     }
     const newSecret = {
       secretType: 'Credential',
-      secretName: `test-secret-updatetest35558800`,
+      secretName: testName,
       secretValue: 'updatedSecretValue',
       description: 'this is a description',
     }
     await ops.createSecret(realmConfig, identity, oldSecret)
     await ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
-    await new Promise(r => setTimeout(r, 10000))
-    let latestVersion = await ops.getLatestSecret(
-      realmConfig,
-      identity,
-      `test-secret-updatetest35558800`,
-      'Credential'
+    const start = new Date()
+    let latestVersionOfSecret
+    while (new Date() - start < 30000) {
+      latestVersionOfSecret = await ops.getLatestSecret(
+        realmConfig,
+        identity,
+        testName,
+        'Credential'
+      )
+      if (
+        latestVersionOfSecret.results.data.secretValue == 'updatedSecretValue'
+      ) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise(r => setTimeout(r, 200))
+    }
+    expect(latestVersionOfSecret.exists).toBe(true)
+    expect(latestVersionOfSecret.results.data.secretValue).toBe(
+      'updatedSecretValue'
     )
-    expect(latestVersion.exists).toBe(true)
-    expect(latestVersion.result.data.secretValue).toBe('updatedSecretValue')
   })
-  it('gets the latest version of an invalid secret', async () => {
+  it('it doesnt return the latest version for invalid secret', async () => {
     let latestVersion = await ops.getLatestSecret(
       realmConfig,
       identity,
