@@ -104,9 +104,8 @@ describe('Tozny identity client', () => {
       description: 'this is a description',
     }
     await ops.createSecret(realmConfig, identity, secret)
-    await new Promise(r => setTimeout(r, 1000))
-    const query = await ops.getSecrets(realmConfig, identity, 10)
-    const result = await query.next()
+    let query = await ops.getSecrets(realmConfig, identity, 10)
+    let result = await ops.waitForNext(query)
     expect(result[0].data.secretValue).toBe('secret-value')
     expect(result[0].meta.plain.secretType).toBe('Credential')
   })
@@ -127,5 +126,64 @@ describe('Tozny identity client', () => {
     )
     console.log(returned)
     expect(created).toMatchObject({})
+  })
+  it('can create a secret and update', async () => {
+    const oldSecret = {
+      secretType: 'Credential',
+      secretName: `test-secret-updatetest35558800`,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const newSecret = {
+      secretType: 'Credential',
+      secretName: `test-secret-updatetest35558800`,
+      secretValue: 'updatedSecretValue',
+      description: 'this is a description',
+    }
+    await ops.createSecret(realmConfig, identity, oldSecret)
+    await ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
+    let query = await ops.getSecrets(realmConfig, identity, 100)
+    let secretsWithUpdatedRecord = await ops.waitForNext(query)
+    let newLengthSecrets = secretsWithUpdatedRecord.length
+    // Tests
+    expect(
+      secretsWithUpdatedRecord[newLengthSecrets - 1].data.secretValue
+    ).toBe('updatedSecretValue') // the new Secret is also created
+  })
+  it('cannot update secret of different type', async () => {
+    const oldSecret = {
+      secretType: 'Credential',
+      secretName: `test-secret-updatetest35558800`,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const newSecret = {
+      secretType: 'Note',
+      secretName: `test-secret-updatetest35558800`,
+      secretValue: 'updatedSecretValue',
+      description: 'this is a description',
+    }
+    await ops.createSecret(realmConfig, identity, oldSecret)
+    expect(
+      ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
+    ).rejects.toThrow()
+  })
+  it('cannot update secret of different name', async () => {
+    const oldSecret = {
+      secretType: 'Credential',
+      secretName: `test-secret-updatetest35558800`,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const newSecret = {
+      secretType: 'Credential',
+      secretName: `test-secret`,
+      secretValue: 'updatedSecretValue',
+      description: 'this is a description',
+    }
+    await ops.createSecret(realmConfig, identity, oldSecret)
+    expect(
+      ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
+    ).rejects.toThrow()
   })
 })
