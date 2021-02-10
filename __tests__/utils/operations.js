@@ -639,13 +639,15 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user['createSecret'](secret)
+        return user.createSecret(secret).then(function(secret) {
+          return secret.stringify()
+        })
       },
       JSON.stringify(config),
       user.stringify(),
       secret
     )
-    return secretResp
+    return Tozny.types.Record.decode(JSON.parse(secretResp))
   },
   async getSecrets(config, user, limit) {
     const secretList = await runInEnvironment(
@@ -687,13 +689,15 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user['viewSecret'](secretID)
+        return user.viewSecret(secretID).then(function(secret) {
+          return secret.stringify()
+        })
       },
       JSON.stringify(config),
       user.stringify(),
       secretID
     )
-    return secret
+    return Tozny.types.Record.decode(JSON.parse(secret))
   },
   async updateSecret(config, user, oldSecret, newSecret) {
     const secretResponse = await runInEnvironment(
@@ -706,14 +710,16 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user['updateSecret'](oldSecret, newSecret)
+        return user.updateSecret(oldSecret, newSecret).then(function(secret) {
+          return secret.stringify()
+        })
       },
       JSON.stringify(config),
       user.stringify(),
       oldSecret,
       newSecret
     )
-    return secretResponse
+    return Tozny.types.Record.decode(JSON.parse(secretResponse))
   },
   async waitForNext(query, test = f => f.length > 0) {
     // short circuit for already done queries

@@ -123,15 +123,12 @@ describe('Tozny identity client', () => {
       description: 'this is a description',
     }
     const created = await ops.createSecret(realmConfig, identity, secret)
-    await new Promise(r => setTimeout(r, 1000))
-    console.log(created)
     const returned = await ops.viewSecret(
       realmConfig,
       identity,
       created.meta.recordId
     )
-    console.log(returned)
-    expect(created).toMatchObject({})
+    expect(created.stringify()).toBe(returned.stringify())
   })
   it('can create a secret and update', async () => {
     const testName = `test-secret-${uuidv4()}`
