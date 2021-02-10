@@ -37,9 +37,10 @@ beforeAll(async () => {
 
 describe('Tozny identity client', () => {
   it('can create a secret', async () => {
+    const testName = `test-secret-${uuidv4()}`
     const secret = {
       secretType: 'Credential',
-      secretName: `test-secret-${uuidv4()}`,
+      secretName: testName,
       secretValue: 'secret-value',
       description: 'this is a description',
     }
@@ -97,51 +98,58 @@ describe('Tozny identity client', () => {
     expect(ops.createSecret(secretValueEmpty)).rejects.toThrow()
   })
   it('can create a secret, and list it', async () => {
+    const testName = `test-secret-${uuidv4()}`
     const secret = {
       secretType: 'Credential',
-      secretName: `test-secret-${uuidv4()}`,
+      secretName: testName,
       secretValue: 'secret-value',
       description: 'this is a description',
     }
+    // use local search to wait
     await ops.createSecret(realmConfig, identity, secret)
-    let query = await ops.getSecrets(realmConfig, identity, 10)
-    let result = await ops.waitForNext(query)
+    // wait for proper indexing of secret
+    let query = await identity.getSecrets(10)
+    await waitForNextOfName(query, testName)
+    // run list in test environment
+    let result = await ops.getSecrets(realmConfig, identity, 10)
     expect(result[0].data.secretValue).toBe('secret-value')
     expect(result[0].meta.plain.secretType).toBe('Credential')
   })
   it('can create a secret and update', async () => {
+    const testName = `test-secret-${uuidv4()}`
     const oldSecret = {
       secretType: 'Credential',
-      secretName: `test-secret-updatetest35558800`,
+      secretName: testName,
       secretValue: 'secret-value',
       description: 'this is a description',
     }
     const newSecret = {
       secretType: 'Credential',
-      secretName: `test-secret-updatetest35558800`,
+      secretName: testName,
       secretValue: 'updatedSecretValue',
       description: 'this is a description',
     }
     await ops.createSecret(realmConfig, identity, oldSecret)
     await ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
-    let query = await ops.getSecrets(realmConfig, identity, 100)
-    let secretsWithUpdatedRecord = await ops.waitForNext(query)
-    let newLengthSecrets = secretsWithUpdatedRecord.length
+    const query = await identity.getSecrets(100)
+    const secretsWithUpdatedRecord = await waitForNextOfName(query, testName, 2)
+    const newLengthSecrets = secretsWithUpdatedRecord.length
     // Tests
     expect(
       secretsWithUpdatedRecord[newLengthSecrets - 1].data.secretValue
     ).toBe('updatedSecretValue') // the new Secret is also created
   })
   it('cannot update secret of different type', async () => {
+    const testName = `test-secret-${uuidv4()}`
     const oldSecret = {
       secretType: 'Credential',
-      secretName: `test-secret-updatetest35558800`,
+      secretName: testName,
       secretValue: 'secret-value',
       description: 'this is a description',
     }
     const newSecret = {
       secretType: 'Note',
-      secretName: `test-secret-updatetest35558800`,
+      secretName: testName,
       secretValue: 'updatedSecretValue',
       description: 'this is a description',
     }
@@ -151,15 +159,17 @@ describe('Tozny identity client', () => {
     ).rejects.toThrow()
   })
   it('cannot update secret of different name', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const notTestName = `test-secret-${uuidv4()}`
     const oldSecret = {
       secretType: 'Credential',
-      secretName: `test-secret-updatetest35558800`,
+      secretName: testName,
       secretValue: 'secret-value',
       description: 'this is a description',
     }
     const newSecret = {
       secretType: 'Credential',
-      secretName: `test-secret`,
+      secretName: notTestName,
       secretValue: 'updatedSecretValue',
       description: 'this is a description',
     }
@@ -169,3 +179,32 @@ describe('Tozny identity client', () => {
     ).rejects.toThrow()
   })
 })
+
+/**
+ * Returns a search result filtered to contain only the secrets with the given name
+ *
+ * If numRequired is set, then it will ensure the results contains at least that many
+ * secret are found. By default it ensures at least one secret of the given name
+ * exists before returning.
+ *
+ * If the result gets to the end of the 10 second timeout period, this method throws.
+ *
+ * @param {SearchResult} query A secrets search result
+ * @param {string} name The name of the secrets being looked for
+ * @param {int} numRequired The number of secrets which should be found before returning
+ */
+async function waitForNextOfName(query, name, numRequired = 1) {
+  const floor = numRequired - 1
+  let filtered
+  const results = await ops.waitForNext(query, found => {
+    filtered = found.filter(i => i.meta.plain.secretName === name)
+    return filtered.length > floor
+  })
+  if (filtered.length < numRequired) {
+    const stringifiedResults = JSON.stringify(results, null, '  ')
+    throw new Error(
+      `Did not find ${numRequired} secret{s} with name ${name} in results: ${stringifiedResults}`
+    )
+  }
+  return filtered
+}
