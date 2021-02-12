@@ -721,6 +721,40 @@ module.exports = {
     )
     return Tozny.types.Record.decode(JSON.parse(secretResponse))
   },
+  async shareSecretWithUsername(
+    config,
+    user,
+    secretName,
+    secretType,
+    usernamesToAdd
+  ) {
+    const result = await runInEnvironment(
+      function(realmJSON, userJSON, secretName, secretType, usernamesToAdd) {
+        var config = Tozny.storage.Config.fromObject(realmJSON)
+        var client = new Tozny.storage.Client(config)
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.shareSecretWithUsername(
+          client,
+          secretName,
+          secretType,
+          usernamesToAdd
+        )
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      secretName,
+      secretType,
+      JSON.stringify(usernamesToAdd)
+    )
+    return result
+  },
   async waitForNext(query, test = f => f.length > 0) {
     // short circuit for already done queries
     if (query.done) {

@@ -194,6 +194,25 @@ describe('Tozny identity client', () => {
     ).rejects.toThrow()
   })
 })
+it('can create a secret and share it with a username', async () => {
+  const testName = `test-secret-${uuidv4()}`
+  const secret = {
+    secretType: 'Credential',
+    secretName: testName,
+    secretValue: 'secret-value',
+    description: 'this is a description',
+  }
+  const testUsername = 'it-user-ffdff0ee-7001-472a-832b-d7d44b299167'
+  await ops.createSecret(realmConfig, identity, secret)
+  const added = await ops.shareSecretWithUsername(
+    realmConfig,
+    identity,
+    testName,
+    'Credential',
+    [testUsername]
+  )
+  console.log(added)
+})
 
 /**
  * Returns a search result filtered to contain only the secrets with the given name
