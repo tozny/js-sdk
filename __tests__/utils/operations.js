@@ -784,4 +784,35 @@ module.exports = {
     }
     return found
   },
+  async getLatestSecret(config, user, secretName, secretType) {
+    const secret = await runInEnvironment(
+      function(realmJSON, userJSON, secretName, secretType) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user
+          .getLatestSecret(secretName, secretType)
+          .then(function(secret) {
+            if (secret.exists == true) {
+              return { exists: true, results: secret.results }
+            }
+            return secret
+          })
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      secretName,
+      secretType
+    )
+    if (secret.exists == true) {
+      let secretResult = await Tozny.types.Record.decode(secret.results)
+      return { exists: true, results: secretResult }
+    }
+    return secret
+  },
 }

@@ -193,6 +193,54 @@ describe('Tozny identity client', () => {
       ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
     ).rejects.toThrow()
   })
+  it('gets the latest version of a secret', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const oldSecret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const newSecret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'updatedSecretValue',
+      description: 'this is a description',
+    }
+    await ops.createSecret(realmConfig, identity, oldSecret)
+    await ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
+    const start = new Date()
+    let latestVersionOfSecret
+    while (new Date() - start < 30000) {
+      latestVersionOfSecret = await ops.getLatestSecret(
+        realmConfig,
+        identity,
+        testName,
+        'Credential'
+      )
+      if (
+        latestVersionOfSecret.exists == true &&
+        latestVersionOfSecret.results.data.secretValue == 'updatedSecretValue'
+      ) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise(r => setTimeout(r, 200))
+    }
+    expect(latestVersionOfSecret.exists).toBe(true)
+    expect(latestVersionOfSecret.results.data.secretValue).toBe(
+      'updatedSecretValue'
+    )
+  })
+  it('it doesnt return the latest version for invalid secret', async () => {
+    let latestVersion = await ops.getLatestSecret(
+      realmConfig,
+      identity,
+      `fakeName`,
+      'fakeType'
+    )
+    expect(latestVersion.exists).toBe(false)
+  })
 })
 it('can create a secret and share it with a username', async () => {
   const testName = `test-secret-${uuidv4()}`
