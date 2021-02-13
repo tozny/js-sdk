@@ -726,12 +726,16 @@ module.exports = {
     user,
     secretName,
     secretType,
-    usernamesToAdd
+    usernamesToAdd = []
   ) {
     const result = await runInEnvironment(
-      function(realmJSON, userJSON, secretName, secretType, usernamesToAdd) {
-        var config = Tozny.storage.Config.fromObject(realmJSON)
-        var client = new Tozny.storage.Client(config)
+      function(
+        realmJSON,
+        userJSON,
+        secretName,
+        secretType,
+        usernamesToAddJSON
+      ) {
         const realmConfig = JSON.parse(realmJSON)
         const realm = new Tozny.identity.Realm(
           realmConfig.realmName,
@@ -739,9 +743,9 @@ module.exports = {
           realmConfig.brokerTargetUrl,
           realmConfig.apiUrl
         )
+        var usernamesToAdd = JSON.parse(usernamesToAddJSON)
         const user = realm.fromObject(userJSON)
         return user.shareSecretWithUsername(
-          client,
           secretName,
           secretType,
           usernamesToAdd

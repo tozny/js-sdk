@@ -202,16 +202,30 @@ it('can create a secret and share it with a username', async () => {
     secretValue: 'secret-value',
     description: 'this is a description',
   }
-  const testUsername = 'it-user-ffdff0ee-7001-472a-832b-d7d44b299167'
+  let usernameArray = []
+  const testUsername = 'katieuser1'
+  usernameArray.push(testUsername)
+  const testUsername2 = 'it-user-15cdbc04-1481-420e-b14b-02617069f6d5'
+  usernameArray.push(testUsername2)
   await ops.createSecret(realmConfig, identity, secret)
-  const added = await ops.shareSecretWithUsername(
+  const shareByUsername = await ops.shareSecretWithUsername(
     realmConfig,
     identity,
     testName,
     'Credential',
-    [testUsername]
+    usernameArray
   )
-  console.log(added)
+  const shareByUsernameExpected = [
+    {
+      membership_key: shareByUsername[0].membership_key,
+      capability_names: ['READ_CONTENT'],
+    },
+    {
+      membership_key: shareByUsername[1].membership_key,
+      capability_names: ['READ_CONTENT'],
+    },
+  ]
+  expect(shareByUsername).toMatchObject(shareByUsernameExpected)
 })
 
 /**
