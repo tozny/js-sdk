@@ -219,6 +219,7 @@ describe('Tozny identity client', () => {
         'Credential'
       )
       if (
+        latestVersionOfSecret.exists == true &&
         latestVersionOfSecret.results.data.secretValue == 'updatedSecretValue'
       ) {
         break

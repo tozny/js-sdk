@@ -761,7 +761,7 @@ module.exports = {
           .getLatestSecret(secretName, secretType)
           .then(function(secret) {
             if (secret.exists == true) {
-              return { exists: true, results: secret.results }
+              return { exists: true, results: JSON.stringify(secret.results) }
             }
             return secret
           })
@@ -772,7 +772,9 @@ module.exports = {
       secretType
     )
     if (secret.exists == true) {
-      let secretResult = await Tozny.types.Record.decode(secret.results)
+      let secretResult = await Tozny.types.Record.decode(
+        JSON.parse(secret.results)
+      )
       return { exists: true, results: secretResult }
     }
     return secret
