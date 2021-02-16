@@ -17,6 +17,7 @@ class SearchRange extends Serializable {
     if (!(end instanceof Date)) {
       throw new Error('end must be an instance of Date')
     }
+
     this.key = key
     this.start = start
     this.end = end
@@ -34,7 +35,6 @@ class SearchRange extends Serializable {
       before: this.start.toISOString(),
       after: this.end.toISOString(),
     }
-
     return toSerialize
   }
 }
