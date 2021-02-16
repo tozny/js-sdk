@@ -726,16 +726,10 @@ module.exports = {
     user,
     secretName,
     secretType,
-    usernamesToAdd = []
+    usernameToAdd
   ) {
     const result = await runInEnvironment(
-      function(
-        realmJSON,
-        userJSON,
-        secretName,
-        secretType,
-        usernamesToAddJSON
-      ) {
+      function(realmJSON, userJSON, secretName, secretType, usernameToAdd) {
         const realmConfig = JSON.parse(realmJSON)
         const realm = new Tozny.identity.Realm(
           realmConfig.realmName,
@@ -743,19 +737,18 @@ module.exports = {
           realmConfig.brokerTargetUrl,
           realmConfig.apiUrl
         )
-        var usernamesToAdd = JSON.parse(usernamesToAddJSON)
         const user = realm.fromObject(userJSON)
         return user.shareSecretWithUsername(
           secretName,
           secretType,
-          usernamesToAdd
+          usernameToAdd
         )
       },
       JSON.stringify(config),
       user.stringify(),
       secretName,
       secretType,
-      JSON.stringify(usernamesToAdd)
+      usernameToAdd
     )
     return result
   },
@@ -799,7 +792,7 @@ module.exports = {
           .getLatestSecret(secretName, secretType)
           .then(function(secret) {
             if (secret.exists == true) {
-              return { exists: true, results: secret.results }
+              return { exists: true, results: JSON.stringify(secret.results) }
             }
             return secret
           })
@@ -810,7 +803,9 @@ module.exports = {
       secretType
     )
     if (secret.exists == true) {
-      let secretResult = await Tozny.types.Record.decode(secret.results)
+      let secretResult = await Tozny.types.Record.decode(
+        JSON.parse(secret.results)
+      )
       return { exists: true, results: secretResult }
     }
     return secret
