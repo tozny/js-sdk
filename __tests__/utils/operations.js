@@ -738,11 +738,15 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user.shareSecretWithUsername(
-          secretName,
-          secretType,
-          usernameToAdd
-        )
+        return user
+          .shareSecretWithUsername(secretName, secretType, usernameToAdd)
+          .then(function(secret) {
+            if (secret != null) {
+              return JSON.stringify(secret)
+            } else {
+              return secret
+            }
+          })
       },
       JSON.stringify(config),
       user.stringify(),
@@ -750,7 +754,7 @@ module.exports = {
       secretType,
       usernameToAdd
     )
-    return result
+    return JSON.parse(result)
   },
   async waitForNext(query, test = f => f.length > 0) {
     // short circuit for already done queries

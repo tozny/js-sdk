@@ -259,7 +259,6 @@ describe('Tozny identity client', () => {
       'Credential',
       testUsername
     )
-
     expect(shareByUsername.record_type).toBe(secretCreated.meta.type)
   })
   it('can handle a silent response with fake username', async () => {
