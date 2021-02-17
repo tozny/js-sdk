@@ -259,10 +259,8 @@ describe('Tozny identity client', () => {
       'Credential',
       testUsername
     )
-    const shareExpected = {
-      record_type: secretCreated.meta.type,
-    }
-    expect(shareByUsername).toMatchObject(shareExpected)
+
+    expect(shareByUsername.record_type).toBe(secretCreated.meta.type)
   })
   it('can handle a silent response with fake username', async () => {
     const testName = `test-secret-${uuidv4()}`
