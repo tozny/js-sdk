@@ -252,14 +252,23 @@ describe('Tozny identity client', () => {
     }
     const testUsername = 'katieuser1'
     const secretCreated = await ops.createSecret(realmConfig, identity, secret)
-    const shareByUsername = await ops.shareSecretWithUsername(
-      realmConfig,
-      identity,
-      testName,
-      'Credential',
-      testUsername
-    )
-    expect(shareByUsername.record_type).toBe(secretCreated.meta.type)
+    const start = new Date()
+    await new Promise(r => setTimeout(r, 5000))
+    let shareByUserName
+    while (new Date() - start < 30000) {
+      shareByUserName = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Credential',
+        testUsername
+      )
+      if (shareByUserName == secretCreated.meta.type) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise(r => setTimeout(r, 200))
+    }
   })
   it('can handle a silent response with fake username', async () => {
     const testName = `test-secret-${uuidv4()}`
@@ -271,6 +280,7 @@ describe('Tozny identity client', () => {
     }
     const testUsername = 'fakeUsername1'
     await ops.createSecret(realmConfig, identity, secret)
+    await new Promise(r => setTimeout(r, 500))
     const shareByUsername = await ops.shareSecretWithUsername(
       realmConfig,
       identity,
