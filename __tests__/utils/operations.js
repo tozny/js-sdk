@@ -814,4 +814,55 @@ module.exports = {
     }
     return secret
   },
+  async revokeRecordWithGroup(
+    config,
+    user,
+    secretName,
+    secretType,
+    userToRevokeShare
+  ) {
+    const result = await runInEnvironment(
+      function(realmJSON, userJSON, secretName, secretType, userToRevokeShare) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.revokeRecordWithGroup(
+          secretName,
+          secretType,
+          userToRevokeShare
+        )
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      secretName,
+      secretType,
+      userToRevokeShare
+    )
+    return result
+  },
+  async getSecretSharedList(config, user, secretName, secretType) {
+    const result = await runInEnvironment(
+      function(realmJSON, userJSON, secretName, secretType) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.getSecretSharedList(secretName, secretType)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      secretName,
+      secretType
+    )
+    return result
+  },
 }

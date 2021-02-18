@@ -291,6 +291,96 @@ describe('Tozny identity client', () => {
     )
     expect(shareByUsername).toBe(null)
   })
+  it('it can share a secret and unshare', async () => {
+    const testName = `updated-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const testUsername = 'katieuser1'
+    const secretCreated = await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise(r => setTimeout(r, 5000))
+    let shareByUsername
+    while (new Date() - start < 30000) {
+      shareByUsername = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Credential',
+        testUsername
+      )
+      if (shareByUsername != null) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise(r => setTimeout(r, 200))
+    }
+    expect(shareByUsername).toBe(secretCreated.meta.type)
+    let unshareByUsername = await ops.revokeRecordWithGroup(
+      realmConfig,
+      identity,
+      testName,
+      'Credential',
+      testUsername
+    )
+    expect(unshareByUsername).toBe(true)
+  })
+
+  it('can get a list of secret shared', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const testUsername = 'it-user-0accf634-efa8-44e9-aa7e-474228425b00'
+    await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise(r => setTimeout(r, 5000))
+    let shareByUsername
+    while (new Date() - start < 30000) {
+      shareByUsername = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Credential',
+        testUsername
+      )
+      if (shareByUsername != null) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise(r => setTimeout(r, 200))
+    }
+    const list = await ops.getSecretSharedList(
+      realmConfig,
+      identity,
+      testName,
+      'Credential'
+    )
+    expect(list[0].username).toBe(testUsername)
+  })
+  it('can return an empty list if not shared', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    await ops.createSecret(realmConfig, identity, secret)
+    const list = await ops.getSecretSharedList(
+      realmConfig,
+      identity,
+      testName,
+      'Credential'
+    )
+    expect(list).toStrictEqual([])
+  })
 })
 /**
  * Returns a search result filtered to contain only the secrets with the given name
