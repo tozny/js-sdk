@@ -254,22 +254,21 @@ describe('Tozny identity client', () => {
     const secretCreated = await ops.createSecret(realmConfig, identity, secret)
     const start = new Date()
     await new Promise(r => setTimeout(r, 5000))
-    let shareByUsername
+    let shareByUserName
     while (new Date() - start < 30000) {
-      shareByUsername = await ops.shareSecretWithUsername(
+      shareByUserName = await ops.shareSecretWithUsername(
         realmConfig,
         identity,
         testName,
         'Credential',
         testUsername
       )
-      if (shareByUsername != null) {
+      if (shareByUserName == secretCreated.meta.type) {
         break
       }
       // delay 200 milliseconds between tries
       await new Promise(r => setTimeout(r, 200))
     }
-    expect(shareByUsername).toBe(secretCreated.meta.type)
   })
   it('can handle a silent response with fake username', async () => {
     const testName = `test-secret-${uuidv4()}`
