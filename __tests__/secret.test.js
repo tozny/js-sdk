@@ -318,13 +318,14 @@ describe('Tozny identity client', () => {
       await new Promise(r => setTimeout(r, 200))
     }
     expect(shareByUsername).toBe(secretCreated.meta.type)
-    let unshareByUsername = await ops.revokeRecordWithGroup(
+    let unshareByUsername = await ops.revokeSecretFromUser(
       realmConfig,
       identity,
       testName,
       'Credential',
       testUsername
     )
+
     expect(unshareByUsername).toBe(true)
   })
 

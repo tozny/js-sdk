@@ -546,6 +546,19 @@ module.exports = {
     )
     return groupsJson
   },
+  async groupInfo(config, clientID = null, groupName) {
+    const result = await runInEnvironment(
+      function(configJSON, clientID, groupName) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.groupInfo(groupName, clientID)
+      },
+      JSON.stringify(config),
+      clientID,
+      groupName
+    )
+    return result
+  },
   async addGroupMembers(config, groupId, groupMembers = []) {
     const result = await runInEnvironment(
       function(configJSON, groupId, groupMembersJSON) {
@@ -621,6 +634,19 @@ module.exports = {
         var config = Tozny.storage.Config.fromObject(configJson)
         var client = new Tozny.storage.Client(config)
         return client.shareRecordWithGroup(groupId, recordType)
+      },
+      JSON.stringify(config),
+      groupId,
+      recordType
+    )
+    return result
+  },
+  async revokeRecordWithGroup(config, groupId, recordType) {
+    const result = await runInEnvironment(
+      function(configJSON, groupId, recordType) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.revokeRecordWithGroup(groupId, recordType)
       },
       JSON.stringify(config),
       groupId,
@@ -814,7 +840,7 @@ module.exports = {
     }
     return secret
   },
-  async revokeRecordWithGroup(
+  async revokeSecretFromUser(
     config,
     user,
     secretName,
@@ -831,7 +857,7 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user.revokeRecordWithGroup(
+        return user.revokeSecretFromUser(
           secretName,
           secretType,
           userToRevokeShare

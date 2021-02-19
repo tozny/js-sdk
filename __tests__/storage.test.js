@@ -590,4 +590,29 @@ describe('Tozny', () => {
     )
     expect(sharedWithGroupUpdated).toStrictEqual([])
   })
+  it('can return a group based on group name', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const created = await ops.createGroup(writerClient, groupName)
+    const listTest = {
+      groupName: created.group.groupName,
+      groupID: created.group.groupID,
+      accountID: created.group.accountID,
+    }
+    const list = await ops.groupInfo(
+      writerClient,
+      writerClient.clientId,
+      groupName
+    )
+
+    expect(list).toMatchObject(listTest)
+  })
+  it('can return an empty group', async () => {
+    const listTest = {}
+    const list = await ops.groupInfo(
+      writerClient,
+      writerClient.clientId,
+      `fakeName-${uuidv4()}`
+    )
+    expect(list).toMatchObject(listTest)
+  })
 })
