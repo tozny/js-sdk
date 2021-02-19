@@ -241,8 +241,56 @@ describe('Tozny identity client', () => {
     )
     expect(latestVersion.exists).toBe(false)
   })
-})
 
+  it('can create a secret and share it with a username', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const testUsername = 'katieuser1'
+    const secretCreated = await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise(r => setTimeout(r, 5000))
+    let shareByUserName
+    while (new Date() - start < 30000) {
+      shareByUserName = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Credential',
+        testUsername
+      )
+      if (shareByUserName == secretCreated.meta.type) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise(r => setTimeout(r, 200))
+    }
+  })
+  it('can handle a silent response with fake username', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const testUsername = 'fakeUsername1'
+    await ops.createSecret(realmConfig, identity, secret)
+    await new Promise(r => setTimeout(r, 500))
+    const shareByUsername = await ops.shareSecretWithUsername(
+      realmConfig,
+      identity,
+      testName,
+      'Credential',
+      testUsername
+    )
+    expect(shareByUsername).toBe(null)
+  })
+})
 /**
  * Returns a search result filtered to contain only the secrets with the given name
  *
