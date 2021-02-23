@@ -3,6 +3,7 @@ const { apiUrl, idRealmName, idAppName, clientRegistrationToken } = global
 const Tozny = require('../node')
 const ops = require('./utils/operations')
 const { SECRET_UUID } = require('../lib/utils/constants')
+const fs = require('fs')
 
 jest.setTimeout(100000)
 
@@ -289,6 +290,33 @@ describe('Tozny identity client', () => {
       testUsername
     )
     expect(shareByUsername).toBe(null)
+  })
+  it('can create a secret with a file type', async () => {
+    const fileName = 'passphrase.txt'
+    const filePath = `/Users/alannahcarr/Documents/${fileName}`
+    const file = fs.createReadStream(filePath, { encoding: 'utf8' })
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'File',
+      secretName: testName,
+      secretValue: '',
+      fileName: fileName,
+      file: file,
+      description: 'this contains a file',
+    }
+    const secretTest = {
+      meta: {
+        type: `tozny.secret.${SECRET_UUID}.${secret.secretType}.${secret.secretName}`,
+        plain: {
+          description: secret.description,
+          secretName: secret.secretName,
+          secretType: secret.secretType,
+          fileName: secret.fileName,
+        },
+      },
+    }
+    const secretResp = await ops.createSecret(realmConfig, identity, secret)
+    expect(secretResp).toMatchObject(secretTest)
   })
 })
 /**
