@@ -12,6 +12,7 @@ let realm
 let identity
 let username
 let password
+let fileName
 beforeAll(async () => {
   username = `it-user-${uuidv4()}`
   password = uuidv4()
@@ -34,6 +35,20 @@ beforeAll(async () => {
     `${username}@example.com`
   )
   identity = await realm.login(username, password)
+  fileName = `test-file-${uuidv4()}`
+  fs.writeFile(fileName, 'This is a test file!', err => {
+    if (err) {
+      console.log(`Error creating file ${fileName}`, err)
+    }
+  })
+})
+
+afterAll(async () => {
+  fs.unlink(fileName, err => {
+    if (err) {
+      console.log(`Error deleting file ${fileName}`, err)
+    }
+  })
 })
 
 describe('Tozny identity client', () => {
@@ -292,9 +307,7 @@ describe('Tozny identity client', () => {
     expect(shareByUsername).toBe(null)
   })
   it('can create a secret with a file type', async () => {
-    const fileName = 'passphrase.txt'
-    const filePath = `/Users/alannahcarr/Documents/${fileName}`
-    const file = fs.createReadStream(filePath, { encoding: 'utf8' })
+    const file = fs.createReadStream(fileName, { encoding: 'utf8' })
     const testName = `test-secret-${uuidv4()}`
     const secret = {
       secretType: 'File',
