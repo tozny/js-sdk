@@ -814,4 +814,23 @@ module.exports = {
     }
     return secret
   },
+  async downloadFile(config, user, recordId) {
+    const secretResponse = await runInEnvironment(
+      function(realmJSON, userJSON, recordId) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.downloadFile(recordId)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      recordId
+    )
+    return secretResponse
+  },
 }

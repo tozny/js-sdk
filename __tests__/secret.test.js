@@ -331,6 +331,40 @@ describe('Tozny identity client', () => {
     const secretResp = await ops.createSecret(realmConfig, identity, secret)
     expect(secretResp).toMatchObject(secretTest)
   })
+  it('can view a secret with a file type', async () => {
+    const file = fs.createReadStream(fileName, { encoding: 'utf8' })
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'File',
+      secretName: testName,
+      secretValue: '',
+      fileName: fileName,
+      file: file,
+      description: 'this contains a file',
+    }
+    const created = await ops.createSecret(realmConfig, identity, secret)
+    const returned = await ops.downloadFile(
+      realmConfig,
+      identity,
+      created.meta.recordId
+    )
+    await Tozny.helpers.saveFile(returned, `downloaded-${fileName}`)
+    fs.readFile(
+      `downloaded-${fileName}`,
+      { encoding: 'utf-8' },
+      (err, data) => {
+        if (err) {
+          console.log(`Error downloading file downloaded-${fileName}`, err)
+        }
+        expect(data).toBe('This is a test file!')
+      }
+    )
+    fs.unlink(`downloaded-${fileName}`, err => {
+      if (err) {
+        console.log(`Error deleting file downloaded-${fileName}`, err)
+      }
+    })
+  })
 })
 /**
  * Returns a search result filtered to contain only the secrets with the given name
