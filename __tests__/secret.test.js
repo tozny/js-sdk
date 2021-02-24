@@ -9,11 +9,16 @@ jest.setTimeout(100000)
 let realmConfig
 let realm
 let identity
+let identity2
 let username
 let password
+let password2
+let username2
 beforeAll(async () => {
   username = `it-user-${uuidv4()}`
   password = uuidv4()
+  username2 = `second-user-${uuidv4()}`
+  password2 = uuidv4()
   realmConfig = {
     realmName: idRealmName,
     appName: idAppName,
@@ -33,6 +38,14 @@ beforeAll(async () => {
     `${username}@example.com`
   )
   identity = await realm.login(username, password)
+
+  await realm.register(
+    username2,
+    password2,
+    clientRegistrationToken,
+    `${username2}@example.com`
+  )
+  identity2 = await realm.login(username2, password2)
 })
 
 describe('Tozny identity client', () => {
@@ -289,6 +302,36 @@ describe('Tozny identity client', () => {
       testUsername
     )
     expect(shareByUsername).toBe(null)
+  })
+  it('can create a secret and share it with a username and list the shared records', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const testUsername = username2
+    const secretCreated = await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise(r => setTimeout(r, 5000))
+    let shareByUserName
+    while (new Date() - start < 30000) {
+      shareByUserName = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Credential',
+        testUsername
+      )
+      if (shareByUserName == secretCreated.meta.type) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise(r => setTimeout(r, 200))
+    }
+    let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
+    expect(sharedList[0].data.secretValue).toBe('secret-value')
   })
 })
 /**
