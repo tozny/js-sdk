@@ -3,7 +3,6 @@ const { apiUrl, idRealmName, idAppName, clientRegistrationToken } = global
 const Tozny = require('../node')
 const ops = require('./utils/operations')
 const { SECRET_UUID } = require('../lib/utils/constants')
-const fs = require('fs')
 
 jest.setTimeout(100000)
 
@@ -12,7 +11,7 @@ let realm
 let identity
 let username
 let password
-let fileName
+// let fileName
 beforeAll(async () => {
   username = `it-user-${uuidv4()}`
   password = uuidv4()
@@ -35,21 +34,23 @@ beforeAll(async () => {
     `${username}@example.com`
   )
   identity = await realm.login(username, password)
-  fileName = `test-file-${uuidv4()}`
-  fs.writeFile(fileName, 'This is a test file!', err => {
-    if (err) {
-      console.log(`Error creating file ${fileName}`, err)
-    }
-  })
+  /* this is commented out until tests can be written that work with 
+    browser and node */
+  // fileName = `test-file-${uuidv4()}`
+  // fs.writeFile(fileName, 'This is a test file!', err => {
+  //   if (err) {
+  //     console.log(`Error creating file ${fileName}`, err)
+  //   }
+  // })
 })
 
-afterAll(async () => {
-  fs.unlink(fileName, err => {
-    if (err) {
-      console.log(`Error deleting file ${fileName}`, err)
-    }
-  })
-})
+// afterAll(async () => {
+//   fs.unlink(fileName, err => {
+//     if (err) {
+//       console.log(`Error deleting file ${fileName}`, err)
+//     }
+//   })
+// })
 
 describe('Tozny identity client', () => {
   it('can create a secret', async () => {
@@ -306,6 +307,8 @@ describe('Tozny identity client', () => {
     )
     expect(shareByUsername).toBe(null)
   })
+  /* These tests are for node only, which means that they will fail the browsers tests on
+    travis. These will be updated shortly to work with both browser and node. */
   // it('can create a secret with a file type', async () => {
   //   const file = fs.createReadStream(fileName, { encoding: 'utf8' })
   //   const testName = `test-secret-${uuidv4()}`
