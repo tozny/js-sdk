@@ -814,7 +814,7 @@ module.exports = {
     }
     return secret
   },
-  async downloadFile(config, user, recordId) {
+  async getFile(config, user, recordId) {
     const secretResponse = await runInEnvironment(
       function(realmJSON, userJSON, recordId) {
         const realmConfig = JSON.parse(realmJSON)
@@ -825,7 +825,7 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user.downloadFile(recordId)
+        return user.getFile(recordId)
       },
       JSON.stringify(config),
       user.stringify(),
