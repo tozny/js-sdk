@@ -3,12 +3,8 @@ const { apiUrl, idRealmName, idAppName, clientRegistrationToken } = global
 const Tozny = require('../node')
 const ops = require('./utils/operations')
 
-jest.setTimeout(100000)
+jest.setTimeout(10000000)
 
-<<<<<<< HEAD
-
-=======
->>>>>>> d24a64e... js support for private realm info endpoint
 let realmConfig
 let realm
 let identity
@@ -118,36 +114,15 @@ describe('Tozny identity client', () => {
 =======
   it('it can get private realm info', async () => {
     const info = await ops.privateRealmInfo(realmConfig, identity)
+<<<<<<< HEAD
     console.log(info)
 >>>>>>> d24a64e... js support for private realm info endpoint
+=======
+    const expectedResult = {
+      name: realmConfig.realmName,
+      secrets_enabled: false,
+    }
+    expect(info).toMatchObject(expectedResult)
+>>>>>>> 3c2c8c1... adding tests to identity
   })
 })
-
-// describe('Tozny', () => {
-//   it('skip identity tests (validate test environment)', async () => {
-//     const result = await global.runInEnvironment(function (boolJSON) {
-//       var boolVal = JSON.parse(boolJSON)
-//       return boolVal
-//     }, JSON.stringify(true))
-//     return expect(JSON.parse(result)).toBe(true)
-//   })
-// it('can register an identity client', async () => {
-//   const user = await ops.registerIdentity(realmConfig, realm)
-//   // Basic exist check to ensure we got back a full identity user.
-//   expect(user.config).toMatchObject(realmConfig)
-//   expect(user.config.username).toEqual(
-//     expect.stringMatching(/^integration-user-/)
-//   )
-//   expect(user.storage).toBeInstanceOf(Tozny.storage.Client)
-// })
-// it('can log in to a realm', async () => {
-//   const user = await ops.login(realmConfig, realm, username, password)
-//   expect(user.serialize()).toMatchObject(identity.serialize())
-// })
-// it('can fetch a token', async () => {
-//   const info = await ops.userMethod(realmConfig, identity, 'tokenInfo')
-//   expect(info.access_token).toBeTruthy()
-//   const token = await ops.userMethod(realmConfig, identity, 'token')
-//   expect(token).toBeTruthy()
-//   // })
-// })
