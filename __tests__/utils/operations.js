@@ -7,11 +7,11 @@ module.exports = {
   async registerClient() {
     const name = `integration-client-${uuidv4()}`
     const configJSON = await runInEnvironment(
-      function(clientRegistrationToken, apiUrl, name) {
+      function (clientRegistrationToken, apiUrl, name) {
         return Promise.all([
           Tozny.crypto.generateKeypair(),
           Tozny.crypto.generateSigningKeypair(),
-        ]).then(function(keys) {
+        ]).then(function (keys) {
           return Tozny.storage
             .register(
               clientRegistrationToken,
@@ -21,7 +21,7 @@ module.exports = {
               true,
               apiUrl
             )
-            .then(function(info) {
+            .then(function (info) {
               return new Tozny.storage.Config(
                 info.clientId,
                 info.apiKeyId,
@@ -44,12 +44,12 @@ module.exports = {
   },
   async writeRecord(config, type, data, meta) {
     const recordJSON = await runInEnvironment(
-      function(configJSON, type, dataJSON, metaJSON) {
+      function (configJSON, type, dataJSON, metaJSON) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
         var data = JSON.parse(dataJSON)
         var meta = JSON.parse(metaJSON)
-        return client.writeRecord(type, data, meta).then(function(record) {
+        return client.writeRecord(type, data, meta).then(function (record) {
           return record.stringify()
         })
       },
@@ -62,10 +62,10 @@ module.exports = {
   },
   async readRecord(config, recordId) {
     const recordJSON = await runInEnvironment(
-      function(configJSON, recordId) {
+      function (configJSON, recordId) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
-        return client.readRecord(recordId).then(function(record) {
+        return client.readRecord(recordId).then(function (record) {
           return record.stringify()
         })
       },
@@ -76,15 +76,15 @@ module.exports = {
   },
   async updateRecord(config, record) {
     const recordJSON = await runInEnvironment(
-      function(configJSON, recordJSON) {
+      function (configJSON, recordJSON) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
         var recordObj = JSON.parse(recordJSON)
         return Tozny.types.Record.decode(recordObj)
-          .then(function(record) {
+          .then(function (record) {
             return client.updateRecord(record)
           })
-          .then(function(record) {
+          .then(function (record) {
             return record.stringify()
           })
       },
@@ -95,7 +95,7 @@ module.exports = {
   },
   async deleteRecord(config, recordId, version) {
     const result = await runInEnvironment(
-      function(configJSON, recordId, version) {
+      function (configJSON, recordId, version) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
         return client.deleteRecord(recordId, version).then(JSON.stringify)
@@ -114,7 +114,7 @@ module.exports = {
     options = {}
   ) {
     const noteJSON = await runInEnvironment(
-      function(
+      function (
         configJSON,
         dataJSON,
         recipientEncryptionKey,
@@ -127,7 +127,7 @@ module.exports = {
         var options = JSON.parse(optionsJSON)
         return client
           .writeNote(data, recipientEncryptionKey, recipientSigningKey, options)
-          .then(function(note) {
+          .then(function (note) {
             return note.stringify()
           })
       },
@@ -148,7 +148,7 @@ module.exports = {
     options = {}
   ) {
     const noteJSON = await runInEnvironment(
-      function(
+      function (
         dataJSON,
         recipientEncryptionKey,
         recipientSigningKey,
@@ -171,7 +171,7 @@ module.exports = {
             options,
             apiUrl
           )
-          .then(function(note) {
+          .then(function (note) {
             return note.stringify()
           })
       },
@@ -193,7 +193,7 @@ module.exports = {
     options
   ) {
     const noteJSON = await runInEnvironment(
-      function(
+      function (
         configJSON,
         dataJSON,
         recipientEncryptionKey,
@@ -211,7 +211,7 @@ module.exports = {
             recipientSigningKey,
             options
           )
-          .then(function(note) {
+          .then(function (note) {
             return note.stringify()
           })
       },
@@ -225,13 +225,13 @@ module.exports = {
   },
   async readNote(config, id, byName = false, authParams = {}) {
     const noteJSON = await runInEnvironment(
-      function(configJSON, id, byNameJSON, authParamsJSON) {
+      function (configJSON, id, byNameJSON, authParamsJSON) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
         var byName = JSON.parse(byNameJSON)
         var operation = byName ? 'readNoteByName' : 'readNote'
         var authParams = JSON.parse(authParamsJSON)
-        return client[operation](id, authParams).then(function(note) {
+        return client[operation](id, authParams).then(function (note) {
           return note.stringify()
         })
       },
@@ -249,7 +249,7 @@ module.exports = {
     byName = false
   ) {
     const noteJSON = await runInEnvironment(
-      function(
+      function (
         id,
         encryptionKeyPairJSON,
         signingKeyPairJSON,
@@ -267,7 +267,7 @@ module.exports = {
           {},
           {},
           apiUrl
-        ).then(function(note) {
+        ).then(function (note) {
           return note.stringify()
         })
       },
@@ -281,7 +281,7 @@ module.exports = {
   },
   async deleteNote(config, noteId) {
     const result = await runInEnvironment(
-      function(configJSON, noteId) {
+      function (configJSON, noteId) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
         return client.deleteNote(noteId).then(JSON.stringify)
@@ -293,7 +293,7 @@ module.exports = {
   },
   async deleteAnonymousNote(noteId, signingKeyPair) {
     const result = await runInEnvironment(
-      function(noteId, signingKeyPairJSON, apiUrl) {
+      function (noteId, signingKeyPairJSON, apiUrl) {
         const signingKeyPair = JSON.parse(signingKeyPairJSON)
         return Tozny.storage.deleteNote(noteId, signingKeyPair, apiUrl)
       },
@@ -305,7 +305,7 @@ module.exports = {
   },
   async authOperation(config, method, type, targetId) {
     const result = await runInEnvironment(
-      function(configJSON, method, type, targetId) {
+      function (configJSON, method, type, targetId) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
         return client[method](type, targetId).then(JSON.stringify)
@@ -319,7 +319,7 @@ module.exports = {
   },
   async authOnBehalfOperation(config, method, type, ownerId, targetId) {
     const result = await runInEnvironment(
-      function(configJSON, method, type, ownerId, targetId) {
+      function (configJSON, method, type, ownerId, targetId) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
         return client[method](ownerId, type, targetId).then(JSON.stringify)
@@ -334,7 +334,7 @@ module.exports = {
   },
   async search(config, searchRequest) {
     const recordsJSON = await runInEnvironment(
-      function(configJSON, searchJSON) {
+      function (configJSON, searchJSON) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
         const serial = JSON.parse(searchJSON)
@@ -387,11 +387,11 @@ module.exports = {
         }
         return client
           .search(request)
-          .then(function(r) {
+          .then(function (r) {
             return r.next()
           })
-          .then(function(list) {
-            return list.map(function(record) {
+          .then(function (list) {
+            return list.map(function (record) {
               return record.serializable()
             })
           })
@@ -404,7 +404,7 @@ module.exports = {
   },
   async infoOperation(config, method) {
     const result = await runInEnvironment(
-      function(configJSON, method) {
+      function (configJSON, method) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
         return client[method]().then(JSON.stringify)
@@ -418,7 +418,7 @@ module.exports = {
     const username = `integration-user-${uuidv4()}@example.com`
     const password = uuidv4()
     const user = await runInEnvironment(
-      function(realmJSON, clientRegistrationToken, username, password) {
+      function (realmJSON, clientRegistrationToken, username, password) {
         const realmConfig = JSON.parse(realmJSON)
         const realm = new Tozny.identity.Realm(
           realmConfig.realmName,
@@ -433,7 +433,7 @@ module.exports = {
             clientRegistrationToken,
             `${username}@example.com`
           )
-          .then(function(user) {
+          .then(function (user) {
             return user.stringify()
           })
       },
@@ -446,7 +446,7 @@ module.exports = {
   },
   async login(config, realm, username, password) {
     const user = await runInEnvironment(
-      function(realmJSON, username, password) {
+      function (realmJSON, username, password) {
         const realmConfig = JSON.parse(realmJSON)
         const realm = new Tozny.identity.Realm(
           realmConfig.realmName,
@@ -454,7 +454,7 @@ module.exports = {
           realmConfig.brokerTargetUrl,
           realmConfig.apiUrl
         )
-        return realm.login(username, password).then(function(user) {
+        return realm.login(username, password).then(function (user) {
           return user.stringify()
         })
       },
@@ -466,7 +466,7 @@ module.exports = {
   },
   async userMethod(config, user, method) {
     const userConfig = await runInEnvironment(
-      function(realmJSON, userJSON, method) {
+      function (realmJSON, userJSON, method) {
         const realmConfig = JSON.parse(realmJSON)
         const realm = new Tozny.identity.Realm(
           realmConfig.realmName,
@@ -485,7 +485,7 @@ module.exports = {
   },
   async createGroup(config, name, description, capabilities = []) {
     const groupMembership = await runInEnvironment(
-      function(configJSON, name, capabilities, description) {
+      function (configJSON, name, capabilities, description) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
         capabilities = new Tozny.types.Capabilities(capabilities)
@@ -500,7 +500,7 @@ module.exports = {
   },
   async deleteGroup(config, groupID) {
     const result = await runInEnvironment(
-      function(configJSON, groupID) {
+      function (configJSON, groupID) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
         return client.deleteGroup(groupID).then(JSON.stringify)
@@ -512,10 +512,10 @@ module.exports = {
   },
   async readGroup(config, id) {
     const groupJson = await runInEnvironment(
-      function(configJson, id) {
+      function (configJson, id) {
         var config = Tozny.storage.Config.fromObject(configJson)
         var client = new Tozny.storage.Client(config)
-        return client.readGroup(id).then(function(group) {
+        return client.readGroup(id).then(function (group) {
           return group.stringify()
         })
       },
@@ -532,7 +532,7 @@ module.exports = {
     max = null
   ) {
     const groupsJson = await runInEnvironment(
-      function(configJSON, clientID, groupNamesJson, nextToken, max) {
+      function (configJSON, clientID, groupNamesJson, nextToken, max) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
         var groupNames = JSON.parse(groupNamesJson)
@@ -561,7 +561,7 @@ module.exports = {
   },
   async addGroupMembers(config, groupId, groupMembers = []) {
     const result = await runInEnvironment(
-      function(configJSON, groupId, groupMembersJSON) {
+      function (configJSON, groupId, groupMembersJSON) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
         var groupMembersParsed = JSON.parse(groupMembersJSON)
@@ -576,7 +576,7 @@ module.exports = {
   },
   async removeGroupMembers(config, groupId, clientIds = []) {
     const result = await runInEnvironment(
-      function(configJSON, groupId, clientIdsJSON) {
+      function (configJSON, groupId, clientIdsJSON) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
         var clientIDParsed = JSON.parse(clientIdsJSON)
@@ -591,7 +591,7 @@ module.exports = {
   },
   async listGroupMembers(config, id) {
     const result = await runInEnvironment(
-      function(configJson, id) {
+      function (configJson, id) {
         var config = Tozny.storage.Config.fromObject(configJson)
         var client = new Tozny.storage.Client(config)
         return client.listGroupMembers(id)
@@ -609,7 +609,7 @@ module.exports = {
     max = null
   ) {
     const result = await runInEnvironment(
-      function(configJson, groupId, writerIdsJSON, nextToken, max) {
+      function (configJson, groupId, writerIdsJSON, nextToken, max) {
         var config = Tozny.storage.Config.fromObject(configJson)
         var client = new Tozny.storage.Client(config)
         var writerIds = JSON.parse(writerIdsJSON)
@@ -630,7 +630,7 @@ module.exports = {
   },
   async shareRecordWithGroup(config, groupId, recordType) {
     const result = await runInEnvironment(
-      function(configJson, groupId, recordType) {
+      function (configJson, groupId, recordType) {
         var config = Tozny.storage.Config.fromObject(configJson)
         var client = new Tozny.storage.Client(config)
         return client.shareRecordWithGroup(groupId, recordType)
@@ -656,7 +656,7 @@ module.exports = {
   },
   async createSecret(config, user, secret) {
     const secretResp = await runInEnvironment(
-      function(realmJSON, userJSON, secret) {
+      function (realmJSON, userJSON, secret) {
         const realmConfig = JSON.parse(realmJSON)
         const realm = new Tozny.identity.Realm(
           realmConfig.realmName,
@@ -665,7 +665,7 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user.createSecret(secret).then(function(secret) {
+        return user.createSecret(secret).then(function (secret) {
           return secret.stringify()
         })
       },
@@ -677,7 +677,7 @@ module.exports = {
   },
   async getSecrets(config, user, limit) {
     const secretList = await runInEnvironment(
-      function(realmJSON, userJSON, limit) {
+      function (realmJSON, userJSON, limit) {
         const realmConfig = JSON.parse(realmJSON)
         const realm = new Tozny.identity.Realm(
           realmConfig.realmName,
@@ -688,11 +688,11 @@ module.exports = {
         const user = realm.fromObject(userJSON)
         return user
           .getSecrets(limit)
-          .then(function(r) {
+          .then(function (r) {
             return r.next()
           })
-          .then(function(list) {
-            return list.map(function(record) {
+          .then(function (list) {
+            return list.map(function (record) {
               return record.serializable()
             })
           })
@@ -706,7 +706,7 @@ module.exports = {
   },
   async viewSecret(config, user, secretID) {
     const secret = await runInEnvironment(
-      function(realmJSON, userJSON, secretID) {
+      function (realmJSON, userJSON, secretID) {
         const realmConfig = JSON.parse(realmJSON)
         const realm = new Tozny.identity.Realm(
           realmConfig.realmName,
@@ -715,7 +715,7 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user.viewSecret(secretID).then(function(secret) {
+        return user.viewSecret(secretID).then(function (secret) {
           return secret.stringify()
         })
       },
@@ -727,7 +727,7 @@ module.exports = {
   },
   async updateSecret(config, user, oldSecret, newSecret) {
     const secretResponse = await runInEnvironment(
-      function(realmJSON, userJSON, oldSecret, newSecret) {
+      function (realmJSON, userJSON, oldSecret, newSecret) {
         const realmConfig = JSON.parse(realmJSON)
         const realm = new Tozny.identity.Realm(
           realmConfig.realmName,
@@ -736,7 +736,7 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user.updateSecret(oldSecret, newSecret).then(function(secret) {
+        return user.updateSecret(oldSecret, newSecret).then(function (secret) {
           return secret.stringify()
         })
       },
@@ -755,7 +755,7 @@ module.exports = {
     usernameToAdd
   ) {
     const result = await runInEnvironment(
-      function(realmJSON, userJSON, secretName, secretType, usernameToAdd) {
+      function (realmJSON, userJSON, secretName, secretType, usernameToAdd) {
         const realmConfig = JSON.parse(realmJSON)
         const realm = new Tozny.identity.Realm(
           realmConfig.realmName,
@@ -766,7 +766,7 @@ module.exports = {
         const user = realm.fromObject(userJSON)
         return user
           .shareSecretWithUsername(secretName, secretType, usernameToAdd)
-          .then(function(secret) {
+          .then(function (secret) {
             if (secret != null) {
               return JSON.stringify(secret)
             } else {
@@ -809,7 +809,7 @@ module.exports = {
   },
   async getLatestSecret(config, user, secretName, secretType) {
     const secret = await runInEnvironment(
-      function(realmJSON, userJSON, secretName, secretType) {
+      function (realmJSON, userJSON, secretName, secretType) {
         const realmConfig = JSON.parse(realmJSON)
         const realm = new Tozny.identity.Realm(
           realmConfig.realmName,
@@ -820,7 +820,7 @@ module.exports = {
         const user = realm.fromObject(userJSON)
         return user
           .getLatestSecret(secretName, secretType)
-          .then(function(secret) {
+          .then(function (secret) {
             if (secret.exists == true) {
               return { exists: true, results: JSON.stringify(secret.results) }
             }
@@ -842,7 +842,11 @@ module.exports = {
   },
   async privateRealmInfo(config, user) {
     const result = await runInEnvironment(
+<<<<<<< HEAD
       function(realmJSON, userJSON) {
+=======
+      function (realmJSON, userJSON) {
+>>>>>>> d24a64e... js support for private realm info endpoint
         const realmConfig = JSON.parse(realmJSON)
         const realm = new Tozny.identity.Realm(
           realmConfig.realmName,
@@ -851,7 +855,11 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
+<<<<<<< HEAD
         return user.privateRealmInfo().then(function(info) {
+=======
+        return user.privateRealmInfo().then(function (info) {
+>>>>>>> d24a64e... js support for private realm info endpoint
           if (info != null) {
             return JSON.stringify(info)
           } else {
@@ -864,6 +872,7 @@ module.exports = {
     )
     return JSON.parse(result)
   },
+<<<<<<< HEAD
   async revokeSecretFromUser(
     config,
     user,
@@ -915,6 +924,8 @@ module.exports = {
     )
     return result
   },
+=======
+>>>>>>> d24a64e... js support for private realm info endpoint
   /* this works with the node specific file tests, and will be reworked
   to fit with browser compatible tests */
   // async getFile(config, user, recordId) {
