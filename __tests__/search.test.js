@@ -26,17 +26,10 @@ beforeAll(async () => {
     testRecords.push(written)
   }
   // wait for records to be indexed
-  for (let i = 0; i < 10; i++) {
-    const request = new Tozny.types.Search()
-    request.match({ records: testRecords[0].meta.recordId })
-    const resultQuery = await writer.search(request)
-    const found = await resultQuery.next()
-    if (found.length < 1) {
-      await new Promise(r => setTimeout(r, i * 1000))
-      continue
-    }
-    break
-  }
+  const request = new Tozny.types.Search()
+  request.match({ records: testRecords[0].meta.recordId })
+  const resultQuery = await writer.search(request)
+  await ops.waitForNext(resultQuery, f => f.length === 10)
 })
 
 afterAll(async () => {

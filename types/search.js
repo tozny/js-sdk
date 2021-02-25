@@ -1,6 +1,7 @@
 const Serializable = require('./serializable')
 const SearchParam = require('./searchParam')
 const SearchRange = require('./searchRange')
+const SearchOrder = require('./searchOrder')
 const { DEFAULT_QUERY_COUNT } = require('../lib/utils/constants')
 
 /**
@@ -36,6 +37,10 @@ class Search extends Serializable {
     this.searchRange = new SearchRange(start, end, key)
     return this
   }
+  order(sortOrder) {
+    this.searchOrder = new SearchOrder(sortOrder)
+    return this
+  }
 
   /**
    * Generate a JSON.stringify-friendly version of the object
@@ -60,6 +65,9 @@ class Search extends Serializable {
     }
     if (this.searchRange) {
       toSerialize.range = this.searchRange.serializable()
+    }
+    if (this.searchOrder) {
+      toSerialize.order = this.searchOrder.serializable()
     }
     return toSerialize
   }
