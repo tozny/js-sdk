@@ -11,7 +11,6 @@ let realm
 let identity
 let username
 let password
-// let fileName
 beforeAll(async () => {
   username = `it-user-${uuidv4()}`
   password = uuidv4()
