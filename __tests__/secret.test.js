@@ -33,7 +33,23 @@ beforeAll(async () => {
     `${username}@example.com`
   )
   identity = await realm.login(username, password)
+  /* this is commented out until tests can be written that work with 
+    browser and node */
+  // fileName = `test-file-${uuidv4()}`
+  // fs.writeFile(fileName, 'This is a test file!', err => {
+  //   if (err) {
+  //     console.log(`Error creating file ${fileName}`, err)
+  //   }
+  // })
 })
+
+// afterAll(async () => {
+//   fs.unlink(fileName, err => {
+//     if (err) {
+//       console.log(`Error deleting file ${fileName}`, err)
+//     }
+//   })
+// })
 
 describe('Tozny identity client', () => {
   it('can create a secret', async () => {
@@ -381,6 +397,67 @@ describe('Tozny identity client', () => {
     )
     expect(list).toStrictEqual([])
   })
+  /* These tests are for node only, which means that they will fail the browsers tests on
+    travis. These will be updated shortly to work with both browser and node. */
+  // it('can create a secret with a file type', async () => {
+  //   const file = fs.createReadStream(fileName, { encoding: 'utf8' })
+  //   const testName = `test-secret-${uuidv4()}`
+  //   const secret = {
+  //     secretType: 'File',
+  //     secretName: testName,
+  //     secretValue: '',
+  //     fileName: fileName,
+  //     file: file,
+  //     description: 'this contains a file',
+  //   }
+  //   const secretTest = {
+  //     meta: {
+  //       type: `tozny.secret.${SECRET_UUID}.${secret.secretType}.${secret.secretName}`,
+  //       plain: {
+  //         description: secret.description,
+  //         secretName: secret.secretName,
+  //         secretType: secret.secretType,
+  //         fileName: secret.fileName,
+  //       },
+  //     },
+  //   }
+  //   const secretResp = await ops.createSecret(realmConfig, identity, secret)
+  //   expect(secretResp).toMatchObject(secretTest)
+  // })
+  // it('can view a secret with a file type', async () => {
+  //   const file = fs.createReadStream(fileName, { encoding: 'utf8' })
+  //   const testName = `test-secret-${uuidv4()}`
+  //   const secret = {
+  //     secretType: 'File',
+  //     secretName: testName,
+  //     secretValue: '',
+  //     fileName: fileName,
+  //     file: file,
+  //     description: 'this contains a file',
+  //   }
+  //   const created = await ops.createSecret(realmConfig, identity, secret)
+  //   const returned = await ops.getFile(
+  //     realmConfig,
+  //     identity,
+  //     created.meta.recordId
+  //   )
+  //   await Tozny.helpers.saveFile(returned, `downloaded-${fileName}`)
+  //   fs.readFile(
+  //     `downloaded-${fileName}`,
+  //     { encoding: 'utf-8' },
+  //     (err, data) => {
+  //       if (err) {
+  //         console.log(`Error downloading file downloaded-${fileName}`, err)
+  //       }
+  //       expect(data).toBe('This is a test file!')
+  //     }
+  //   )
+  //   fs.unlink(`downloaded-${fileName}`, err => {
+  //     if (err) {
+  //       console.log(`Error deleting file downloaded-${fileName}`, err)
+  //     }
+  //   })
+  // })
 })
 /**
  * Returns a search result filtered to contain only the secrets with the given name
