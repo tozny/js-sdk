@@ -543,4 +543,76 @@ describe('Tozny', () => {
     )
     expect(sharedWithGroup2[0].length).toBe(5)
   })
+  it('It can share and unshare a record with a group', async () => {
+    const groupName = `testGroup-updated-${uuidv4()}`
+    const groupDesciption = 'this is a group meant to list'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
+    const groupMember = new GroupMember(readerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    const groupMember2 = new GroupMember(authorizerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    let groupMembersToAdd = []
+    groupMembersToAdd.push(groupMember)
+    groupMembersToAdd.push(groupMember2)
+    await ops.addGroupMembers(
+      writerClient,
+      created.group.groupID,
+      groupMembersToAdd
+    )
+    const type = `say-hello-${uuidv4()}`
+    const data = { hello: 'world' }
+    const meta = { hola: 'mundo' }
+    let recordInfo = await ops.writeRecord(readerClient, type, data, meta)
+    await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
+    let sharedWithGroup = await ops.listRecordsSharedWithGroup(
+      authorizerClient,
+      created.group.groupID,
+      [],
+      0,
+      10
+    )
+    expect(sharedWithGroup[0][0].meta.recordId).toBe(recordInfo.meta.recordId)
+    await ops.revokeRecordWithGroup(readerClient, created.group.groupID, type)
+    let sharedWithGroupUpdated = await ops.listRecordsSharedWithGroup(
+      authorizerClient,
+      created.group.groupID,
+      [],
+      0,
+      10
+    )
+    expect(JSON.stringify(sharedWithGroupUpdated)).toBe(JSON.stringify([]))
+  })
+  it('can return a group based on group name', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const created = await ops.createGroup(writerClient, groupName)
+    const listTest = {
+      groupName: created.group.groupName,
+      groupID: created.group.groupID,
+      accountID: created.group.accountID,
+    }
+    const list = await ops.groupInfo(
+      writerClient,
+      writerClient.clientId,
+      groupName
+    )
+
+    expect(list).toMatchObject(listTest)
+  })
+  it('can return an empty group', async () => {
+    const listTest = {}
+    const list = await ops.groupInfo(
+      writerClient,
+      writerClient.clientId,
+      `fakeName-${uuidv4()}`
+    )
+    expect(list).toMatchObject(listTest)
+  })
 })

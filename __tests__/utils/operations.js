@@ -546,6 +546,19 @@ module.exports = {
     )
     return groupsJson
   },
+  async groupInfo(config, clientID = null, groupName) {
+    const result = await runInEnvironment(
+      function(configJSON, clientID, groupName) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.groupInfo(groupName, clientID)
+      },
+      JSON.stringify(config),
+      clientID,
+      groupName
+    )
+    return result
+  },
   async addGroupMembers(config, groupId, groupMembers = []) {
     const result = await runInEnvironment(
       function(configJSON, groupId, groupMembersJSON) {
@@ -621,6 +634,19 @@ module.exports = {
         var config = Tozny.storage.Config.fromObject(configJson)
         var client = new Tozny.storage.Client(config)
         return client.shareRecordWithGroup(groupId, recordType)
+      },
+      JSON.stringify(config),
+      groupId,
+      recordType
+    )
+    return result
+  },
+  async revokeRecordWithGroup(config, groupId, recordType) {
+    const result = await runInEnvironment(
+      function(configJSON, groupId, recordType) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.revokeRecordWithGroup(groupId, recordType)
       },
       JSON.stringify(config),
       groupId,
@@ -813,6 +839,57 @@ module.exports = {
       return { exists: true, results: secretResult }
     }
     return secret
+  },
+  async revokeSecretFromUser(
+    config,
+    user,
+    secretName,
+    secretType,
+    userToRevokeShare
+  ) {
+    const result = await runInEnvironment(
+      function(realmJSON, userJSON, secretName, secretType, userToRevokeShare) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.revokeSecretFromUser(
+          secretName,
+          secretType,
+          userToRevokeShare
+        )
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      secretName,
+      secretType,
+      userToRevokeShare
+    )
+    return result
+  },
+  async getSecretSharedList(config, user, secretName, secretType) {
+    const result = await runInEnvironment(
+      function(realmJSON, userJSON, secretName, secretType) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.getSecretSharedList(secretName, secretType)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      secretName,
+      secretType
+    )
+    return result
   },
   /* this works with the node specific file tests, and will be reworked
     to fit with browser compatible tests */
