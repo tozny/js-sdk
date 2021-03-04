@@ -406,7 +406,7 @@ describe('Tozny identity client', () => {
       testName,
       'Credential'
     )
-    expect(list).toStrictEqual([])
+    expect(JSON.stringify(list)).toBe(JSON.stringify([]))
   })
   /* These tests are for node only, which means that they will fail the browsers tests on
     travis. These will be updated shortly to work with both browser and node. */
