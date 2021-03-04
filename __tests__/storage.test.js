@@ -588,7 +588,7 @@ describe('Tozny', () => {
       0,
       10
     )
-    expect(sharedWithGroupUpdated).toStrictEqual([])
+    expect(JSON.stringify(sharedWithGroupUpdated)).toBe(JSON.stringify([]))
   })
   it('can return a group based on group name', async () => {
     const groupName = `testGroup-${uuidv4()}`
