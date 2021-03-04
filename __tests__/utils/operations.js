@@ -546,6 +546,19 @@ module.exports = {
     )
     return groupsJson
   },
+  async groupInfo(config, clientID = null, groupName) {
+    const result = await runInEnvironment(
+      function(configJSON, clientID, groupName) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.groupInfo(groupName, clientID)
+      },
+      JSON.stringify(config),
+      clientID,
+      groupName
+    )
+    return result
+  },
   async addGroupMembers(config, groupId, groupMembers = []) {
     const result = await runInEnvironment(
       function(configJSON, groupId, groupMembersJSON) {
@@ -621,6 +634,19 @@ module.exports = {
         var config = Tozny.storage.Config.fromObject(configJson)
         var client = new Tozny.storage.Client(config)
         return client.shareRecordWithGroup(groupId, recordType)
+      },
+      JSON.stringify(config),
+      groupId,
+      recordType
+    )
+    return result
+  },
+  async revokeRecordWithGroup(config, groupId, recordType) {
+    const result = await runInEnvironment(
+      function(configJSON, groupId, recordType) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.revokeRecordWithGroup(groupId, recordType)
       },
       JSON.stringify(config),
       groupId,
@@ -814,6 +840,57 @@ module.exports = {
     }
     return secret
   },
+  async revokeSecretFromUser(
+    config,
+    user,
+    secretName,
+    secretType,
+    userToRevokeShare
+  ) {
+    const result = await runInEnvironment(
+      function(realmJSON, userJSON, secretName, secretType, userToRevokeShare) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.revokeSecretFromUser(
+          secretName,
+          secretType,
+          userToRevokeShare
+        )
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      secretName,
+      secretType,
+      userToRevokeShare
+    )
+    return result
+  },
+  async getSecretSharedList(config, user, secretName, secretType) {
+    const result = await runInEnvironment(
+      function(realmJSON, userJSON, secretName, secretType) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.getSecretSharedList(secretName, secretType)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      secretName,
+      secretType
+    )
+    return result
+  },
   /* this works with the node specific file tests, and will be reworked
     to fit with browser compatible tests */
   // async getFile(config, user, recordId) {
@@ -835,4 +912,92 @@ module.exports = {
   //   )
   //   return secretResponse
   // },
+  async searchRealmIdentitiesByUsername(config, user, usernamesToSearch = []) {
+    const results = await runInEnvironment(
+      function(realmJSON, userJSON, usernamesToSearchJSON) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        var usernames = JSON.parse(usernamesToSearchJSON)
+        const user = realm.fromObject(userJSON)
+        return user
+          .searchRealmIdentitiesByUsername(usernames)
+          .then(function(identityInfo) {
+            const returnVal = JSON.stringify(identityInfo)
+            return returnVal
+          })
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      JSON.stringify(usernamesToSearch)
+    )
+    return JSON.parse(results)
+  },
+  async searchRealmIdentitiesByEmail(config, user, emailsToSearch = []) {
+    const results = await runInEnvironment(
+      function(realmJSON, userJSON, emailsToSearchJSON) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        var emails = JSON.parse(emailsToSearchJSON)
+        const user = realm.fromObject(userJSON)
+        return user
+          .searchRealmIdentitiesByEmail(emails)
+          .then(function(identityInfo) {
+            const returnVal = JSON.stringify(identityInfo)
+            return returnVal
+          })
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      JSON.stringify(emailsToSearch)
+    )
+    return JSON.parse(results)
+  },
+  async findIdentityByEmail(config, user, email) {
+    const results = await runInEnvironment(
+      function(realmJSON, userJSON, email) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.findIdentityByEmail(email)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      email
+    )
+    return results
+  },
+  async findIdentityByUsername(config, user, username) {
+    const results = await runInEnvironment(
+      function(realmJSON, userJSON, username) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.findIdentityByUsername(username)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      username
+    )
+    return results
+  },
 }

@@ -11,9 +11,13 @@ let realm
 let identity
 let username
 let password
+let username2
+let password2
 beforeAll(async () => {
   username = `it-user-${uuidv4()}`
   password = uuidv4()
+  username2 = `it-second-user-${uuidv4()}`
+  password2 = uuidv4()
   realmConfig = {
     realmName: idRealmName,
     appName: idAppName,
@@ -33,6 +37,13 @@ beforeAll(async () => {
     `${username}@example.com`
   )
   identity = await realm.login(username, password)
+  await realm.register(
+    username2,
+    password2,
+    clientRegistrationToken,
+    `${username2}@example.com`
+  )
+  // identity2 = await realm.login(username2, password2)
   /* this is commented out until tests can be written that work with 
     browser and node */
   // fileName = `test-file-${uuidv4()}`
@@ -266,7 +277,7 @@ describe('Tozny identity client', () => {
       secretValue: 'secret-value',
       description: 'this is a description',
     }
-    const testUsername = 'katieuser1'
+    const testUsername = username2
     const secretCreated = await ops.createSecret(realmConfig, identity, secret)
     const start = new Date()
     await new Promise(r => setTimeout(r, 5000))
@@ -305,6 +316,97 @@ describe('Tozny identity client', () => {
       testUsername
     )
     expect(shareByUsername).toBe(null)
+  })
+  it('it can share a secret and unshare', async () => {
+    const testName = `updated-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const testUsername = username2
+    const secretCreated = await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise(r => setTimeout(r, 5000))
+    let shareByUsername
+    while (new Date() - start < 30000) {
+      shareByUsername = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Credential',
+        testUsername
+      )
+      if (shareByUsername != null) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise(r => setTimeout(r, 200))
+    }
+    expect(shareByUsername).toBe(secretCreated.meta.type)
+    let unshareByUsername = await ops.revokeSecretFromUser(
+      realmConfig,
+      identity,
+      testName,
+      'Credential',
+      testUsername
+    )
+
+    expect(unshareByUsername).toBe(true)
+  })
+
+  it('can get a list of secret shared', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const testUsername = username2
+    await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise(r => setTimeout(r, 5000))
+    let shareByUsername
+    while (new Date() - start < 30000) {
+      shareByUsername = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Credential',
+        testUsername
+      )
+      if (shareByUsername != null) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise(r => setTimeout(r, 200))
+    }
+    const list = await ops.getSecretSharedList(
+      realmConfig,
+      identity,
+      testName,
+      'Credential'
+    )
+    expect(list[0].username).toBe(testUsername)
+  })
+  it('can return an empty list if not shared', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    await ops.createSecret(realmConfig, identity, secret)
+    const list = await ops.getSecretSharedList(
+      realmConfig,
+      identity,
+      testName,
+      'Credential'
+    )
+    expect(JSON.stringify(list)).toBe(JSON.stringify([]))
   })
   /* These tests are for node only, which means that they will fail the browsers tests on
     travis. These will be updated shortly to work with both browser and node. */
