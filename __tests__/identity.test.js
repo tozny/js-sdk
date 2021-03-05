@@ -80,7 +80,7 @@ describe('Tozny identity client', () => {
     expect(response.searched_identities_information).toBe(null)
   })
   it('can do an identity look up based on email', async () => {
-    const response = await ops.findIdentityByEmail(
+    const response = await ops.searchIdentityByEmail(
       realmConfig,
       identity,
       `${username}@example.com`
@@ -92,7 +92,7 @@ describe('Tozny identity client', () => {
     expect(response).toMatchObject(expectedData)
   })
   it('can do an identity look up based on username', async () => {
-    const response = await ops.findIdentityByUsername(
+    const response = await ops.searchIdentityByUsername(
       realmConfig,
       identity,
       username
@@ -102,5 +102,13 @@ describe('Tozny identity client', () => {
       realm_email: `${username}@example.com`,
     }
     expect(response).toMatchObject(expectedData)
+  })
+  it('it can get private realm info', async () => {
+    const info = await ops.privateRealmInfo(realmConfig, identity)
+    const expectedResult = {
+      name: realmConfig.realmName,
+      secrets_enabled: false,
+    }
+    expect(info).toMatchObject(expectedResult)
   })
 })

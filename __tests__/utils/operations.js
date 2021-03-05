@@ -840,6 +840,30 @@ module.exports = {
     }
     return secret
   },
+  async privateRealmInfo(config, user) {
+    const result = await runInEnvironment(
+      function(realmJSON, userJSON) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.privateRealmInfo().then(function(info) {
+          if (info != null) {
+            return JSON.stringify(info)
+          } else {
+            return info
+          }
+        })
+      },
+      JSON.stringify(config),
+      user.stringify()
+    )
+    return JSON.parse(result)
+  },
   async revokeSecretFromUser(
     config,
     user,
@@ -892,7 +916,7 @@ module.exports = {
     return result
   },
   /* this works with the node specific file tests, and will be reworked
-    to fit with browser compatible tests */
+  to fit with browser compatible tests */
   // async getFile(config, user, recordId) {
   //   const secretResponse = await runInEnvironment(
   //     function(realmJSON, userJSON, recordId) {
@@ -962,7 +986,7 @@ module.exports = {
     )
     return JSON.parse(results)
   },
-  async findIdentityByEmail(config, user, email) {
+  async searchIdentityByEmail(config, user, email) {
     const results = await runInEnvironment(
       function(realmJSON, userJSON, email) {
         const realmConfig = JSON.parse(realmJSON)
@@ -973,7 +997,7 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user.findIdentityByEmail(email)
+        return user.searchIdentityByEmail(email)
       },
       JSON.stringify(config),
       user.stringify(),
@@ -981,7 +1005,7 @@ module.exports = {
     )
     return results
   },
-  async findIdentityByUsername(config, user, username) {
+  async searchIdentityByUsername(config, user, username) {
     const results = await runInEnvironment(
       function(realmJSON, userJSON, username) {
         const realmConfig = JSON.parse(realmJSON)
@@ -992,7 +1016,7 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user.findIdentityByUsername(username)
+        return user.searchIdentityByUsername(username)
       },
       JSON.stringify(config),
       user.stringify(),
