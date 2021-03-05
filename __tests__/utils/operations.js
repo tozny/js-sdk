@@ -912,4 +912,92 @@ module.exports = {
   //   )
   //   return secretResponse
   // },
+  async searchRealmIdentitiesByUsername(config, user, usernamesToSearch = []) {
+    const results = await runInEnvironment(
+      function(realmJSON, userJSON, usernamesToSearchJSON) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        var usernames = JSON.parse(usernamesToSearchJSON)
+        const user = realm.fromObject(userJSON)
+        return user
+          .searchRealmIdentitiesByUsername(usernames)
+          .then(function(identityInfo) {
+            const returnVal = JSON.stringify(identityInfo)
+            return returnVal
+          })
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      JSON.stringify(usernamesToSearch)
+    )
+    return JSON.parse(results)
+  },
+  async searchRealmIdentitiesByEmail(config, user, emailsToSearch = []) {
+    const results = await runInEnvironment(
+      function(realmJSON, userJSON, emailsToSearchJSON) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        var emails = JSON.parse(emailsToSearchJSON)
+        const user = realm.fromObject(userJSON)
+        return user
+          .searchRealmIdentitiesByEmail(emails)
+          .then(function(identityInfo) {
+            const returnVal = JSON.stringify(identityInfo)
+            return returnVal
+          })
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      JSON.stringify(emailsToSearch)
+    )
+    return JSON.parse(results)
+  },
+  async findIdentityByEmail(config, user, email) {
+    const results = await runInEnvironment(
+      function(realmJSON, userJSON, email) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.findIdentityByEmail(email)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      email
+    )
+    return results
+  },
+  async findIdentityByUsername(config, user, username) {
+    const results = await runInEnvironment(
+      function(realmJSON, userJSON, username) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.findIdentityByUsername(username)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      username
+    )
+    return results
+  },
 }
