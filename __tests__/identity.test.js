@@ -34,7 +34,6 @@ beforeAll(async () => {
   identity = await realm.login(username, password)
 })
 describe('Tozny identity client', () => {
-<<<<<<< HEAD
   it('can do identity look ups based on emails', async () => {
     let emails = []
     emails.push(`${username}@example.com`) // Current User
@@ -81,7 +80,7 @@ describe('Tozny identity client', () => {
     expect(response.searched_identities_information).toBe(null)
   })
   it('can do an identity look up based on email', async () => {
-    const response = await ops.findIdentityByEmail(
+    const response = await ops.searchIdentityByEmail(
       realmConfig,
       identity,
       `${username}@example.com`
@@ -93,7 +92,7 @@ describe('Tozny identity client', () => {
     expect(response).toMatchObject(expectedData)
   })
   it('can do an identity look up based on username', async () => {
-    const response = await ops.findIdentityByUsername(
+    const response = await ops.searchIdentityByUsername(
       realmConfig,
       identity,
       username
@@ -111,18 +110,5 @@ describe('Tozny identity client', () => {
       secrets_enabled: false,
     }
     expect(info).toMatchObject(expectedResult)
-=======
-  it('it can get private realm info', async () => {
-    const info = await ops.privateRealmInfo(realmConfig, identity)
-<<<<<<< HEAD
-    console.log(info)
->>>>>>> d24a64e... js support for private realm info endpoint
-=======
-    const expectedResult = {
-      name: realmConfig.realmName,
-      secrets_enabled: false,
-    }
-    expect(info).toMatchObject(expectedResult)
->>>>>>> 3c2c8c1... adding tests to identity
   })
 })
