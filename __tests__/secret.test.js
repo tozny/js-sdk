@@ -63,7 +63,7 @@ beforeAll(async () => {
 // })
 
 describe('Tozny identity client', () => {
-  it('can create a secret', async () => {
+  it('can create a credential secret', async () => {
     const testName = `test-secret-${uuidv4()}`
     const secret = {
       secretType: 'Credential',
@@ -87,7 +87,104 @@ describe('Tozny identity client', () => {
     const secretResp = await ops.createSecret(realmConfig, identity, secret)
     expect(secretResp).toMatchObject(secretTest)
   })
-  it('fails to create secret when name or value is not valid', async () => {
+  it('can create a client secret', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Client',
+      secretName: testName,
+      secretValue: `{
+        "version": "2",
+        "public_signing_key": "A5QXkIKW5dBN_IOhjGoUBtT-xuVmqRXDB2uaqiKuTao",
+        "private_signing_key": "qIqG9_81kd2gOY-yggIpahQG1MDnlBeQj7G4MHa5p0E1WapQxLVlyU6hXA6rp-Ci5DFf8g6GMaqy5t_H1g5Nqg",
+        "client_id": "4f20ca95-1b3b-b78f-b5bd-6d469ac804eb",
+        "api_key_id": "63807026e9a23850307429e52d2f607eaa5be43488cbb819b075ade91735b180",
+        "api_secret": "730e6b18dc9668fe1758304283c73060619f6596f11bf42bdd3f16d6fc6cd6d0",
+        "public_key": "6u73qLgJniPi9S2t99A7lNfvi3xjxMsPB_Z-CEGWZmo",
+        "private_key": "BnBt9_tquBvSAHL04bQm0HkQ7eXtvuj1WSHegQeho6E",
+        "api_url": "http://platform.local.tozny.com:8000",
+        "client_email": ""
+      }`,
+      description: 'a client credential secret',
+    }
+    const secretTest = {
+      meta: {
+        type: `tozny.secret.${SECRET_UUID}.${secret.secretType}.${secret.secretName}`,
+        plain: {
+          description: secret.description,
+          secretName: secret.secretName,
+          secretType: secret.secretType,
+        },
+      },
+      data: {
+        secretValue: secret.secretValue,
+      },
+    }
+    const secretResp = await ops.createSecret(realmConfig, identity, secret)
+    expect(secretResp).toMatchObject(secretTest)
+  })
+  it('fails to create client secret when name or value is not valid', async () => {
+    const secretMissingField = {
+      secretType: 'Client',
+      secretName: 'secretMissingField',
+      secretValue: `{
+        "public_signing_key": "A5QXkIKW5dBN_IOhjGoUBtT-xuVmqRXDB2uaqiKuTao",
+        "private_signing_key": "qIqG9_81kd2gOY-yggIpahQG1MDnlBeQj7G4MHa5p0E1WapQxLVlyU6hXA6rp-Ci5DFf8g6GMaqy5t_H1g5Nqg",
+        "client_id": "4f20ca95-1b3b-b78f-b5bd-6d469ac804eb",
+        "api_key_id": "63807026e9a23850307429e52d2f607eaa5be43488cbb819b075ade91735b180",
+        "api_secret": "730e6b18dc9668fe1758304283c73060619f6596f11bf42bdd3f16d6fc6cd6d0",
+        "public_key": "6u73qLgJniPi9S2t99A7lNfvi3xjxMsPB_Z-CEGWZmo",
+        "private_key": "BnBt9_tquBvSAHL04bQm0HkQ7eXtvuj1WSHegQeho6E",
+        "api_url": "http://platform.local.tozny.com:8000",
+        "client_email": ""
+      }`,
+      description: 'this is missing a required field',
+    }
+    const secretClientNotUUID = {
+      secretType: 'Client',
+      secretName: 'secretClientNotUUID',
+      secretValue: `{
+        "version": "2",
+        "public_signing_key": "A5QXkIKW5dBN_IOhjGoUBtT-xuVmqRXDB2uaqiKuTao",
+        "private_signing_key": "qIqG9_81kd2gOY-yggIpahQG1MDnlBeQj7G4MHa5p0E1WapQxLVlyU6hXA6rp-Ci5DFf8g6GMaqy5t_H1g5Nqg",
+        "client_id": "4",
+        "api_key_id": "63807026e9a23850307429e52d2f607eaa5be43488cbb819b075ade91735b180",
+        "api_secret": "730e6b18dc9668fe1758304283c73060619f6596f11bf42bdd3f16d6fc6cd6d0",
+        "public_key": "6u73qLgJniPi9S2t99A7lNfvi3xjxMsPB_Z-CEGWZmo",
+        "private_key": "BnBt9_tquBvSAHL04bQm0HkQ7eXtvuj1WSHegQeho6E",
+        "api_url": "http://platform.local.tozny.com:8000",
+        "client_email": ""
+      }`,
+      description: 'the client id is not a uuid',
+    }
+    const secretInvalidKeyLength = {
+      secretType: 'Client',
+      secretName: 'secretInvalidKeyLength',
+      secretValue: `{
+        "version": "2",
+        "public_signing_key": "A5QXkIKW5dBN_IOhjGoUBtT-xuVmqRXDB2uaqiKuTao",
+        "private_signing_key": "qIq1WapQxLVlyU6hXA6rp-Ci5DFf8g6GMaqy5t_H1g5Nqg",
+        "client_id": "4f20ca95-1b3b-b78f-b5bd-6d469ac804eb",
+        "api_key_id": "63807026e9a23850307429e52d2f607eaa5be43488cbb819b075ade91735b180",
+        "api_secret": "730e6b18dc9668fe1758304283c73060619f6596f11bf42bdd3f16d6fc6cd6d0",
+        "public_key": "6u73qLgJniPi9S2t99A7lNfvi3xjxMsPB_Z-CEGWZmo",
+        "private_key": "BnBt9_tquBvSAHL04bQm0HkQ7eXtvuj1WSHegQeho6E",
+        "api_url": "http://platform.local.tozny.com:8000",
+        "client_email": ""
+      }`,
+      description: 'private signing key is invalid length',
+    }
+    const secretValueEmpty = {
+      secretType: 'Client',
+      secretName: 'secretValueEmpty',
+      secretValue: '',
+      description: 'value is empty',
+    }
+    expect(ops.createSecret(secretMissingField)).rejects.toThrow()
+    expect(ops.createSecret(secretClientNotUUID)).rejects.toThrow()
+    expect(ops.createSecret(secretInvalidKeyLength)).rejects.toThrow()
+    expect(ops.createSecret(secretValueEmpty)).rejects.toThrow()
+  })
+  it('fails to create credential secret when name or value is not valid', async () => {
     const secretTypeEmpty = {
       secretType: '',
       secretName: 'SecretName',
