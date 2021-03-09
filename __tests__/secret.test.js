@@ -9,6 +9,7 @@ jest.setTimeout(100000)
 let realmConfig
 let realm
 let identity
+let identity2
 let username
 let password
 let username2
@@ -43,7 +44,7 @@ beforeAll(async () => {
     clientRegistrationToken,
     `${username2}@example.com`
   )
-  // identity2 = await realm.login(username2, password2)
+  identity2 = await realm.login(username2, password2)
   /* this is commented out until tests can be written that work with 
     browser and node */
   // fileName = `test-file-${uuidv4()}`
@@ -505,34 +506,64 @@ describe('Tozny identity client', () => {
     )
     expect(JSON.stringify(list)).toBe(JSON.stringify([]))
   })
-  /* These tests are for node only, which means that they will fail the browsers tests on
-    travis. These will be updated shortly to work with both browser and node. */
-  // it('can create a secret with a file type', async () => {
-  //   const file = fs.createReadStream(fileName, { encoding: 'utf8' })
-  //   const testName = `test-secret-${uuidv4()}`
-  //   const secret = {
-  //     secretType: 'File',
-  //     secretName: testName,
-  //     secretValue: '',
-  //     fileName: fileName,
-  //     file: file,
-  //     description: 'this contains a file',
-  //   }
-  //   const secretTest = {
-  //     meta: {
-  //       type: `tozny.secret.${SECRET_UUID}.${secret.secretType}.${secret.secretName}`,
-  //       plain: {
-  //         description: secret.description,
-  //         secretName: secret.secretName,
-  //         secretType: secret.secretType,
-  //         fileName: secret.fileName,
-  //       },
-  //     },
-  //   }
-  //   const secretResp = await ops.createSecret(realmConfig, identity, secret)
-  //   expect(secretResp).toMatchObject(secretTest)
-  // })
-  // it('can view a secret with a file type', async () => {
+  it('can create a secret and share it with a username and list the shared records', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const testUsername = username2
+    const secretCreated = await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise(r => setTimeout(r, 5000))
+    let shareByUserName
+    while (new Date() - start < 30000) {
+      shareByUserName = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Credential',
+        testUsername
+      )
+      if (shareByUserName == secretCreated.meta.type) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise(r => setTimeout(r, 200))
+    }
+    let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
+    expect(sharedList[0].data.secretValue).toBe('secret-value')
+  })
+  // /* These tests are for node only, which means that they will fail the browsers tests on
+  //   travis. These will be updated shortly to work with both browser and node. */
+  // // it('can create a secret with a file type', async () => {
+  // //   const file = fs.createReadStream(fileName, { encoding: 'utf8' })
+  // //   const testName = `test-secret-${uuidv4()}`
+  // //   const secret = {
+  // //     secretType: 'File',
+  // //     secretName: testName,
+  // //     secretValue: '',
+  // //     fileName: fileName,
+  // //     file: file,
+  // //     description: 'this contains a file',
+  // //   }
+  // //   const secretTest = {
+  // //     meta: {
+  // //       type: `tozny.secret.${SECRET_UUID}.${secret.secretType}.${secret.secretName}`,
+  // //       plain: {
+  // //         description: secret.description,
+  // //         secretName: secret.secretName,
+  // //         secretType: secret.secretType,
+  // //         fileName: secret.fileName,
+  // //       },
+  // //     },
+  // //   }
+  // //   const secretResp = await ops.createSecret(realmConfig, identity, secret)
+  // //   expect(secretResp).toMatchObject(secretTest)
+  // // })
+  // // it('can view a secret with a file type', async () => {
   //   const file = fs.createReadStream(fileName, { encoding: 'utf8' })
   //   const testName = `test-secret-${uuidv4()}`
   //   const secret = {
