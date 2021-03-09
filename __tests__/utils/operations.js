@@ -1024,4 +1024,29 @@ module.exports = {
     )
     return results
   },
+  async getSharedSecrets(config, user) {
+    const secretList = await runInEnvironment(
+      function(realmJSON, userJSON) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user
+          .getSharedSecrets()
+          .then(function(list) {
+            return list.map(function(record) {
+              return record.serializable()
+            })
+          })
+          .then(JSON.stringify)
+      },
+      JSON.stringify(config),
+      user.stringify()
+    )
+    return Promise.all(JSON.parse(secretList).map(Tozny.types.Record.decode))
+  },
 }
