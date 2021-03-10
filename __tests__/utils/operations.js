@@ -917,25 +917,25 @@ module.exports = {
   },
   /* this works with the node specific file tests, and will be reworked
   to fit with browser compatible tests */
-  // async getFile(config, user, recordId) {
-  //   const secretResponse = await runInEnvironment(
-  //     function(realmJSON, userJSON, recordId) {
-  //       const realmConfig = JSON.parse(realmJSON)
-  //       const realm = new Tozny.identity.Realm(
-  //         realmConfig.realmName,
-  //         realmConfig.appName,
-  //         realmConfig.brokerTargetUrl,
-  //         realmConfig.apiUrl
-  //       )
-  //       const user = realm.fromObject(userJSON)
-  //       return user.getFile(recordId)
-  //     },
-  //     JSON.stringify(config),
-  //     user.stringify(),
-  //     recordId
-  //   )
-  //   return secretResponse
-  // },
+  async getFile(config, user, recordId) {
+    const secretResponse = await runInEnvironment(
+      function(realmJSON, userJSON, recordId) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.getFile(recordId)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      recordId
+    )
+    return secretResponse
+  },
   async searchRealmIdentitiesByUsername(config, user, usernamesToSearch = []) {
     const results = await runInEnvironment(
       function(realmJSON, userJSON, usernamesToSearchJSON) {
