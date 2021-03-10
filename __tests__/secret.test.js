@@ -254,7 +254,7 @@ describe('Tozny identity client', () => {
       identity,
       created.meta.recordId
     )
-    expect(created.stringify()).toBe(returned.stringify())
+    expect(created.meta.recordId).toBe(returned.meta.recordId)
   })
   it('can create a secret and update', async () => {
     const testName = `test-secret-${uuidv4()}`
@@ -536,6 +536,42 @@ describe('Tozny identity client', () => {
     }
     let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
     expect(sharedList[0].data.secretValue).toBe('secret-value')
+  })
+  it('can create a secret and share it with a username and view Record ', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'this is the one for the share and view record',
+      description: 'this is a description',
+    }
+    const testUsername = username2
+    const secretCreated = await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise(r => setTimeout(r, 5000))
+    let shareByUserName
+    while (new Date() - start < 30000) {
+      shareByUserName = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Credential',
+        testUsername
+      )
+      if (shareByUserName == secretCreated.meta.type) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise(r => setTimeout(r, 200))
+    }
+    let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
+    expect(sharedList[0].data.secretValue).toBe('secret-value')
+    let recordView = await ops.viewSecret(
+      realmConfig,
+      identity2,
+      sharedList[0].meta.recordId
+    )
+    expect(sharedList[0].meta.recordId).toBe(recordView.meta.recordId)
   })
   // /* These tests are for node only, which means that they will fail the browsers tests on
   //   travis. These will be updated shortly to work with both browser and node. */
