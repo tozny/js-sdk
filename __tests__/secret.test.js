@@ -3,6 +3,7 @@ const { apiUrl, idRealmName, idAppName, clientRegistrationToken } = global
 const Tozny = require('../node')
 const ops = require('./utils/operations')
 const { SECRET_UUID } = require('../lib/utils/constants')
+// const fs = require('fs')
 
 jest.setTimeout(100000)
 
@@ -538,32 +539,41 @@ describe('Tozny identity client', () => {
   })
   // /* These tests are for node only, which means that they will fail the browsers tests on
   //   travis. These will be updated shortly to work with both browser and node. */
-  // // it('can create a secret with a file type', async () => {
-  // //   const file = fs.createReadStream(fileName, { encoding: 'utf8' })
-  // //   const testName = `test-secret-${uuidv4()}`
-  // //   const secret = {
-  // //     secretType: 'File',
-  // //     secretName: testName,
-  // //     secretValue: '',
-  // //     fileName: fileName,
-  // //     file: file,
-  // //     description: 'this contains a file',
-  // //   }
-  // //   const secretTest = {
-  // //     meta: {
-  // //       type: `tozny.secret.${SECRET_UUID}.${secret.secretType}.${secret.secretName}`,
-  // //       plain: {
-  // //         description: secret.description,
-  // //         secretName: secret.secretName,
-  // //         secretType: secret.secretType,
-  // //         fileName: secret.fileName,
-  // //       },
-  // //     },
-  // //   }
-  // //   const secretResp = await ops.createSecret(realmConfig, identity, secret)
-  // //   expect(secretResp).toMatchObject(secretTest)
-  // // })
-  // // it('can view a secret with a file type', async () => {
+  // it('can create a secret with a file type, share and list it', async () => {
+  //   const file = fs.createReadStream(fileName, { encoding: 'utf8' })
+  //   const testName = `test-secret-${uuidv4()}`
+  //   const testUsername = username2
+  //   const secret = {
+  //     secretType: 'File',
+  //     secretName: testName,
+  //     secretValue: '',
+  //     fileName: fileName,
+  //     file: file,
+  //     description: 'this contains a file',
+  //   }
+  //   const secretTest = {
+  //     meta: {
+  //       type: `tozny.secret.${SECRET_UUID}.${secret.secretType}.${secret.secretName}`,
+  //       plain: {
+  //         description: secret.description,
+  //         secretName: secret.secretName,
+  //         secretType: secret.secretType,
+  //         fileName: secret.fileName,
+  //       },
+  //     },
+  //   }
+  //   const secretResp = await ops.createSecret(realmConfig, identity, secret)
+  //   let shareByUserName = await ops.shareSecretWithUsername(
+  //     realmConfig,
+  //     identity,
+  //     testName,
+  //     'File',
+  //     testUsername
+  //   )
+  //   let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
+  //   expect(secretResp).toMatchObject(secretTest)
+  // })
+  // it('can view a secret with a file type', async () => {
   //   const file = fs.createReadStream(fileName, { encoding: 'utf8' })
   //   const testName = `test-secret-${uuidv4()}`
   //   const secret = {
