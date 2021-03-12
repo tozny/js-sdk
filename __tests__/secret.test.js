@@ -238,9 +238,6 @@ describe('Tozny identity client', () => {
     expect(result.list[result.list.length - 1].data.secretValue).toBe(
       'secret-value'
     )
-    expect(result.list[result.list.length - 1].meta.plain.secretType).toBe(
-      'Credential'
-    )
   })
   it('can read a record by recordID', async () => {
     const secret = {
