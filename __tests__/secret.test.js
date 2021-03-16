@@ -3,12 +3,14 @@ const { apiUrl, idRealmName, idAppName, clientRegistrationToken } = global
 const Tozny = require('../node')
 const ops = require('./utils/operations')
 const { SECRET_UUID } = require('../lib/utils/constants')
+// const fs = require('fs')
 
 jest.setTimeout(100000)
 
 let realmConfig
 let realm
 let identity
+let identity2
 let username
 let password
 let username2
@@ -43,7 +45,7 @@ beforeAll(async () => {
     clientRegistrationToken,
     `${username2}@example.com`
   )
-  // identity2 = await realm.login(username2, password2)
+  identity2 = await realm.login(username2, password2)
   /* this is commented out until tests can be written that work with 
     browser and node */
   // fileName = `test-file-${uuidv4()}`
@@ -232,12 +234,10 @@ describe('Tozny identity client', () => {
     // use local search to wait
     await ops.createSecret(realmConfig, identity, secret)
     // wait for proper indexing of secret
-    let query = await identity.getSecrets(10)
-    await waitForNextOfName(query, testName)
-    // run list in test environment
     let result = await ops.getSecrets(realmConfig, identity, 10)
-    expect(result[0].data.secretValue).toBe('secret-value')
-    expect(result[0].meta.plain.secretType).toBe('Credential')
+    expect(result.list[result.list.length - 1].data.secretValue).toBe(
+      'secret-value'
+    )
   })
   it('can read a record by recordID', async () => {
     const secret = {
@@ -252,7 +252,7 @@ describe('Tozny identity client', () => {
       identity,
       created.meta.recordId
     )
-    expect(created.stringify()).toBe(returned.stringify())
+    expect(created.meta.recordId).toBe(returned.meta.recordId)
   })
   it('can create a secret and update', async () => {
     const testName = `test-secret-${uuidv4()}`
@@ -270,12 +270,11 @@ describe('Tozny identity client', () => {
     }
     await ops.createSecret(realmConfig, identity, oldSecret)
     await ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
-    const query = await identity.getSecrets(100)
-    const secretsWithUpdatedRecord = await waitForNextOfName(query, testName, 2)
-    const newLengthSecrets = secretsWithUpdatedRecord.length
+    const secretsWithUpdatedRecord = await identity.getSecrets(100)
+    const newLengthSecrets = secretsWithUpdatedRecord.list.length
     // Tests
     expect(
-      secretsWithUpdatedRecord[newLengthSecrets - 1].data.secretValue
+      secretsWithUpdatedRecord.list[newLengthSecrets - 1].data.secretValue
     ).toBe('updatedSecretValue') // the new Secret is also created
   })
   it('cannot update secret of different type', async () => {
@@ -349,7 +348,7 @@ describe('Tozny identity client', () => {
         break
       }
       // delay 200 milliseconds between tries
-      await new Promise(r => setTimeout(r, 200))
+      await new Promise((r) => setTimeout(r, 200))
     }
     expect(latestVersionOfSecret.exists).toBe(true)
     expect(latestVersionOfSecret.results.data.secretValue).toBe(
@@ -377,7 +376,7 @@ describe('Tozny identity client', () => {
     const testUsername = username2
     const secretCreated = await ops.createSecret(realmConfig, identity, secret)
     const start = new Date()
-    await new Promise(r => setTimeout(r, 5000))
+    await new Promise((r) => setTimeout(r, 5000))
     let shareByUserName
     while (new Date() - start < 30000) {
       shareByUserName = await ops.shareSecretWithUsername(
@@ -391,7 +390,7 @@ describe('Tozny identity client', () => {
         break
       }
       // delay 200 milliseconds between tries
-      await new Promise(r => setTimeout(r, 200))
+      await new Promise((r) => setTimeout(r, 200))
     }
   })
   it('can handle a silent response with fake username', async () => {
@@ -404,7 +403,7 @@ describe('Tozny identity client', () => {
     }
     const testUsername = 'fakeUsername1'
     await ops.createSecret(realmConfig, identity, secret)
-    await new Promise(r => setTimeout(r, 500))
+    await new Promise((r) => setTimeout(r, 500))
     const shareByUsername = await ops.shareSecretWithUsername(
       realmConfig,
       identity,
@@ -425,7 +424,7 @@ describe('Tozny identity client', () => {
     const testUsername = username2
     const secretCreated = await ops.createSecret(realmConfig, identity, secret)
     const start = new Date()
-    await new Promise(r => setTimeout(r, 5000))
+    await new Promise((r) => setTimeout(r, 5000))
     let shareByUsername
     while (new Date() - start < 30000) {
       shareByUsername = await ops.shareSecretWithUsername(
@@ -439,7 +438,7 @@ describe('Tozny identity client', () => {
         break
       }
       // delay 200 milliseconds between tries
-      await new Promise(r => setTimeout(r, 200))
+      await new Promise((r) => setTimeout(r, 200))
     }
     expect(shareByUsername).toBe(secretCreated.meta.type)
     let unshareByUsername = await ops.revokeSecretFromUser(
@@ -464,7 +463,7 @@ describe('Tozny identity client', () => {
     const testUsername = username2
     await ops.createSecret(realmConfig, identity, secret)
     const start = new Date()
-    await new Promise(r => setTimeout(r, 5000))
+    await new Promise((r) => setTimeout(r, 5000))
     let shareByUsername
     while (new Date() - start < 30000) {
       shareByUsername = await ops.shareSecretWithUsername(
@@ -478,7 +477,7 @@ describe('Tozny identity client', () => {
         break
       }
       // delay 200 milliseconds between tries
-      await new Promise(r => setTimeout(r, 200))
+      await new Promise((r) => setTimeout(r, 200))
     }
     const list = await ops.getSecretSharedList(
       realmConfig,
@@ -505,11 +504,78 @@ describe('Tozny identity client', () => {
     )
     expect(JSON.stringify(list)).toBe(JSON.stringify([]))
   })
-  /* These tests are for node only, which means that they will fail the browsers tests on
-    travis. These will be updated shortly to work with both browser and node. */
-  // it('can create a secret with a file type', async () => {
+  it('can create a secret and share it with a username and list the shared records', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const testUsername = username2
+    const secretCreated = await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise((r) => setTimeout(r, 5000))
+    let shareByUserName
+    while (new Date() - start < 30000) {
+      shareByUserName = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Credential',
+        testUsername
+      )
+      if (shareByUserName == secretCreated.meta.type) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise((r) => setTimeout(r, 200))
+    }
+    let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
+    expect(sharedList[0].data.secretValue).toBe('secret-value')
+  })
+  it('can create a secret and share it with a username and view Record ', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'this is the one for the share and view record',
+      description: 'this is a description',
+    }
+    const testUsername = username2
+    const secretCreated = await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise((r) => setTimeout(r, 5000))
+    let shareByUserName
+    while (new Date() - start < 30000) {
+      shareByUserName = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Credential',
+        testUsername
+      )
+      if (shareByUserName == secretCreated.meta.type) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise((r) => setTimeout(r, 200))
+    }
+    let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
+    expect(sharedList[0].data.secretValue).toBe('secret-value')
+    let recordView = await ops.viewSecret(
+      realmConfig,
+      identity2,
+      sharedList[0].meta.recordId
+    )
+    expect(sharedList[0].meta.recordId).toBe(recordView.meta.recordId)
+  })
+  // /* These tests are for node only, which means that they will fail the browsers tests on
+  //   travis. These will be updated shortly to work with both browser and node. */
+  // it('can create a secret with a file type, share and list it', async () => {
   //   const file = fs.createReadStream(fileName, { encoding: 'utf8' })
   //   const testName = `test-secret-${uuidv4()}`
+  //   const testUsername = username2
   //   const secret = {
   //     secretType: 'File',
   //     secretName: testName,
@@ -530,6 +596,14 @@ describe('Tozny identity client', () => {
   //     },
   //   }
   //   const secretResp = await ops.createSecret(realmConfig, identity, secret)
+  //   let shareByUserName = await ops.shareSecretWithUsername(
+  //     realmConfig,
+  //     identity,
+  //     testName,
+  //     'File',
+  //     testUsername
+  //   )
+  //   let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
   //   expect(secretResp).toMatchObject(secretTest)
   // })
   // it('can view a secret with a file type', async () => {
@@ -583,8 +657,8 @@ describe('Tozny identity client', () => {
 async function waitForNextOfName(query, name, numRequired = 1) {
   const floor = numRequired - 1
   let filtered
-  const results = await ops.waitForNext(query, found => {
-    filtered = found.filter(i => i.meta.plain.secretName === name)
+  const results = await ops.waitForNext(query, (found) => {
+    filtered = found.filter((i) => i.meta.plain.secretName === name)
     return filtered.length > floor
   })
   if (filtered.length < numRequired) {
