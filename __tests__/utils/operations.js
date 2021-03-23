@@ -1047,4 +1047,22 @@ module.exports = {
     )
     return Promise.all(JSON.parse(secretList).map(Tozny.types.Record.decode))
   },
+  async deleteSingleSecret(config, user, secretID, version, secretName, secretType) {
+    const result = await runInEnvironment(
+      function (realmJSON, userJSON) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.removeSingleSecret(secretID, version, secretName, secretType).then(JSON.stringify)
+      },
+      JSON.stringify(config),
+      user.stringify()
+    )
+    return JSON.parse(result)
+  }
 }
