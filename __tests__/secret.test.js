@@ -65,512 +65,7 @@ beforeAll(async () => {
 // })
 
 describe('Tozny identity client', () => {
-  // it('can create a credential secret', async () => {
-  //   const testName = `test-secret-${uuidv4()}`
-  //   const secret = {
-  //     secretType: 'Credential',
-  //     secretName: testName,
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   const secretTest = {
-  //     meta: {
-  //       type: `tozny.secret.${SECRET_UUID}.${secret.secretType}.${secret.secretName}`,
-  //       plain: {
-  //         description: secret.description,
-  //         secretName: secret.secretName,
-  //         secretType: secret.secretType,
-  //       },
-  //     },
-  //     data: {
-  //       secretValue: secret.secretValue,
-  //     },
-  //   }
-  //   const secretResp = await ops.createSecret(realmConfig, identity, secret)
-  //   expect(secretResp).toMatchObject(secretTest)
-  // })
-  // it('can create a client secret', async () => {
-  //   const testName = `test-secret-${uuidv4()}`
-  //   const secret = {
-  //     secretType: 'Client',
-  //     secretName: testName,
-  //     secretValue: `{
-  //       "version": "2",
-  //       "public_signing_key": "A5QXkIKW5dBN_IOhjGoUBtT-xuVmqRXDB2uaqiKuTao",
-  //       "private_signing_key": "qIqG9_81kd2gOY-yggIpahQG1MDnlBeQj7G4MHa5p0E1WapQxLVlyU6hXA6rp-Ci5DFf8g6GMaqy5t_H1g5Nqg",
-  //       "client_id": "4f20ca95-1b3b-b78f-b5bd-6d469ac804eb",
-  //       "api_key_id": "63807026e9a23850307429e52d2f607eaa5be43488cbb819b075ade91735b180",
-  //       "api_secret": "730e6b18dc9668fe1758304283c73060619f6596f11bf42bdd3f16d6fc6cd6d0",
-  //       "public_key": "6u73qLgJniPi9S2t99A7lNfvi3xjxMsPB_Z-CEGWZmo",
-  //       "private_key": "BnBt9_tquBvSAHL04bQm0HkQ7eXtvuj1WSHegQeho6E",
-  //       "api_url": "http://platform.local.tozny.com:8000",
-  //       "client_email": ""
-  //     }`,
-  //     description: 'a client credential secret',
-  //   }
-  //   const secretTest = {
-  //     meta: {
-  //       type: `tozny.secret.${SECRET_UUID}.${secret.secretType}.${secret.secretName}`,
-  //       plain: {
-  //         description: secret.description,
-  //         secretName: secret.secretName,
-  //         secretType: secret.secretType,
-  //       },
-  //     },
-  //     data: {
-  //       secretValue: secret.secretValue,
-  //     },
-  //   }
-  //   const secretResp = await ops.createSecret(realmConfig, identity, secret)
-  //   expect(secretResp).toMatchObject(secretTest)
-  // })
-  // it('fails to create client secret when name or value is not valid', async () => {
-  //   const secretMissingField = {
-  //     secretType: 'Client',
-  //     secretName: 'secretMissingField',
-  //     secretValue: `{
-  //       "public_signing_key": "A5QXkIKW5dBN_IOhjGoUBtT-xuVmqRXDB2uaqiKuTao",
-  //       "private_signing_key": "qIqG9_81kd2gOY-yggIpahQG1MDnlBeQj7G4MHa5p0E1WapQxLVlyU6hXA6rp-Ci5DFf8g6GMaqy5t_H1g5Nqg",
-  //       "client_id": "4f20ca95-1b3b-b78f-b5bd-6d469ac804eb",
-  //       "api_key_id": "63807026e9a23850307429e52d2f607eaa5be43488cbb819b075ade91735b180",
-  //       "api_secret": "730e6b18dc9668fe1758304283c73060619f6596f11bf42bdd3f16d6fc6cd6d0",
-  //       "public_key": "6u73qLgJniPi9S2t99A7lNfvi3xjxMsPB_Z-CEGWZmo",
-  //       "private_key": "BnBt9_tquBvSAHL04bQm0HkQ7eXtvuj1WSHegQeho6E",
-  //       "api_url": "http://platform.local.tozny.com:8000",
-  //       "client_email": ""
-  //     }`,
-  //     description: 'this is missing a required field',
-  //   }
-  //   const secretClientNotUUID = {
-  //     secretType: 'Client',
-  //     secretName: 'secretClientNotUUID',
-  //     secretValue: `{
-  //       "version": "2",
-  //       "public_signing_key": "A5QXkIKW5dBN_IOhjGoUBtT-xuVmqRXDB2uaqiKuTao",
-  //       "private_signing_key": "qIqG9_81kd2gOY-yggIpahQG1MDnlBeQj7G4MHa5p0E1WapQxLVlyU6hXA6rp-Ci5DFf8g6GMaqy5t_H1g5Nqg",
-  //       "client_id": "4",
-  //       "api_key_id": "63807026e9a23850307429e52d2f607eaa5be43488cbb819b075ade91735b180",
-  //       "api_secret": "730e6b18dc9668fe1758304283c73060619f6596f11bf42bdd3f16d6fc6cd6d0",
-  //       "public_key": "6u73qLgJniPi9S2t99A7lNfvi3xjxMsPB_Z-CEGWZmo",
-  //       "private_key": "BnBt9_tquBvSAHL04bQm0HkQ7eXtvuj1WSHegQeho6E",
-  //       "api_url": "http://platform.local.tozny.com:8000",
-  //       "client_email": ""
-  //     }`,
-  //     description: 'the client id is not a uuid',
-  //   }
-  //   const secretInvalidKeyLength = {
-  //     secretType: 'Client',
-  //     secretName: 'secretInvalidKeyLength',
-  //     secretValue: `{
-  //       "version": "2",
-  //       "public_signing_key": "A5QXkIKW5dBN_IOhjGoUBtT-xuVmqRXDB2uaqiKuTao",
-  //       "private_signing_key": "qIq1WapQxLVlyU6hXA6rp-Ci5DFf8g6GMaqy5t_H1g5Nqg",
-  //       "client_id": "4f20ca95-1b3b-b78f-b5bd-6d469ac804eb",
-  //       "api_key_id": "63807026e9a23850307429e52d2f607eaa5be43488cbb819b075ade91735b180",
-  //       "api_secret": "730e6b18dc9668fe1758304283c73060619f6596f11bf42bdd3f16d6fc6cd6d0",
-  //       "public_key": "6u73qLgJniPi9S2t99A7lNfvi3xjxMsPB_Z-CEGWZmo",
-  //       "private_key": "BnBt9_tquBvSAHL04bQm0HkQ7eXtvuj1WSHegQeho6E",
-  //       "api_url": "http://platform.local.tozny.com:8000",
-  //       "client_email": ""
-  //     }`,
-  //     description: 'private signing key is invalid length',
-  //   }
-  //   const secretValueEmpty = {
-  //     secretType: 'Client',
-  //     secretName: 'secretValueEmpty',
-  //     secretValue: '',
-  //     description: 'value is empty',
-  //   }
-  //   expect(ops.createSecret(secretMissingField)).rejects.toThrow()
-  //   expect(ops.createSecret(secretClientNotUUID)).rejects.toThrow()
-  //   expect(ops.createSecret(secretInvalidKeyLength)).rejects.toThrow()
-  //   expect(ops.createSecret(secretValueEmpty)).rejects.toThrow()
-  // })
-  // it('fails to create credential secret when name or value is not valid', async () => {
-  //   const secretTypeEmpty = {
-  //     secretType: '',
-  //     secretName: 'SecretName',
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   const secretTypeInvalid = {
-  //     secretType: 'Cred',
-  //     secretName: 'SecretName',
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   const secretNameEmpty = {
-  //     secretType: 'Credential',
-  //     secretName: '',
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   const secretNameInvalid = {
-  //     secretType: 'Credential',
-  //     secretName: `test-secret#-${uuidv4()}`,
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   const secretValueEmpty = {
-  //     secretType: 'Credential',
-  //     secretName: `test-secret-${uuidv4()}`,
-  //     secretValue: '',
-  //     description: 'this is a description',
-  //   }
-  //   expect(ops.createSecret(secretTypeEmpty)).rejects.toThrow()
-  //   expect(ops.createSecret(secretTypeInvalid)).rejects.toThrow()
-  //   expect(ops.createSecret(secretNameEmpty)).rejects.toThrow()
-  //   expect(ops.createSecret(secretNameInvalid)).rejects.toThrow()
-  //   expect(ops.createSecret(secretValueEmpty)).rejects.toThrow()
-  // })
-  // it('can create a secret, and list it', async () => {
-  //   const testName = `test-secret-${uuidv4()}`
-  //   const secret = {
-  //     secretType: 'Credential',
-  //     secretName: testName,
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   // use local search to wait
-  //   await ops.createSecret(realmConfig, identity, secret)
-  //   // wait for proper indexing of secret
-  //   let result = await ops.getSecrets(realmConfig, identity, 10)
-  //   expect(result.list[result.list.length - 1].data.secretValue).toBe(
-  //     'secret-value'
-  //   )
-  // })
-  // it('can read a record by recordID', async () => {
-  //   const secret = {
-  //     secretType: 'Credential',
-  //     secretName: `test-secret-${uuidv4()}`,
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   const created = await ops.createSecret(realmConfig, identity, secret)
-  //   const returned = await ops.viewSecret(
-  //     realmConfig,
-  //     identity,
-  //     created.meta.recordId
-  //   )
-  //   expect(created.meta.recordId).toBe(returned.meta.recordId)
-  // })
-  // it('can create a secret and update', async () => {
-  //   const testName = `test-secret-${uuidv4()}`
-  //   const oldSecret = {
-  //     secretType: 'Credential',
-  //     secretName: testName,
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   const newSecret = {
-  //     secretType: 'Credential',
-  //     secretName: testName,
-  //     secretValue: 'updatedSecretValue',
-  //     description: 'this is a description',
-  //   }
-  //   await ops.createSecret(realmConfig, identity, oldSecret)
-  //   await ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
-  //   const secretsWithUpdatedRecord = await identity.getSecrets(100)
-  //   const newLengthSecrets = secretsWithUpdatedRecord.list.length
-  //   // Tests
-  //   expect(
-  //     secretsWithUpdatedRecord.list[newLengthSecrets - 1].data.secretValue
-  //   ).toBe('updatedSecretValue') // the new Secret is also created
-  // })
-  // it('cannot update secret of different type', async () => {
-  //   const testName = `test-secret-${uuidv4()}`
-  //   const oldSecret = {
-  //     secretType: 'Credential',
-  //     secretName: testName,
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   const newSecret = {
-  //     secretType: 'Note',
-  //     secretName: testName,
-  //     secretValue: 'updatedSecretValue',
-  //     description: 'this is a description',
-  //   }
-  //   await ops.createSecret(realmConfig, identity, oldSecret)
-  //   expect(
-  //     ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
-  //   ).rejects.toThrow()
-  // })
-  // it('cannot update secret of different name', async () => {
-  //   const testName = `test-secret-${uuidv4()}`
-  //   const notTestName = `test-secret-${uuidv4()}`
-  //   const oldSecret = {
-  //     secretType: 'Credential',
-  //     secretName: testName,
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   const newSecret = {
-  //     secretType: 'Credential',
-  //     secretName: notTestName,
-  //     secretValue: 'updatedSecretValue',
-  //     description: 'this is a description',
-  //   }
-  //   await ops.createSecret(realmConfig, identity, oldSecret)
-  //   expect(
-  //     ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
-  //   ).rejects.toThrow()
-  // })
-  // it('gets the latest version of a secret', async () => {
-  //   const testName = `test-secret-${uuidv4()}`
-  //   const oldSecret = {
-  //     secretType: 'Credential',
-  //     secretName: testName,
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   const newSecret = {
-  //     secretType: 'Credential',
-  //     secretName: testName,
-  //     secretValue: 'updatedSecretValue',
-  //     description: 'this is a description',
-  //   }
-  //   await ops.createSecret(realmConfig, identity, oldSecret)
-  //   await ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
-  //   const start = new Date()
-  //   let latestVersionOfSecret
-  //   while (new Date() - start < 30000) {
-  //     latestVersionOfSecret = await ops.getLatestSecret(
-  //       realmConfig,
-  //       identity,
-  //       testName,
-  //       'Credential'
-  //     )
-  //     if (
-  //       latestVersionOfSecret.exists == true &&
-  //       latestVersionOfSecret.results.data.secretValue == 'updatedSecretValue'
-  //     ) {
-  //       break
-  //     }
-  //     // delay 200 milliseconds between tries
-  //     await new Promise((r) => setTimeout(r, 200))
-  //   }
-  //   expect(latestVersionOfSecret.exists).toBe(true)
-  //   expect(latestVersionOfSecret.results.data.secretValue).toBe(
-  //     'updatedSecretValue'
-  //   )
-  // })
-  // it('it doesnt return the latest version for invalid secret', async () => {
-  //   let latestVersion = await ops.getLatestSecret(
-  //     realmConfig,
-  //     identity,
-  //     `fakeName`,
-  //     'fakeType'
-  //   )
-  //   expect(latestVersion.exists).toBe(false)
-  // })
-
-  // it('can create a secret and share it with a username', async () => {
-  //   const testName = `test-secret-${uuidv4()}`
-  //   const secret = {
-  //     secretType: 'Credential',
-  //     secretName: testName,
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   const testUsername = username2
-  //   const secretCreated = await ops.createSecret(realmConfig, identity, secret)
-  //   const start = new Date()
-  //   await new Promise((r) => setTimeout(r, 5000))
-  //   let shareByUserName
-  //   while (new Date() - start < 30000) {
-  //     shareByUserName = await ops.shareSecretWithUsername(
-  //       realmConfig,
-  //       identity,
-  //       testName,
-  //       'Credential',
-  //       testUsername
-  //     )
-  //     if (shareByUserName == secretCreated.meta.type) {
-  //       break
-  //     }
-  //     // delay 200 milliseconds between tries
-  //     await new Promise((r) => setTimeout(r, 200))
-  //   }
-  // })
-  // it('can handle a silent response with fake username', async () => {
-  //   const testName = `test-secret-${uuidv4()}`
-  //   const secret = {
-  //     secretType: 'Credential',
-  //     secretName: testName,
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   const testUsername = 'fakeUsername1'
-  //   await ops.createSecret(realmConfig, identity, secret)
-  //   await new Promise((r) => setTimeout(r, 500))
-  //   const shareByUsername = await ops.shareSecretWithUsername(
-  //     realmConfig,
-  //     identity,
-  //     testName,
-  //     'Credential',
-  //     testUsername
-  //   )
-  //   expect(shareByUsername).toBe(null)
-  // })
-  // it('it can share a secret and unshare', async () => {
-  //   const testName = `updated-${uuidv4()}`
-  //   const secret = {
-  //     secretType: 'Credential',
-  //     secretName: testName,
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   const testUsername = username2
-  //   const secretCreated = await ops.createSecret(realmConfig, identity, secret)
-  //   const start = new Date()
-  //   await new Promise((r) => setTimeout(r, 5000))
-  //   let shareByUsername
-  //   while (new Date() - start < 30000) {
-  //     shareByUsername = await ops.shareSecretWithUsername(
-  //       realmConfig,
-  //       identity,
-  //       testName,
-  //       'Credential',
-  //       testUsername
-  //     )
-  //     if (shareByUsername != null) {
-  //       break
-  //     }
-  //     // delay 200 milliseconds between tries
-  //     await new Promise((r) => setTimeout(r, 200))
-  //   }
-  //   expect(shareByUsername).toBe(secretCreated.meta.type)
-  //   let unshareByUsername = await ops.revokeSecretFromUser(
-  //     realmConfig,
-  //     identity,
-  //     testName,
-  //     'Credential',
-  //     testUsername
-  //   )
-
-  //   expect(unshareByUsername).toBe(true)
-  // })
-
-  // it('can get a list of secret shared', async () => {
-  //   const testName = `test-secret-${uuidv4()}`
-  //   const secret = {
-  //     secretType: 'Credential',
-  //     secretName: testName,
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   const testUsername = username2
-  //   await ops.createSecret(realmConfig, identity, secret)
-  //   const start = new Date()
-  //   await new Promise((r) => setTimeout(r, 5000))
-  //   let shareByUsername
-  //   while (new Date() - start < 30000) {
-  //     shareByUsername = await ops.shareSecretWithUsername(
-  //       realmConfig,
-  //       identity,
-  //       testName,
-  //       'Credential',
-  //       testUsername
-  //     )
-  //     if (shareByUsername != null) {
-  //       break
-  //     }
-  //     // delay 200 milliseconds between tries
-  //     await new Promise((r) => setTimeout(r, 200))
-  //   }
-  //   const list = await ops.getSecretSharedList(
-  //     realmConfig,
-  //     identity,
-  //     testName,
-  //     'Credential'
-  //   )
-  //   expect(list[0].username).toBe(testUsername)
-  // })
-  // it('can return an empty list if not shared', async () => {
-  //   const testName = `test-secret-${uuidv4()}`
-  //   const secret = {
-  //     secretType: 'Credential',
-  //     secretName: testName,
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   await ops.createSecret(realmConfig, identity, secret)
-  //   const list = await ops.getSecretSharedList(
-  //     realmConfig,
-  //     identity,
-  //     testName,
-  //     'Credential'
-  //   )
-  //   expect(JSON.stringify(list)).toBe(JSON.stringify([]))
-  // })
-  // it('can create a secret and share it with a username and list the shared records', async () => {
-  //   const testName = `test-secret-${uuidv4()}`
-  //   const secret = {
-  //     secretType: 'Credential',
-  //     secretName: testName,
-  //     secretValue: 'secret-value',
-  //     description: 'this is a description',
-  //   }
-  //   const testUsername = username2
-  //   const secretCreated = await ops.createSecret(realmConfig, identity, secret)
-  //   const start = new Date()
-  //   await new Promise((r) => setTimeout(r, 5000))
-  //   let shareByUserName
-  //   while (new Date() - start < 30000) {
-  //     shareByUserName = await ops.shareSecretWithUsername(
-  //       realmConfig,
-  //       identity,
-  //       testName,
-  //       'Credential',
-  //       testUsername
-  //     )
-  //     if (shareByUserName == secretCreated.meta.type) {
-  //       break
-  //     }
-  //     // delay 200 milliseconds between tries
-  //     await new Promise((r) => setTimeout(r, 200))
-  //   }
-  //   let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
-  //   expect(sharedList[0].data.secretValue).toBe('secret-value')
-  // })
-  // it('can create a secret and share it with a username and view Record ', async () => {
-  //   const testName = `test-secret-${uuidv4()}`
-  //   const secret = {
-  //     secretType: 'Credential',
-  //     secretName: testName,
-  //     secretValue: 'this is the one for the share and view record',
-  //     description: 'this is a description',
-  //   }
-  //   const testUsername = username2
-  //   const secretCreated = await ops.createSecret(realmConfig, identity, secret)
-  //   const start = new Date()
-  //   await new Promise((r) => setTimeout(r, 5000))
-  //   let shareByUserName
-  //   while (new Date() - start < 30000) {
-  //     shareByUserName = await ops.shareSecretWithUsername(
-  //       realmConfig,
-  //       identity,
-  //       testName,
-  //       'Credential',
-  //       testUsername
-  //     )
-  //     if (shareByUserName == secretCreated.meta.type) {
-  //       break
-  //     }
-  //     // delay 200 milliseconds between tries
-  //     await new Promise((r) => setTimeout(r, 200))
-  //   }
-  //   let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
-  //   expect(sharedList[0].data.secretValue).toBe('secret-value')
-  //   let recordView = await ops.viewSecret(
-  //     realmConfig,
-  //     identity2,
-  //     sharedList[0].meta.recordId
-  //   )
-  //   expect(sharedList[0].meta.recordId).toBe(recordView.meta.recordId)
-  // })
-  it('can delete an unshared secret', async () => {
+  it('can create a credential secret', async () => {
     const testName = `test-secret-${uuidv4()}`
     const secret = {
       secretType: 'Credential',
@@ -578,13 +73,562 @@ describe('Tozny identity client', () => {
       secretValue: 'secret-value',
       description: 'this is a description',
     }
+    const secretTest = {
+      meta: {
+        type: `tozny.secret.${SECRET_UUID}.${secret.secretType}.${secret.secretName}`,
+        plain: {
+          description: secret.description,
+          secretName: secret.secretName,
+          secretType: secret.secretType,
+        },
+      },
+      data: {
+        secretValue: secret.secretValue,
+      },
+    }
     const secretResp = await ops.createSecret(realmConfig, identity, secret)
-    // console.log(secretResp.meta.plain)
-    let deleted = await ops.deleteSingleSecret(realmConfig, identity, secretResp.meta.recordId, secretResp.meta.version, secretResp.meta.plain.secretName, secretResp.meta.plain.secretType)
-    expect(deleted).toBe(true)
+    expect(secretResp).toMatchObject(secretTest)
+  })
+  it('can create a client secret', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Client',
+      secretName: testName,
+      secretValue: `{
+        "version": "2",
+        "public_signing_key": "A5QXkIKW5dBN_IOhjGoUBtT-xuVmqRXDB2uaqiKuTao",
+        "private_signing_key": "qIqG9_81kd2gOY-yggIpahQG1MDnlBeQj7G4MHa5p0E1WapQxLVlyU6hXA6rp-Ci5DFf8g6GMaqy5t_H1g5Nqg",
+        "client_id": "4f20ca95-1b3b-b78f-b5bd-6d469ac804eb",
+        "api_key_id": "63807026e9a23850307429e52d2f607eaa5be43488cbb819b075ade91735b180",
+        "api_secret": "730e6b18dc9668fe1758304283c73060619f6596f11bf42bdd3f16d6fc6cd6d0",
+        "public_key": "6u73qLgJniPi9S2t99A7lNfvi3xjxMsPB_Z-CEGWZmo",
+        "private_key": "BnBt9_tquBvSAHL04bQm0HkQ7eXtvuj1WSHegQeho6E",
+        "api_url": "http://platform.local.tozny.com:8000",
+        "client_email": ""
+      }`,
+      description: 'a client credential secret',
+    }
+    const secretTest = {
+      meta: {
+        type: `tozny.secret.${SECRET_UUID}.${secret.secretType}.${secret.secretName}`,
+        plain: {
+          description: secret.description,
+          secretName: secret.secretName,
+          secretType: secret.secretType,
+        },
+      },
+      data: {
+        secretValue: secret.secretValue,
+      },
+    }
+    const secretResp = await ops.createSecret(realmConfig, identity, secret)
+    expect(secretResp).toMatchObject(secretTest)
+  })
+  it('fails to create client secret when name or value is not valid', async () => {
+    const secretMissingField = {
+      secretType: 'Client',
+      secretName: 'secretMissingField',
+      secretValue: `{
+        "public_signing_key": "A5QXkIKW5dBN_IOhjGoUBtT-xuVmqRXDB2uaqiKuTao",
+        "private_signing_key": "qIqG9_81kd2gOY-yggIpahQG1MDnlBeQj7G4MHa5p0E1WapQxLVlyU6hXA6rp-Ci5DFf8g6GMaqy5t_H1g5Nqg",
+        "client_id": "4f20ca95-1b3b-b78f-b5bd-6d469ac804eb",
+        "api_key_id": "63807026e9a23850307429e52d2f607eaa5be43488cbb819b075ade91735b180",
+        "api_secret": "730e6b18dc9668fe1758304283c73060619f6596f11bf42bdd3f16d6fc6cd6d0",
+        "public_key": "6u73qLgJniPi9S2t99A7lNfvi3xjxMsPB_Z-CEGWZmo",
+        "private_key": "BnBt9_tquBvSAHL04bQm0HkQ7eXtvuj1WSHegQeho6E",
+        "api_url": "http://platform.local.tozny.com:8000",
+        "client_email": ""
+      }`,
+      description: 'this is missing a required field',
+    }
+    const secretClientNotUUID = {
+      secretType: 'Client',
+      secretName: 'secretClientNotUUID',
+      secretValue: `{
+        "version": "2",
+        "public_signing_key": "A5QXkIKW5dBN_IOhjGoUBtT-xuVmqRXDB2uaqiKuTao",
+        "private_signing_key": "qIqG9_81kd2gOY-yggIpahQG1MDnlBeQj7G4MHa5p0E1WapQxLVlyU6hXA6rp-Ci5DFf8g6GMaqy5t_H1g5Nqg",
+        "client_id": "4",
+        "api_key_id": "63807026e9a23850307429e52d2f607eaa5be43488cbb819b075ade91735b180",
+        "api_secret": "730e6b18dc9668fe1758304283c73060619f6596f11bf42bdd3f16d6fc6cd6d0",
+        "public_key": "6u73qLgJniPi9S2t99A7lNfvi3xjxMsPB_Z-CEGWZmo",
+        "private_key": "BnBt9_tquBvSAHL04bQm0HkQ7eXtvuj1WSHegQeho6E",
+        "api_url": "http://platform.local.tozny.com:8000",
+        "client_email": ""
+      }`,
+      description: 'the client id is not a uuid',
+    }
+    const secretInvalidKeyLength = {
+      secretType: 'Client',
+      secretName: 'secretInvalidKeyLength',
+      secretValue: `{
+        "version": "2",
+        "public_signing_key": "A5QXkIKW5dBN_IOhjGoUBtT-xuVmqRXDB2uaqiKuTao",
+        "private_signing_key": "qIq1WapQxLVlyU6hXA6rp-Ci5DFf8g6GMaqy5t_H1g5Nqg",
+        "client_id": "4f20ca95-1b3b-b78f-b5bd-6d469ac804eb",
+        "api_key_id": "63807026e9a23850307429e52d2f607eaa5be43488cbb819b075ade91735b180",
+        "api_secret": "730e6b18dc9668fe1758304283c73060619f6596f11bf42bdd3f16d6fc6cd6d0",
+        "public_key": "6u73qLgJniPi9S2t99A7lNfvi3xjxMsPB_Z-CEGWZmo",
+        "private_key": "BnBt9_tquBvSAHL04bQm0HkQ7eXtvuj1WSHegQeho6E",
+        "api_url": "http://platform.local.tozny.com:8000",
+        "client_email": ""
+      }`,
+      description: 'private signing key is invalid length',
+    }
+    const secretValueEmpty = {
+      secretType: 'Client',
+      secretName: 'secretValueEmpty',
+      secretValue: '',
+      description: 'value is empty',
+    }
+    expect(ops.createSecret(secretMissingField)).rejects.toThrow()
+    expect(ops.createSecret(secretClientNotUUID)).rejects.toThrow()
+    expect(ops.createSecret(secretInvalidKeyLength)).rejects.toThrow()
+    expect(ops.createSecret(secretValueEmpty)).rejects.toThrow()
+  })
+  it('fails to create credential secret when name or value is not valid', async () => {
+    const secretTypeEmpty = {
+      secretType: '',
+      secretName: 'SecretName',
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const secretTypeInvalid = {
+      secretType: 'Cred',
+      secretName: 'SecretName',
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const secretNameEmpty = {
+      secretType: 'Credential',
+      secretName: '',
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const secretNameInvalid = {
+      secretType: 'Credential',
+      secretName: `test-secret#-${uuidv4()}`,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const secretValueEmpty = {
+      secretType: 'Credential',
+      secretName: `test-secret-${uuidv4()}`,
+      secretValue: '',
+      description: 'this is a description',
+    }
+    expect(ops.createSecret(secretTypeEmpty)).rejects.toThrow()
+    expect(ops.createSecret(secretTypeInvalid)).rejects.toThrow()
+    expect(ops.createSecret(secretNameEmpty)).rejects.toThrow()
+    expect(ops.createSecret(secretNameInvalid)).rejects.toThrow()
+    expect(ops.createSecret(secretValueEmpty)).rejects.toThrow()
+  })
+  it('can create a secret, and list it', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    // use local search to wait
+    await ops.createSecret(realmConfig, identity, secret)
+    // wait for proper indexing of secret
     let result = await ops.getSecrets(realmConfig, identity, 10)
-    console.log(result)
-    // expect(result.list).toMatchObject([])
+    expect(result.list[result.list.length - 1].data.secretValue).toBe(
+      'secret-value'
+    )
+  })
+  it('can read a record by recordID', async () => {
+    const secret = {
+      secretType: 'Credential',
+      secretName: `test-secret-${uuidv4()}`,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const created = await ops.createSecret(realmConfig, identity, secret)
+    const returned = await ops.viewSecret(
+      realmConfig,
+      identity,
+      created.meta.recordId
+    )
+    expect(created.meta.recordId).toBe(returned.meta.recordId)
+  })
+  it('can create a secret and update', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const oldSecret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const newSecret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'updatedSecretValue',
+      description: 'this is a description',
+    }
+    await ops.createSecret(realmConfig, identity, oldSecret)
+    await ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
+    const secretsWithUpdatedRecord = await identity.getSecrets(100)
+    const newLengthSecrets = secretsWithUpdatedRecord.list.length
+    // Tests
+    expect(
+      secretsWithUpdatedRecord.list[newLengthSecrets - 1].data.secretValue
+    ).toBe('updatedSecretValue') // the new Secret is also created
+  })
+  it('cannot update secret of different type', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const oldSecret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const newSecret = {
+      secretType: 'Note',
+      secretName: testName,
+      secretValue: 'updatedSecretValue',
+      description: 'this is a description',
+    }
+    await ops.createSecret(realmConfig, identity, oldSecret)
+    expect(
+      ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
+    ).rejects.toThrow()
+  })
+  it('cannot update secret of different name', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const notTestName = `test-secret-${uuidv4()}`
+    const oldSecret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const newSecret = {
+      secretType: 'Credential',
+      secretName: notTestName,
+      secretValue: 'updatedSecretValue',
+      description: 'this is a description',
+    }
+    await ops.createSecret(realmConfig, identity, oldSecret)
+    expect(
+      ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
+    ).rejects.toThrow()
+  })
+  it('gets the latest version of a secret', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const oldSecret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const newSecret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'updatedSecretValue',
+      description: 'this is a description',
+    }
+    await ops.createSecret(realmConfig, identity, oldSecret)
+    await ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
+    const start = new Date()
+    let latestVersionOfSecret
+    while (new Date() - start < 30000) {
+      latestVersionOfSecret = await ops.getLatestSecret(
+        realmConfig,
+        identity,
+        testName,
+        'Credential'
+      )
+      if (
+        latestVersionOfSecret.exists == true &&
+        latestVersionOfSecret.results.data.secretValue == 'updatedSecretValue'
+      ) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise((r) => setTimeout(r, 200))
+    }
+    expect(latestVersionOfSecret.exists).toBe(true)
+    expect(latestVersionOfSecret.results.data.secretValue).toBe(
+      'updatedSecretValue'
+    )
+  })
+  it('it doesnt return the latest version for invalid secret', async () => {
+    let latestVersion = await ops.getLatestSecret(
+      realmConfig,
+      identity,
+      `fakeName`,
+      'fakeType'
+    )
+    expect(latestVersion.exists).toBe(false)
+  })
+
+  it('can create a secret and share it with a username', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const testUsername = username2
+    const secretCreated = await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise((r) => setTimeout(r, 5000))
+    let shareByUserName
+    while (new Date() - start < 30000) {
+      shareByUserName = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Credential',
+        testUsername
+      )
+      if (shareByUserName == secretCreated.meta.type) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise((r) => setTimeout(r, 200))
+    }
+  })
+  it('can handle a silent response with fake username', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const testUsername = 'fakeUsername1'
+    await ops.createSecret(realmConfig, identity, secret)
+    await new Promise((r) => setTimeout(r, 500))
+    const shareByUsername = await ops.shareSecretWithUsername(
+      realmConfig,
+      identity,
+      testName,
+      'Credential',
+      testUsername
+    )
+    expect(shareByUsername).toBe(null)
+  })
+  it('it can share a secret and unshare', async () => {
+    const testName = `updated-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const testUsername = username2
+    const secretCreated = await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise((r) => setTimeout(r, 5000))
+    let shareByUsername
+    while (new Date() - start < 30000) {
+      shareByUsername = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Credential',
+        testUsername
+      )
+      if (shareByUsername != null) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise((r) => setTimeout(r, 200))
+    }
+    expect(shareByUsername).toBe(secretCreated.meta.type)
+    let unshareByUsername = await ops.revokeSecretFromUser(
+      realmConfig,
+      identity,
+      testName,
+      'Credential',
+      testUsername
+    )
+
+    expect(unshareByUsername).toBe(true)
+  })
+
+  it('can get a list of secret shared', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const testUsername = username2
+    await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise((r) => setTimeout(r, 5000))
+    let shareByUsername
+    while (new Date() - start < 30000) {
+      shareByUsername = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Credential',
+        testUsername
+      )
+      if (shareByUsername != null) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise((r) => setTimeout(r, 200))
+    }
+    const list = await ops.getSecretSharedList(
+      realmConfig,
+      identity,
+      testName,
+      'Credential'
+    )
+    expect(list[0].username).toBe(testUsername)
+  })
+  it('can return an empty list if not shared', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    await ops.createSecret(realmConfig, identity, secret)
+    const list = await ops.getSecretSharedList(
+      realmConfig,
+      identity,
+      testName,
+      'Credential'
+    )
+    expect(JSON.stringify(list)).toBe(JSON.stringify([]))
+  })
+  it('can create a secret and share it with a username and list the shared records', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const testUsername = username2
+    const secretCreated = await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise((r) => setTimeout(r, 5000))
+    let shareByUserName
+    while (new Date() - start < 30000) {
+      shareByUserName = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Credential',
+        testUsername
+      )
+      if (shareByUserName == secretCreated.meta.type) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise((r) => setTimeout(r, 200))
+    }
+    let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
+    expect(sharedList[0].data.secretValue).toBe('secret-value')
+  })
+  it('can create a secret and share it with a username and view Record ', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'this is the one for the share and view record',
+      description: 'this is a description',
+    }
+    const testUsername = username2
+    const secretCreated = await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise((r) => setTimeout(r, 5000))
+    let shareByUserName
+    while (new Date() - start < 30000) {
+      shareByUserName = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Credential',
+        testUsername
+      )
+      if (shareByUserName == secretCreated.meta.type) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise((r) => setTimeout(r, 200))
+    }
+    let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
+    expect(sharedList[0].data.secretValue).toBe('secret-value')
+    let recordView = await ops.viewSecret(
+      realmConfig,
+      identity2,
+      sharedList[0].meta.recordId
+    )
+    expect(sharedList[0].meta.recordId).toBe(recordView.meta.recordId)
+  })
+  it('can delete a version of an unshared secret', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const newSecret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'updated-secret-value',
+      description: 'this is the updated description',
+    }
+    await ops.createSecret(realmConfig, identity, secret)
+    let secretResp = await ops.updateSecret(realmConfig, identity, secret, newSecret)
+    let deleted = await ops.deleteSecretVersion(realmConfig, identity, secretResp)
+    expect(deleted).toBe(true)
+  })
+  it('can delete a version of a shared secret', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Client',
+      secretName: testName,
+      secretValue: `{
+        "version": "2",
+        "public_signing_key": "A5QXkIKW5dBN_IOhjGoUBtT-xuVmqRXDB2uaqiKuTao",
+        "private_signing_key": "qIqG9_81kd2gOY-yggIpahQG1MDnlBeQj7G4MHa5p0E1WapQxLVlyU6hXA6rp-Ci5DFf8g6GMaqy5t_H1g5Nqg",
+        "client_id": "4f20ca95-1b3b-b78f-b5bd-6d469ac804eb",
+        "api_key_id": "63807026e9a23850307429e52d2f607eaa5be43488cbb819b075ade91735b180",
+        "api_secret": "730e6b18dc9668fe1758304283c73060619f6596f11bf42bdd3f16d6fc6cd6d0",
+        "public_key": "6u73qLgJniPi9S2t99A7lNfvi3xjxMsPB_Z-CEGWZmo",
+        "private_key": "BnBt9_tquBvSAHL04bQm0HkQ7eXtvuj1WSHegQeho6E",
+        "api_url": "http://platform.local.tozny.com:8000",
+        "client_email": ""
+      }`,
+      description: 'a client credential secret',
+    }
+    const testUsername = username2
+    const secretCreated = await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise((r) => setTimeout(r, 5000))
+    let shareByUserName
+    while (new Date() - start < 30000) {
+      shareByUserName = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Client',
+        testUsername
+      )
+      if (shareByUserName == secretCreated.meta.type) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise((r) => setTimeout(r, 200))
+    }
+    let deleted = await ops.deleteSecretVersion(realmConfig, identity, secretCreated)
+    expect(deleted).toBe(true)
   })
   // /* These tests are for node only, which means that they will fail the browsers tests on
   //   travis. These will be updated shortly to work with both browser and node. */
