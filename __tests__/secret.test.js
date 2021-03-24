@@ -570,6 +570,66 @@ describe('Tozny identity client', () => {
     )
     expect(sharedList[0].meta.recordId).toBe(recordView.meta.recordId)
   })
+  it('can delete a version of an unshared secret', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'secret-value',
+      description: 'this is a description',
+    }
+    const newSecret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'updated-secret-value',
+      description: 'this is the updated description',
+    }
+    await ops.createSecret(realmConfig, identity, secret)
+    let secretResp = await ops.updateSecret(realmConfig, identity, secret, newSecret)
+    let deleted = await ops.deleteSecretVersion(realmConfig, identity, secretResp)
+    expect(deleted).toBe(true)
+  })
+  it('can delete a version of a shared secret', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Client',
+      secretName: testName,
+      secretValue: `{
+        "version": "2",
+        "public_signing_key": "A5QXkIKW5dBN_IOhjGoUBtT-xuVmqRXDB2uaqiKuTao",
+        "private_signing_key": "qIqG9_81kd2gOY-yggIpahQG1MDnlBeQj7G4MHa5p0E1WapQxLVlyU6hXA6rp-Ci5DFf8g6GMaqy5t_H1g5Nqg",
+        "client_id": "4f20ca95-1b3b-b78f-b5bd-6d469ac804eb",
+        "api_key_id": "63807026e9a23850307429e52d2f607eaa5be43488cbb819b075ade91735b180",
+        "api_secret": "730e6b18dc9668fe1758304283c73060619f6596f11bf42bdd3f16d6fc6cd6d0",
+        "public_key": "6u73qLgJniPi9S2t99A7lNfvi3xjxMsPB_Z-CEGWZmo",
+        "private_key": "BnBt9_tquBvSAHL04bQm0HkQ7eXtvuj1WSHegQeho6E",
+        "api_url": "http://platform.local.tozny.com:8000",
+        "client_email": ""
+      }`,
+      description: 'a client credential secret',
+    }
+    const testUsername = username2
+    const secretCreated = await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise((r) => setTimeout(r, 5000))
+    let shareByUserName
+    while (new Date() - start < 30000) {
+      shareByUserName = await ops.shareSecretWithUsername(
+        realmConfig,
+        identity,
+        testName,
+        'Client',
+        testUsername
+      )
+      if (shareByUserName == secretCreated.meta.type) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise((r) => setTimeout(r, 200))
+    }
+    let deleted = await ops.deleteSecretVersion(realmConfig, identity, secretCreated)
+    expect(deleted).toBe(true)
+  })
   // /* These tests are for node only, which means that they will fail the browsers tests on
   //   travis. These will be updated shortly to work with both browser and node. */
   // it('can create a secret with a file type, share and list it', async () => {
