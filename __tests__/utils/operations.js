@@ -4,6 +4,41 @@ const Tozny = require('../../node')
 
 // Utilities to help with running things in the configured environment
 module.exports = {
+  async testExtension(name, options, func, ...args) {
+    const receivedValue = await runInEnvironment(
+      function (name, options, func, args) {
+        const parsedOptions = JSON.parse(options)
+        const parsedArgs = JSON.parse(args)
+        class Test {
+          constructor(tozny, options) {
+            this.tozny = tozny
+            this.options = options
+          }
+
+          run() {
+            var context = this
+            var args = arguments
+            return new Promise(function (resolve) {
+              var executable = new Function(
+                'return (' + func + ').apply(this, arguments);'
+              )
+              resolve(executable.apply(context, args))
+            })
+          }
+        }
+        Test.extensionName = name
+        Tozny.extend(Test, parsedOptions)
+        return Tozny[name].run
+          .apply(Tozny[name], parsedArgs)
+          .then(JSON.stringify)
+      },
+      name,
+      JSON.stringify(options),
+      func.toString(),
+      JSON.stringify(args)
+    )
+    return JSON.parse(receivedValue)
+  },
   async registerClient() {
     const name = `integration-client-${uuidv4()}`
     const configJSON = await runInEnvironment(
