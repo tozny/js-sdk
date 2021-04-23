@@ -34,7 +34,7 @@ class CredentialDataError extends GeneralError {
 }
 
 /**
- * Wraps an error in decoding serialized identity data stored in a note
+ * Indicates an error in realm configuration is present
  */
 class RealmConfigurationError extends GeneralError {
   constructor(...params) {
@@ -44,9 +44,21 @@ class RealmConfigurationError extends GeneralError {
   }
 }
 
+/**
+ * Indicates the current session is expired and a new one must be established
+ */
+class SessionExpiredError extends GeneralError {
+  constructor(...params) {
+    super(...params)
+
+    this.name = 'SessionExpiredError'
+  }
+}
+
 module.exports = {
   InvalidCredentials,
   CredentialNoteError,
   CredentialDataError,
   RealmConfigurationError,
+  SessionExpiredError,
 }
