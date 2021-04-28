@@ -34,6 +34,18 @@ beforeAll(async () => {
   identity = await realm.login(username, password)
 })
 describe('Tozny identity client', () => {
+  it('can use refresh tokens to extend its session', async () => {
+    const session = await realm.login(username, password)
+    const currentInfo = await session.agentInfo()
+    const fiveAgo = new Date()
+    fiveAgo.setDate(fiveAgo.getDate() - 5 * 60 * 1000) // 5 minutes ago
+    session._agentToken.expires = fiveAgo
+    session._agentToken.refreshExpires = fiveAgo
+    const refreshed = await session.agentInfo()
+    // Ensure we have fetched new tokens
+    expect(refreshed.access_token).not.toBe(currentInfo.access_token)
+    expect(refreshed.refresh_token).not.toBe(currentInfo.refresh_token)
+  })
   it('can do identity look ups based on emails', async () => {
     let emails = []
     emails.push(`${username}@example.com`) // Current User

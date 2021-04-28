@@ -166,9 +166,18 @@ class SodiumCrypto extends CryptoProvider {
     return sodium.crypto_sign_verify_detached(signature, message, publicKey)
   }
 
-  async hash(message) {
-    await sodium.ready
-    return sodium.crypto_generichash(sodium.crypto_generichash_BYTES, message)
+  async hash(message, algorithm = 'Blake2B') {
+    if (algorithm === 'Blake2B') {
+      await sodium.ready
+      return sodium.crypto_generichash(sodium.crypto_generichash_BYTES, message)
+    } else {
+      // Supports SHA-1, SHA-256, SHA-384, SHA-512
+      const hashBytes = await crypto.subtle.digest(
+        algorithm,
+        maybeToBytes(message)
+      )
+      return new Uint8Array(hashBytes)
+    }
   }
 
   checksum() {
