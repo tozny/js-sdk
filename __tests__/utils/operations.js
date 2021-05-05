@@ -721,9 +721,7 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user
-          .getSecrets(limit)
-          .then(JSON.stringify)
+        return user.getSecrets(limit).then(JSON.stringify)
       },
       JSON.stringify(config),
       user.stringify(),
@@ -928,6 +926,99 @@ module.exports = {
     )
     return result
   },
+  async removeSecretFromNamespace(
+    config,
+    user,
+    secretName,
+    secretType,
+    namespace
+  ) {
+    const result = await runInEnvironment(
+      function (realmJSON, userJSON, secretName, secretType, namespace) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.removeSecretFromNamespace(secretName, secretType, namespace)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      secretName,
+      secretType,
+      namespace
+    )
+    return result
+  },
+  async removeIdentityFromNamespace(
+    config,
+    user,
+    userToRevokeShare,
+    namespace
+  ) {
+    const result = await runInEnvironment(
+      function (realmJSON, userJSON, namespace, userToRevokeShare) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.removeIdentityFromNamespace(namespace, userToRevokeShare)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      userToRevokeShare,
+      namespace
+    )
+    return result
+  },
+  async addIdentityToNamespace(config, user, namespace, usernameToAdd) {
+    const result = await runInEnvironment(
+      function (realmJSON, userJSON, namespace, usernameToAdd) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.addIdentityToNamespace(usernameToAdd, namespace)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      namespace,
+      usernameToAdd
+    )
+    return result
+  },
+  async addSecretToNamespace(config, user, secretName, secretType, namespace) {
+    const result = await runInEnvironment(
+      function (realmJSON, userJSON, secretName, secretType, namespace) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user.addSecretToNamespace(secretName, secretType, namespace)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      secretName,
+      secretType,
+      namespace
+    )
+    return result
+  },
   async getSecretSharedList(config, user, secretName, secretType) {
     const result = await runInEnvironment(
       function (realmJSON, userJSON, secretName, secretType) {
@@ -1093,12 +1184,14 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user.deleteSecretVersion(JSON.parse(secretJSON)).then(JSON.stringify)
+        return user
+          .deleteSecretVersion(JSON.parse(secretJSON))
+          .then(JSON.stringify)
       },
       JSON.stringify(config),
       user.stringify(),
       JSON.stringify(secret)
     )
     return JSON.parse(result)
-  }
+  },
 }

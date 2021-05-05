@@ -485,7 +485,8 @@ describe('Tozny identity client', () => {
       testName,
       'Credential'
     )
-    expect(list[0].username).toBe(testUsername)
+    // first group is their own namespace
+    expect(list[1].username).toBe(testUsername)
   })
   it('can return an empty list if not shared', async () => {
     const testName = `test-secret-${uuidv4()}`
@@ -502,7 +503,8 @@ describe('Tozny identity client', () => {
       testName,
       'Credential'
     )
-    expect(JSON.stringify(list)).toBe(JSON.stringify([]))
+    // The secret is shared with their own namespace which group members is just them
+    expect(list[0].groupMembers).toBe(1)
   })
   it('can create a secret and share it with a username and list the shared records', async () => {
     const testName = `test-secret-${uuidv4()}`
@@ -585,8 +587,17 @@ describe('Tozny identity client', () => {
       description: 'this is the updated description',
     }
     await ops.createSecret(realmConfig, identity, secret)
-    let secretResp = await ops.updateSecret(realmConfig, identity, secret, newSecret)
-    let deleted = await ops.deleteSecretVersion(realmConfig, identity, secretResp)
+    let secretResp = await ops.updateSecret(
+      realmConfig,
+      identity,
+      secret,
+      newSecret
+    )
+    let deleted = await ops.deleteSecretVersion(
+      realmConfig,
+      identity,
+      secretResp
+    )
     expect(deleted).toBe(true)
   })
   it('can delete a version of a shared secret', async () => {
@@ -627,8 +638,55 @@ describe('Tozny identity client', () => {
       // delay 200 milliseconds between tries
       await new Promise((r) => setTimeout(r, 200))
     }
-    let deleted = await ops.deleteSecretVersion(realmConfig, identity, secretCreated)
+    let deleted = await ops.deleteSecretVersion(
+      realmConfig,
+      identity,
+      secretCreated
+    )
     expect(deleted).toBe(true)
+  })
+  it('can create a secret and share it with a namespace', async () => {
+    const testName = `test-secret-${uuidv4()}`
+    const secret = {
+      secretType: 'Credential',
+      secretName: testName,
+      secretValue: 'this is the one for the share with namespace',
+      description: 'this is a description',
+    }
+    const namespace = `mytest-for-namespace${uuidv4()}`
+    const testUsername = username2
+    const secretCreated = await ops.createSecret(realmConfig, identity, secret)
+    const start = new Date()
+    await new Promise((r) => setTimeout(r, 5000))
+    let addSecret = await ops.addSecretToNamespace(
+      realmConfig,
+      identity,
+      secret.secretName,
+      secret.secretType,
+      namespace
+    )
+    let addIdentity
+    while (new Date() - start < 30000) {
+      addIdentity = await ops.addIdentityToNamespace(
+        realmConfig,
+        identity,
+        namespace,
+        testUsername
+      )
+      if (addIdentity === true) {
+        break
+      }
+      // delay 200 milliseconds between tries
+      await new Promise((r) => setTimeout(r, 200))
+    }
+    let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
+    expect(sharedList[0].data.secretValue).toBe('secret-value')
+    let recordView = await ops.viewSecret(
+      realmConfig,
+      identity2,
+      sharedList[0].meta.recordId
+    )
+    expect(sharedList[0].meta.recordId).toBe(recordView.meta.recordId)
   })
   // /* These tests are for node only, which means that they will fail the browsers tests on
   //   travis. These will be updated shortly to work with both browser and node. */
