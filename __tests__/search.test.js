@@ -73,4 +73,10 @@ describe('Tozny storage clients', () => {
     const secondPage = await response.next()
     expect(envSecondPage).toMatchObject(secondPage)
   })
+  it('can search for records using plain search term', async () => {
+    const request = new Tozny.types.Search()
+    request.match({ plain: { searchKey1: 'key1' } })
+    const found = await ops.search(writerClient, request)
+    expect(found.count).toBe(testRecords.count)
+  })
 })
