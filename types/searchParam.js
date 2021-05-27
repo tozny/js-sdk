@@ -40,6 +40,8 @@ class SearchParam extends Serializable {
         terms[key].every(t => typeof t === 'string')
       ) {
         this[key] = terms[key]
+      } else if (typeof terms[key] === 'object') {
+        this[key] = terms[key]
       } else {
         throw new Error(
           `unable to add ${key} to search parameters since it was not a string or array.`
@@ -63,9 +65,10 @@ class SearchParam extends Serializable {
     for (let key in termKeys) {
       if (Array.isArray(this[key])) {
         toSerialize.terms[termKeys[key]] = this[key]
+      } else if (typeof this[key] === 'object') {
+        toSerialize.terms[termKeys[key]] = this[key]
       }
     }
-
     return toSerialize
   }
 }

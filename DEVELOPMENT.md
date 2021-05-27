@@ -33,6 +33,12 @@ A minified compiled version of the library added to the global object is provide
 A built version of the SDK is included for browsers. JS CDN pick up this file automatically making for easy distribution. Also, the compiled version and an environment HTML file is included in the repo to allow real-browser testing to ensure the SDK's compatibility. Immediately before tagging a release for NPM, make sure to run a build for distribution.
 
 ```sh
+npm install
+```
+
+If you run into errors with below steps with message of "Cannot find module", deleting the `node_modules` folder and re running `npm install` may resolve those errors.
+
+```sh
 npm run build
 ```
 
@@ -55,6 +61,12 @@ The browser tests use the compiled version of the SDK, so make sure you build a 
 Tests can be run locally with `npm test`.
 
 You can target a specific test file by passing the name of the file as a parameter: `npm test -- storage`.
+
+You can target a specific test or group of test by passing in a regex (or plain string) to use for matching words that occur in the `it` block of a test
+
+```sh
+npm test -- storage -t 'CRUD'
+```
 
 The test variant run is controlled by the run time environment. You can manage this either with environment variables or with a `.env` file. Create a copy of this file based on the `env.example` file included.
 
@@ -163,11 +175,11 @@ git tag v1.0.1-alpha.1
 
 Create a npm account, request access to the Tozny Organization on npm, create a publishing token
 
-Create a `.npmrc` file, replace the ${NPM_TOKEN} with your generated token. 
+Create a `.npmrc` file, replace the ${NPM_TOKEN} with your generated token.
 Do not push up this file
 ```sh
 //registry.npmjs.org/:_authToken=${NPM_TOKEN}
-``` 
+```
 
 ```bash
 npm publish
