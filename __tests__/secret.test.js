@@ -485,8 +485,7 @@ describe('Tozny identity client', () => {
       testName,
       'Credential'
     )
-    // first group is their own namespace
-    expect(list[1].username).toBe(testUsername)
+    expect(list[0].username).toBe(testUsername)
   })
   it('can return an empty list if not shared', async () => {
     const testName = `test-secret-${uuidv4()}`
@@ -503,8 +502,7 @@ describe('Tozny identity client', () => {
       testName,
       'Credential'
     )
-    // The secret is shared with their own namespace which group members is just them
-    expect(list[0].groupMembers).toBe(1)
+    expect(list).toMatchObject([])
   })
   it('can create a secret and share it with a username and list the shared records', async () => {
     const testName = `test-secret-${uuidv4()}`
@@ -687,6 +685,18 @@ describe('Tozny identity client', () => {
       sharedList[0].meta.recordId
     )
     expect(sharedList[0].meta.recordId).toBe(recordView.meta.recordId)
+  })
+  it('can delete all secrets created by an identity', async () => {
+    let listedSecrets = await ops.getSecrets(realmConfig, identity, 100)
+    len = listedSecrets.list.length
+    for (index = 0; index < len; index++) {
+      let deleted = await ops.deleteSecretVersion(
+        realmConfig,
+        identity,
+        listedSecrets.list[index]
+      )
+      expect(deleted).toBe(true)      
+    }
   })
   // /* These tests are for node only, which means that they will fail the browsers tests on
   //   travis. These will be updated shortly to work with both browser and node. */
