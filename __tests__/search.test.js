@@ -77,6 +77,12 @@ describe('Tozny storage clients', () => {
     const request = new Tozny.types.Search()
     request.match({ plain: { searchKey1: 'key1' } })
     const found = await ops.search(writerClient, request)
-    expect(found.count).toBe(testRecords.count)
+    expect(found.length).toBe(1)
+  })
+  it('returns no results using a non existant plain search term', async () => {
+    const request = new Tozny.types.Search()
+    request.match({ plain: { x: 'q' } })
+    const found = await ops.search(writerClient, request)
+    expect(found.length).toBe(0)
   })
 })

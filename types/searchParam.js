@@ -65,9 +65,10 @@ class SearchParam extends Serializable {
     for (let key in termKeys) {
       if (Array.isArray(this[key])) {
         toSerialize.terms[termKeys[key]] = this[key]
+      } else if (typeof this[key] === 'object') {
+        toSerialize.terms[termKeys[key]] = this[key]
       }
     }
-
     return toSerialize
   }
 }
