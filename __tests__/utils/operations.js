@@ -418,7 +418,10 @@ module.exports = {
           }
         }
         if (serial.range !== undefined) {
-          request.range(serial.range.start, serial.range.end, serial.range.key)
+          // Need to convert from serialized ISO8601 strings to JS Date objects
+          const start_datetime = new Date(serial.range.after)
+          const end_datetime = new Date(serial.range.before)
+          request.range(start_datetime, end_datetime, serial.range.key)
         }
         return client
           .search(request)
