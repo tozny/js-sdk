@@ -32,8 +32,8 @@ class SearchRange extends Serializable {
   serializable() {
     let toSerialize = {
       range_key: this.key,
-      before: this.start.toISOString(),
-      after: this.end.toISOString(),
+      before: this.end.toISOString(),
+      after: this.start.toISOString(),
     }
     return toSerialize
   }

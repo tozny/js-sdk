@@ -9,6 +9,7 @@ let readerClient
 let writer
 let testRecords = []
 const searchType = 'test-search-type'
+const test_execution_start_datetime = new Date()
 beforeAll(async () => {
   writerClient = await ops.registerClient()
   readerClient = await ops.registerClient()
@@ -29,7 +30,7 @@ beforeAll(async () => {
   const request = new Tozny.types.Search()
   request.match({ records: testRecords[0].meta.recordId })
   const resultQuery = await writer.search(request)
-  await ops.waitForNext(resultQuery, f => f.length === 10)
+  await ops.waitForNext(resultQuery, (f) => f.length === 10)
 })
 
 afterAll(async () => {
@@ -83,6 +84,28 @@ describe('Tozny storage clients', () => {
     const request = new Tozny.types.Search()
     request.match({ plain: { x: 'q' } })
     const found = await ops.search(writerClient, request)
+    expect(found.length).toBe(0)
+  })
+  it('can search for records using time ranges', async () => {
+    let request = new Tozny.types.Search()
+    request.match({ type: [searchType] })
+    let end_time = new Date()
+    request.range(test_execution_start_datetime, end_time, 'CREATED')
+    const found = await ops.search(writerClient, request)
+    expect(found.length).toBe(testRecords.length)
+  })
+  it('returns no records for time range with no records', async () => {
+    let request = new Tozny.types.Search()
+    request.match({ type: [searchType] })
+    // Calculate start time = now + 5 minutes
+    let start_time = new Date()
+    start_time = new Date(start_time.getTime() + 5 * 60000)
+    // Calculate end time = start time + 5 minutes
+    const end_time = new Date(start_time.getTime() + 5 * 60000)
+    // Search for records created in the future
+    request.range(start_time, end_time, 'CREATED')
+    const found = await ops.search(writerClient, request)
+    // Unless we added pre-cognition to search....
     expect(found.length).toBe(0)
   })
 })
