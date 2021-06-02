@@ -741,14 +741,14 @@ module.exports = {
         )
         const user = realm.fromObject(userJSON)
         return user.viewSecret(secretID).then(function (secret) {
-          return secret.stringify()
+          return JSON.stringify(secret)
         })
       },
       JSON.stringify(config),
       user.stringify(),
       secretID
     )
-    return Tozny.types.Record.decode(JSON.parse(secret))
+    return JSON.parse(secret)
   },
   async updateSecret(config, user, oldSecret, newSecret) {
     const secretResponse = await runInEnvironment(
@@ -1161,17 +1161,12 @@ module.exports = {
         const user = realm.fromObject(userJSON)
         return user
           .getSharedSecrets()
-          .then(function (list) {
-            return list.map(function (record) {
-              return record.serializable()
-            })
-          })
           .then(JSON.stringify)
       },
       JSON.stringify(config),
       user.stringify()
     )
-    return Promise.all(JSON.parse(secretList).map(Tozny.types.Record.decode))
+    return JSON.parse(secretList)
   },
   async deleteSecretVersion(config, user, secret) {
     const result = await runInEnvironment(

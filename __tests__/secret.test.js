@@ -252,7 +252,7 @@ describe('Tozny identity client', () => {
       identity,
       created.meta.recordId
     )
-    expect(created.meta.recordId).toBe(returned.meta.recordId)
+    expect(created.meta.recordId).toBe(returned.secret.meta.recordId)
   })
   it('can create a secret and update', async () => {
     const testName = `test-secret-${uuidv4()}`
@@ -479,13 +479,13 @@ describe('Tozny identity client', () => {
       // delay 200 milliseconds between tries
       await new Promise((r) => setTimeout(r, 200))
     }
-    const list = await ops.getSecretSharedList(
+    const listResponse = await ops.getSecretSharedList(
       realmConfig,
       identity,
       testName,
       'Credential'
     )
-    expect(list[0].username).toBe(testUsername)
+    expect(listResponse.list[0].username).toBe(testUsername)
   })
   it('can return an empty list if not shared', async () => {
     const testName = `test-secret-${uuidv4()}`
@@ -496,13 +496,13 @@ describe('Tozny identity client', () => {
       description: 'this is a description',
     }
     await ops.createSecret(realmConfig, identity, secret)
-    const list = await ops.getSecretSharedList(
+    const listResponse = await ops.getSecretSharedList(
       realmConfig,
       identity,
       testName,
       'Credential'
     )
-    expect(list).toMatchObject([])
+    expect(listResponse.list).toMatchObject([])
   })
   it('can create a secret and share it with a username and list the shared records', async () => {
     const testName = `test-secret-${uuidv4()}`
@@ -532,7 +532,7 @@ describe('Tozny identity client', () => {
       await new Promise((r) => setTimeout(r, 200))
     }
     let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
-    expect(sharedList[0].data.secretValue).toBe('secret-value')
+    expect(sharedList.sharedList[0].data.secretValue).toBe('secret-value')
   })
   it('can create a secret and share it with a username and view Record ', async () => {
     const testName = `test-secret-${uuidv4()}`
@@ -562,13 +562,13 @@ describe('Tozny identity client', () => {
       await new Promise((r) => setTimeout(r, 200))
     }
     let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
-    expect(sharedList[0].data.secretValue).toBe('secret-value')
+    expect(sharedList.sharedList[0].data.secretValue).toBe('secret-value')
     let recordView = await ops.viewSecret(
       realmConfig,
       identity2,
-      sharedList[0].meta.recordId
+      sharedList.sharedList[0].meta.recordId
     )
-    expect(sharedList[0].meta.recordId).toBe(recordView.meta.recordId)
+    expect(sharedList.sharedList[0].meta.recordId).toBe(recordView.secret.meta.recordId)
   })
   it('can delete a version of an unshared secret', async () => {
     const testName = `test-secret-${uuidv4()}`
@@ -596,7 +596,7 @@ describe('Tozny identity client', () => {
       identity,
       secretResp
     )
-    expect(deleted).toBe(true)
+    expect(deleted.success).toBe(true)
   })
   it('can delete a version of a shared secret', async () => {
     const testName = `test-secret-${uuidv4()}`
@@ -641,7 +641,7 @@ describe('Tozny identity client', () => {
       identity,
       secretCreated
     )
-    expect(deleted).toBe(true)
+    expect(deleted.success).toBe(true)
   })
   it('can create a secret and share it with a namespace', async () => {
     const testName = `test-secret-${uuidv4()}`
@@ -678,13 +678,13 @@ describe('Tozny identity client', () => {
       await new Promise((r) => setTimeout(r, 200))
     }
     let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
-    expect(sharedList[0].data.secretValue).toBe('secret-value')
+    expect(sharedList.sharedList[0].data.secretValue).toBe('secret-value')
     let recordView = await ops.viewSecret(
       realmConfig,
       identity2,
-      sharedList[0].meta.recordId
+      sharedList.sharedList[0].meta.recordId
     )
-    expect(sharedList[0].meta.recordId).toBe(recordView.meta.recordId)
+    expect(sharedList.sharedList[0].meta.recordId).toBe(recordView.secret.meta.recordId)
   })
   it('can delete all secrets created by an identity', async () => {
     let listedSecrets = await ops.getSecrets(realmConfig, identity, 100)
@@ -695,7 +695,7 @@ describe('Tozny identity client', () => {
         identity,
         listedSecrets.list[index]
       )
-      expect(deleted).toBe(true)      
+      expect(deleted.success).toBe(true)      
     }
   })
   // /* These tests are for node only, which means that they will fail the browsers tests on
