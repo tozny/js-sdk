@@ -151,11 +151,17 @@ Write code
 
 Get code reviewed and approved
 
+Set a value in your shell corresponding to the new version to publish
+
+```bash
+export NEW_VERSION=1.0.1
+```
+
 Use the npm version command to automatically update package.json to the new version and create a commit and tag
 
 ```bash
 # mainline release
-npm version 1.0.1
+npm version $NEW_VERSION
 # preview release
 npm version 1.0.1-alpha.1
 ```
@@ -190,7 +196,7 @@ npm publish --tag=alpha
 Push the tag up to remote github repository
 
 ```bash
-git push --tags --all
+git push origin v$NEW_VERSION # i.e. git push origin v1.0.1
 ```
 
 Lastly, (squash) merge and delete the branch
