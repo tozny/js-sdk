@@ -151,10 +151,7 @@ Write code
 
 Get code reviewed and approved
 
-Use the npm build tool to automatically update package.json to the new version
-```bash
-npm run build
-```
+Use the npm version command to automatically update package.json to the new version and create a commit and tag
 
 ```bash
 # mainline release
@@ -163,23 +160,22 @@ npm version 1.0.1
 npm version 1.0.1-alpha.1
 ```
 
-Use the npm build tool to make a new commit with the updated version and create a git tag to have as a github release
+Use the npm build command tool to compile the release artifact
+
 ```bash
 npm run build
-# mainline realease
-git tag v1.0.1
-# preview release
-git tag v1.0.1-alpha.1
 ```
-
 
 Create a npm account, request access to the Tozny Organization on npm, create a publishing token
 
 Create a `.npmrc` file, replace the ${NPM_TOKEN} with your generated token.
 Do not push up this file
+
 ```sh
 //registry.npmjs.org/:_authToken=${NPM_TOKEN}
 ```
+
+Use the npm publish command to publish the new version of the SDK (using the release artifact from the previous step) to the NPM registry
 
 ```bash
 npm publish
@@ -197,4 +193,4 @@ Push the tag up to remote github repository
 git push --tags --all
 ```
 
-Lastly, merge and delete the branch
+Lastly, (squash) merge and delete the branch
