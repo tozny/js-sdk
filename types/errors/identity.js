@@ -1,5 +1,17 @@
 const { RequestError, GeneralError } = require('./general')
 
+
+/**
+ * Indicates that the identity is locked
+ */
+ class IdentityLockedError extends RequestError {
+  constructor(...params) {
+    super(...params)
+
+    this.name = 'IdentityLockedError'
+  }
+}
+
 /**
  * Indicates the provided credentials were invalid
  */
@@ -56,6 +68,7 @@ class SessionExpiredError extends GeneralError {
 }
 
 module.exports = {
+  IdentityLockedError,
   InvalidCredentials,
   CredentialNoteError,
   CredentialDataError,
