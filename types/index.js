@@ -35,6 +35,9 @@ const GroupMembershipKeys = require('./groupMembershipKeys')
 const GroupMembership = require('./groupMembership')
 const Capabilities = require('./capabilities')
 const GroupMember = require('./groupMember')
+const AccessRequest = require('./accessRequest')
+const AccessRequestSearchRequest = require('./accessRequestSearchRequest')
+const AccessRequestSearchResponse = require('./accessRequestSearchResponse')
 
 module.exports = {
   AuthorizerPolicy,
@@ -74,4 +77,7 @@ module.exports = {
   GroupMembership,
   Capabilities,
   GroupMember,
+  AccessRequest,
+  AccessRequestSearchRequest,
+  AccessRequestSearchResponse,
 }

@@ -77,6 +77,7 @@ API_URL=http://platform.local.tozny.com:8000
 CLIENT_REGISTRATION_TOKEN=449fa69b9eedc5689d24929345d8cc6e32fdfdc042bfa762a1e0319cc4e7916
 ID_REALM_NAME=IntegrationTest-0000000
 ID_APP_NAME=integration-test
+TEST_TOZID_GROUP_ID=f8a026da-ad32-4197-839b-bc8a20814dec
 ```
 
 The test environment is also controlled with environment variables
