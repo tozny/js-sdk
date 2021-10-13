@@ -7,7 +7,7 @@ const {
   testTozIDGroupName,
 } = global
 const Tozny = require('../node')
-const { AccessRequest, AccessRequestSearchRequest } = require('../types')
+const { AccessRequest } = require('../types')
 const ops = require('./utils/operations')
 
 jest.setTimeout(10000000)
@@ -132,92 +132,112 @@ describe('Tozny identity client', () => {
   })
   it('it can create an access request', async () => {
     const reason = 'Debug prod'
-    const requestorID = identity.storage.config.clientId
+    const requestorId = identity.storage.config.clientId
     const realmName = realmConfig.realmName
     const accessControlledGroup = {
-      ID: testTozIDGroupName,
+      id: testTozIDGroupName,
     }
     const accessDurationSeconds = 1000
-    const params = new AccessRequest(
+    const result = await ops.createAccessRequest(
+      realmConfig,
+      identity,
       reason,
-      requestorID,
+      requestorId,
       realmName,
       [accessControlledGroup],
       accessDurationSeconds
     )
-    const result = await identity.createAccessRequest(params)
-    expect(result.ID).toBeGreaterThan(0)
+    expect(result.id).toBeGreaterThan(0)
   })
   it('it can search for all self created access requests', async () => {
     const reason = 'Debug prod'
-    const requestorID = identity.storage.config.clientId
+    const requestorId = identity.storage.config.clientId
     const realmName = realmConfig.realmName
     const accessControlledGroup = {
-      ID: testTozIDGroupName,
+      id: testTozIDGroupName,
     }
     const accessDurationSeconds = 1000
-    const createAccessRequestParams = new AccessRequest(
+
+    const firstAccessRequest = await ops.createAccessRequest(
+      realmConfig,
+      identity,
       reason,
-      requestorID,
+      requestorId,
       realmName,
       [accessControlledGroup],
       accessDurationSeconds
     )
-    const firstAccessRequest = await identity.createAccessRequest(
-      createAccessRequestParams
-    )
-    const secondAccessRequest = await identity.createAccessRequest(
-      createAccessRequestParams
+    const secondAccessRequest = await ops.createAccessRequest(
+      realmConfig,
+      identity,
+      reason,
+      requestorId,
+      realmName,
+      [accessControlledGroup],
+      accessDurationSeconds
     )
 
-    const searchByRequestorIDsParams = [requestorID]
-    const searchResults = await identity.searchAccessRequests(
-      searchByRequestorIDsParams
+    const searchByRequestorIDsParams = [requestorId]
+    const searchResults = await ops.searchAccessRequests(
+      realmConfig,
+      identity,
+      searchByRequestorIDsParams,
+      null, // searchByGroupIDsParams
+      0, // next token
+      10 // limit
     )
     const searchResultAccessRequestIDs = searchResults.accessRequests.map(
-      (accessRequest) => accessRequest.ID
+      (accessRequest) => accessRequest.id
     )
     expect(searchResultAccessRequestIDs).toEqual(
-      expect.arrayContaining([firstAccessRequest.ID, secondAccessRequest.ID])
+      expect.arrayContaining([firstAccessRequest.id, secondAccessRequest.id])
     )
   })
   it('it can describe a created access request', async () => {
     const reason = 'Debug prod' + uuidv4()
-    const requestorID = identity.storage.config.clientId
+    const requestorId = identity.storage.config.clientId
     const realmName = realmConfig.realmName
     const accessControlledGroup = {
-      ID: testTozIDGroupName,
+      id: testTozIDGroupName,
     }
     const accessDurationSeconds = 1000
-    const params = new AccessRequest(
+    const createdAccessRequest = await ops.createAccessRequest(
+      realmConfig,
+      identity,
       reason,
-      requestorID,
+      requestorId,
       realmName,
       [accessControlledGroup],
       accessDurationSeconds
     )
-    const createdAccessRequest = await identity.createAccessRequest(params)
-    const describedAccessRequest = await identity.describeAccessRequest(
-      createdAccessRequest.ID
+    const describedAccessRequest = await ops.describeAccessRequest(
+      realmConfig,
+      identity,
+      createdAccessRequest.id
     )
     expect(describedAccessRequest.reason).toEqual(reason)
   })
   it('it can delete a created access request', async () => {
     const reason = 'Debug prod' + uuidv4()
-    const requestorID = identity.storage.config.clientId
+    const requestorId = identity.storage.config.clientId
     const realmName = realmConfig.realmName
     const accessControlledGroup = {
-      ID: testTozIDGroupName,
+      id: testTozIDGroupName,
     }
     const accessDurationSeconds = 1000
-    const params = new AccessRequest(
+    const createdAccessRequest = await ops.createAccessRequest(
+      realmConfig,
+      identity,
       reason,
-      requestorID,
+      requestorId,
       realmName,
       [accessControlledGroup],
       accessDurationSeconds
     )
-    const createdAccessRequest = await identity.createAccessRequest(params)
-    await identity.deleteAccessRequest(createdAccessRequest.ID)
+    await ops.deleteAccessRequest(
+      realmConfig,
+      identity,
+      createdAccessRequest.id
+    )
   })
 })

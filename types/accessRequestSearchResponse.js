@@ -9,10 +9,9 @@ class AccessRequestSearchResponse extends Serializable {
   }
 
   serializable() {
-    let serializedAccessRequests = []
-    for (const accessRequest of this.accessRequests) {
-      serializedAccessRequests.push(accessRequest.serializable())
-    }
+    const serializedAccessRequests = this.accessRequests.map((ar) =>
+      ar.serializable()
+    )
     let toSerialize = {
       access_requests: serializedAccessRequests,
       next_token: this.nextToken,
@@ -26,27 +25,13 @@ class AccessRequestSearchResponse extends Serializable {
     return toSerialize
   }
   static async decode(json) {
-    const rawAccessRequests =
-      json.access_requests === undefined ? [] : json.access_requests
+    const rawAccessRequests = json.access_requests || []
     let accessRequests = []
-    for (const rawAccessRequest of rawAccessRequests) {
-      let accessRequest = new AccessRequest()
-      accessRequest.state = rawAccessRequest.state
-      accessRequest.ID = rawAccessRequest.id
-      accessRequest.reason = rawAccessRequest.reason
-      accessRequest.requestorID = rawAccessRequest.requestor_id
-      accessRequest.realmName = rawAccessRequest.realm_name
-      accessRequest.groups = rawAccessRequest.groups.map((x) => {
-        // eslint-disable-next-line no-unused-labels
-        return { ID: x.group_id }
-      })
-      accessRequest.accessDurationSeconds = rawAccessRequest.ttl
-      accessRequest.createdAt = rawAccessRequest.created_at
-      accessRequest.autoExpiresAt = rawAccessRequest.auto_expires_at
-
+    for await (const rawAccessRequest of rawAccessRequests) {
+      const accessRequest = await AccessRequest.decode(rawAccessRequest)
       accessRequests.push(accessRequest)
     }
-    const nextToken = json.next_token === undefined ? 0 : json.next_token
+    const nextToken = json.next_token || 0
 
     const accessRequestSearchResponse = new AccessRequestSearchResponse(
       accessRequests,

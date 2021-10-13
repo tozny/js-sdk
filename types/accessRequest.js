@@ -1,14 +1,14 @@
 const Serializable = require('./serializable')
 
 class AccessRequest extends Serializable {
-  constructor(reason, requestorID, realmName, groups, accessDurationSeconds) {
+  constructor(reason, requestorId, realmName, groups, accessDurationSeconds) {
     super()
     this.reason = reason
-    this.requestorID = requestorID
+    this.requestorId = requestorId
     this.realmName = realmName
     this.groups = groups
     this.accessDurationSeconds = accessDurationSeconds
-    this.ID = null
+    this.id = null
     this.state = null
     this.createdAt = null
     this.autoExpiresAt = null
@@ -17,18 +17,18 @@ class AccessRequest extends Serializable {
   serializable() {
     let toSerialize = {
       reason: this.reason,
-      requestor_id: this.requestorID,
+      requestor_id: this.requestorId,
       realm_name: this.realmName,
       ttl: this.accessDurationSeconds,
       groups: [],
-      id: this.ID,
+      id: this.id,
       state: this.state,
       created_at: this.createdAt,
       auto_expires_at: this.autoExpiresAt,
     }
     let rawGroups = []
     for (const group of this.groups) {
-      rawGroups.push({ group_id: group.ID })
+      rawGroups.push({ group_id: group.id })
     }
     toSerialize.groups = rawGroups
     const serializedKeys = Object.keys(toSerialize)
@@ -40,32 +40,31 @@ class AccessRequest extends Serializable {
     return toSerialize
   }
   static decode(json) {
-    let reason = json.reason === undefined ? null : json.reason
-    let requestorID = json.requestor_id === undefined ? null : json.requestor_id
-    let realmName = json.realm_name === undefined ? null : json.realm_name
-    let rawGroups = json.groups === undefined ? null : json.groups
+    let reason = json.reason || null
+    let requestorId = json.requestor_id || json.requestorId || null
+    let realmName = json.realm_name || json.realmName || null
+    let accessDurationSeconds = json.ttl || json.accessDurationSeconds || null
+    let rawGroups = json.groups || []
     let groups = []
     for (const group of rawGroups) {
-      groups.push({ ID: group.group_id })
+      groups.push({ id: group.group_id || group.id || null })
     }
-    let accessDurationSeconds = json.ttl === undefined ? null : json.ttl
 
-    var accessRequest = new AccessRequest(
+    const accessRequest = new AccessRequest(
       reason,
-      requestorID,
+      requestorId,
       realmName,
       groups,
       accessDurationSeconds
     )
 
     // server defined values
-    let ID = json.id === null ? null : json.id
-    let state = json.state === null ? null : json.state
-    let createdAt = json.created_at === null ? null : json.created_at
-    let autoExpiresAt =
-      json.auto_expires_at === null ? null : json.auto_expires_at
+    let id = json.id || null
+    let state = json.state || null
+    let createdAt = json.created_at || null
+    let autoExpiresAt = json.auto_expires_at || null
 
-    accessRequest.ID = ID
+    accessRequest.id = id
     accessRequest.state = state
     accessRequest.createdAt = createdAt
     accessRequest.autoExpiresAt = autoExpiresAt
