@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require('uuid')
 const { runInEnvironment, apiUrl, clientRegistrationToken } = global
 const Tozny = require('../../node')
+const { AccessRequest } = require('../../types')
 
 // Utilities to help with running things in the configured environment
 module.exports = {
@@ -1162,9 +1163,7 @@ module.exports = {
           realmConfig.apiUrl
         )
         const user = realm.fromObject(userJSON)
-        return user
-          .getSharedSecrets()
-          .then(JSON.stringify)
+        return user.getSharedSecrets().then(JSON.stringify)
       },
       JSON.stringify(config),
       user.stringify()
@@ -1189,6 +1188,138 @@ module.exports = {
       JSON.stringify(config),
       user.stringify(),
       JSON.stringify(secret)
+    )
+    return JSON.parse(result)
+  },
+  async createAccessRequest(
+    config,
+    user,
+    reason,
+    requestorId,
+    realmName,
+    accessControlledGroups,
+    accessDurationSeconds
+  ) {
+    const result = await runInEnvironment(
+      async function (
+        realmJSON,
+        userJSON,
+        reasonJSON,
+        requestorIdJSON,
+        realmNameJSON,
+        accessControlledGroupsJSON,
+        accessDurationSecondsJSON
+      ) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user
+          .createAccessRequest(
+            reasonJSON,
+            requestorIdJSON,
+            realmNameJSON,
+            accessControlledGroupsJSON,
+            accessDurationSecondsJSON
+          )
+          .then(JSON.stringify)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      reason,
+      requestorId,
+      realmName,
+      accessControlledGroups,
+      accessDurationSeconds
+    )
+    return JSON.parse(result)
+  },
+  async describeAccessRequest(config, user, accessRequestId) {
+    const result = await runInEnvironment(
+      async function (realmJSON, userJSON, accessRequestIdJSON) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user
+          .describeAccessRequest(accessRequestIdJSON)
+          .then(JSON.stringify)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      accessRequestId
+    )
+    return JSON.parse(result)
+  },
+  async deleteAccessRequest(config, user, accessRequestId) {
+    const result = await runInEnvironment(
+      async function (realmJSON, userJSON, accessRequestIdJSON) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user
+          .deleteAccessRequest(accessRequestIdJSON)
+          .then(JSON.stringify)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      accessRequestId
+    )
+    return JSON.parse(result)
+  },
+  async searchAccessRequests(
+    config,
+    user,
+    searchByRequestorIDsParams,
+    searchByGroupIDsParams,
+    nextToken,
+    limit
+  ) {
+    const result = await runInEnvironment(
+      async function (
+        realmJSON,
+        userJSON,
+        searchByRequestorIDsParamsJSON,
+        searchByGroupIDsParamsJSON,
+        nextTokenJson,
+        limitJSON
+      ) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user
+          .searchAccessRequests(
+            searchByRequestorIDsParamsJSON,
+            searchByGroupIDsParamsJSON,
+            nextTokenJson,
+            limitJSON
+          )
+          .then(JSON.stringify)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      searchByRequestorIDsParams,
+      searchByGroupIDsParams,
+      nextToken,
+      limit
     )
     return JSON.parse(result)
   },
