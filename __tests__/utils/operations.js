@@ -1194,20 +1194,18 @@ module.exports = {
   async createAccessRequest(
     config,
     user,
-    reason,
-    requestorId,
     realmName,
     accessControlledGroups,
+    reason,
     accessDurationSeconds
   ) {
     const result = await runInEnvironment(
       async function (
         realmJSON,
         userJSON,
-        reasonJSON,
-        requestorIdJSON,
         realmNameJSON,
         accessControlledGroupsJSON,
+        reasonJSON,
         accessDurationSecondsJSON
       ) {
         const realmConfig = JSON.parse(realmJSON)
@@ -1220,20 +1218,18 @@ module.exports = {
         const user = realm.fromObject(userJSON)
         return user
           .createAccessRequest(
-            reasonJSON,
-            requestorIdJSON,
             realmNameJSON,
             accessControlledGroupsJSON,
+            reasonJSON,
             accessDurationSecondsJSON
           )
           .then(JSON.stringify)
       },
       JSON.stringify(config),
       user.stringify(),
-      reason,
-      requestorId,
       realmName,
       accessControlledGroups,
+      reason,
       accessDurationSeconds
     )
     return JSON.parse(result)
