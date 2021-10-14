@@ -11,11 +11,11 @@ class AccessRequestApprovalsResponse extends Serializable {
       accessRequests.push(accessRequest)
     }
 
-    const accessRequestSearchResponse = new AccessRequestApprovalsResponse(
+    const accessRequestApprovalsResponse = new AccessRequestApprovalsResponse(
       accessRequests
     )
 
-    return accessRequestSearchResponse
+    return accessRequestApprovalsResponse
   }
 }
 
