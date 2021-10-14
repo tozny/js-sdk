@@ -1319,4 +1319,26 @@ module.exports = {
     )
     return JSON.parse(result)
   },
+  async approveAccessRequests(config, user, realmName, approvals) {
+    const result = await runInEnvironment(
+      async function (realmJSON, userJSON, realmNameJSON, approvalsJSON) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user
+          .approveAccessRequests(realmNameJSON, approvalsJSON)
+          .then(JSON.stringify)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      realmName,
+      approvals
+    )
+    return JSON.parse(result)
+  },
 }
