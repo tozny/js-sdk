@@ -132,7 +132,6 @@ describe('Tozny identity client', () => {
   })
   it('it can create an access request', async () => {
     const reason = 'Debug prod'
-    const requestorId = identity.storage.config.clientId
     const realmName = realmConfig.realmName
     const accessControlledGroup = {
       id: testTozIDGroupName,
@@ -141,17 +140,15 @@ describe('Tozny identity client', () => {
     const result = await ops.createAccessRequest(
       realmConfig,
       identity,
-      reason,
-      requestorId,
       realmName,
       [accessControlledGroup],
+      reason,
       accessDurationSeconds
     )
     expect(result.id).toBeGreaterThan(0)
   })
   it('it can search for all self created access requests', async () => {
     const reason = 'Debug prod'
-    const requestorId = identity.storage.config.clientId
     const realmName = realmConfig.realmName
     const accessControlledGroup = {
       id: testTozIDGroupName,
@@ -161,23 +158,22 @@ describe('Tozny identity client', () => {
     const firstAccessRequest = await ops.createAccessRequest(
       realmConfig,
       identity,
-      reason,
-      requestorId,
       realmName,
       [accessControlledGroup],
+      reason,
       accessDurationSeconds
     )
     const secondAccessRequest = await ops.createAccessRequest(
       realmConfig,
       identity,
-      reason,
-      requestorId,
       realmName,
       [accessControlledGroup],
+      reason,
       accessDurationSeconds
     )
 
-    const searchByRequestorIDsParams = [requestorId]
+    // search for requests this client made!
+    const searchByRequestorIDsParams = [identity.storage.config.clientId]
     const searchResults = await ops.searchAccessRequests(
       realmConfig,
       identity,
@@ -195,7 +191,6 @@ describe('Tozny identity client', () => {
   })
   it('it can describe a created access request', async () => {
     const reason = 'Debug prod' + uuidv4()
-    const requestorId = identity.storage.config.clientId
     const realmName = realmConfig.realmName
     const accessControlledGroup = {
       id: testTozIDGroupName,
@@ -204,10 +199,9 @@ describe('Tozny identity client', () => {
     const createdAccessRequest = await ops.createAccessRequest(
       realmConfig,
       identity,
-      reason,
-      requestorId,
       realmName,
       [accessControlledGroup],
+      reason,
       accessDurationSeconds
     )
     const describedAccessRequest = await ops.describeAccessRequest(
@@ -219,7 +213,6 @@ describe('Tozny identity client', () => {
   })
   it('it can delete a created access request', async () => {
     const reason = 'Debug prod' + uuidv4()
-    const requestorId = identity.storage.config.clientId
     const realmName = realmConfig.realmName
     const accessControlledGroup = {
       id: testTozIDGroupName,
@@ -228,10 +221,9 @@ describe('Tozny identity client', () => {
     const createdAccessRequest = await ops.createAccessRequest(
       realmConfig,
       identity,
-      reason,
-      requestorId,
       realmName,
       [accessControlledGroup],
+      reason,
       accessDurationSeconds
     )
     await ops.deleteAccessRequest(
