@@ -1276,20 +1276,12 @@ module.exports = {
     )
     return JSON.parse(result)
   },
-  async searchAccessRequests(
-    config,
-    user,
-    searchByRequestorIDsParams,
-    searchByGroupIDsParams,
-    nextToken,
-    limit
-  ) {
+  async searchAccessRequests(config, user, filters, nextToken, limit) {
     const result = await runInEnvironment(
       async function (
         realmJSON,
         userJSON,
-        searchByRequestorIDsParamsJSON,
-        searchByGroupIDsParamsJSON,
+        filtersJSON,
         nextTokenJson,
         limitJSON
       ) {
@@ -1302,18 +1294,12 @@ module.exports = {
         )
         const user = realm.fromObject(userJSON)
         return user
-          .searchAccessRequests(
-            searchByRequestorIDsParamsJSON,
-            searchByGroupIDsParamsJSON,
-            nextTokenJson,
-            limitJSON
-          )
+          .searchAccessRequests(filtersJSON, nextTokenJson, limitJSON)
           .then(JSON.stringify)
       },
       JSON.stringify(config),
       user.stringify(),
-      searchByRequestorIDsParams,
-      searchByGroupIDsParams,
+      filters,
       nextToken,
       limit
     )
