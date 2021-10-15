@@ -174,6 +174,9 @@ describe('Tozny identity client', () => {
 
     // search for requests this client made!
     const searchByRequestorIDsParams = [identity.storage.config.clientId]
+
+    // NOTE: fails due to "Group must have only 1 access policy" but we have none
+    // create in 'Manage Realm' via UI to setup policy record
     const searchResults = await ops.searchAccessRequests(
       realmConfig,
       identity,
@@ -230,6 +233,36 @@ describe('Tozny identity client', () => {
       realmConfig,
       identity,
       createdAccessRequest.id
+    )
+  })
+
+  it('it can approve an access request', async () => {
+    const reason = 'Reasons' + uuidv4()
+    const realmName = realmConfig.realmName
+    const accessControlledGroup = {
+      id: testTozIDGroupName,
+    }
+    const accessDurationSeconds = 1000
+    const createdAccessRequest = await ops.createAccessRequest(
+      realmConfig,
+      identity,
+      realmName,
+      [accessControlledGroup],
+      reason,
+      accessDurationSeconds
+    )
+
+    // NOTE: fails due to "Group must have only 1 access policy" but we have none
+    // create in 'Manage Realm' via UI to setup policy record
+    const approval = {
+      accessRequestId: createdAccessRequest.id,
+      comment: 'COMMENT',
+    }
+    await ops.approveAccessRequests(
+      realmConfig,
+      identity,
+      realmName,
+      [approval]
     )
   })
 })
