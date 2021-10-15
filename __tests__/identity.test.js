@@ -173,15 +173,15 @@ describe('Tozny identity client', () => {
     )
 
     // search for requests this client made!
-    const searchByRequestorIDsParams = [identity.storage.config.clientId]
-
+    const filters = {
+      requestorIds: [identity.storage.config.clientId],
+    }
     // NOTE: fails due to "Group must have only 1 access policy" but we have none
     // create in 'Manage Realm' via UI to setup policy record
     const searchResults = await ops.searchAccessRequests(
       realmConfig,
       identity,
-      searchByRequestorIDsParams,
-      null, // searchByGroupIDsParams
+      filters,
       0, // next token
       10 // limit
     )
@@ -258,11 +258,8 @@ describe('Tozny identity client', () => {
       accessRequestId: createdAccessRequest.id,
       comment: 'COMMENT',
     }
-    await ops.approveAccessRequests(
-      realmConfig,
-      identity,
-      realmName,
-      [approval]
-    )
+    await ops.approveAccessRequests(realmConfig, identity, realmName, [
+      approval,
+    ])
   })
 })

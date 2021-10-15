@@ -36,7 +36,6 @@ const GroupMembership = require('./groupMembership')
 const Capabilities = require('./capabilities')
 const GroupMember = require('./groupMember')
 const AccessRequest = require('./accessRequest')
-const AccessRequestSearchRequest = require('./accessRequestSearchRequest')
 const AccessRequestSearchResponse = require('./accessRequestSearchResponse')
 const AccessRequestApprovalsRequest = require('./accessRequestApprovalsRequest')
 const AccessRequestApprovalsResponse = require('./accessRequestApprovalsResponse')
@@ -80,7 +79,6 @@ module.exports = {
   Capabilities,
   GroupMember,
   AccessRequest,
-  AccessRequestSearchRequest,
   AccessRequestSearchResponse,
   AccessRequestApprovalsRequest,
   AccessRequestApprovalsResponse,
