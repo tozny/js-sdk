@@ -146,6 +146,11 @@ describe('Tozny identity client', () => {
       accessDurationSeconds
     )
     expect(result.id).toBeGreaterThan(0)
+    expect(result.accessDurationSeconds).toEqual(accessDurationSeconds)
+    expect(result.reason).toEqual(reason)
+    expect(result.requestorId).toEqual(identity.storage.config.clientId)
+    expect(result.groups[0].id).toEqual(testTozIDGroupName)
+    expect(result.groups[0].groupName).not.toBeUndefined()
   })
   it('it can search for all self created access requests', async () => {
     const reason = 'Debug prod'
@@ -261,5 +266,18 @@ describe('Tozny identity client', () => {
     await ops.approveAccessRequests(realmConfig, identity, realmName, [
       approval,
     ])
+  })
+
+  it('can list groups with enabled mpc', async () => {
+    const realmName = realmConfig.realmName
+    const response = await ops.availableAccessRequestGroups(
+      realmConfig,
+      identity,
+      realmName
+    )
+    expect(response).toBeInstanceOf(Array)
+    expect(response.length).toBeGreaterThan(0)
+    expect(response[0].id).not.toBeUndefined()
+    expect(response[0].groupName).not.toBeUndefined()
   })
 })

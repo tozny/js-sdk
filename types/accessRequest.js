@@ -47,7 +47,10 @@ class AccessRequest extends Serializable {
     let rawGroups = json.groups || []
     let groups = []
     for (const group of rawGroups) {
-      groups.push({ id: group.group_id || group.id || null })
+      groups.push({
+        id: group.group_id || group.id || null,
+        groupName: group.group_name || group.groupName || null,
+      })
     }
 
     const accessRequest = new AccessRequest(
