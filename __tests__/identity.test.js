@@ -263,9 +263,15 @@ describe('Tozny identity client', () => {
       accessRequestId: createdAccessRequest.id,
       comment: 'COMMENT',
     }
-    await ops.approveAccessRequests(realmConfig, identity, realmName, [
-      approval,
-    ])
+    const response = await ops.approveAccessRequests(
+      realmConfig,
+      identity,
+      realmName,
+      [approval]
+    )
+    expect(response).toBeInstanceOf(Array)
+    expect(response).toHaveLength(1)
+    expect(response[0].id).toEqual(createdAccessRequest.id)
   })
 
   it('can list groups with enabled mpc', async () => {

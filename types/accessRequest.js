@@ -71,7 +71,7 @@ class AccessRequest extends Serializable {
     accessRequest.state = state
     accessRequest.createdAt = createdAt
     accessRequest.autoExpiresAt = autoExpiresAt
-    return Promise.resolve(accessRequest)
+    return accessRequest
   }
 }
 
