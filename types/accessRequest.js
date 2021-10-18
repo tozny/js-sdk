@@ -12,6 +12,7 @@ class AccessRequest extends Serializable {
     this.state = null
     this.createdAt = null
     this.autoExpiresAt = null
+    this.requestor = null
   }
 
   serializable() {
@@ -66,11 +67,15 @@ class AccessRequest extends Serializable {
     let state = json.state || null
     let createdAt = json.created_at || null
     let autoExpiresAt = json.auto_expires_at || null
+    let requestorUsername = (json.requestor_details || {}).username || ''
 
     accessRequest.id = id
     accessRequest.state = state
     accessRequest.createdAt = createdAt
     accessRequest.autoExpiresAt = autoExpiresAt
+    accessRequest.requestor = {
+      requestorUsername: requestorUsername
+    }
     return accessRequest
   }
 }
