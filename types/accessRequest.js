@@ -41,12 +41,12 @@ class AccessRequest extends Serializable {
     return toSerialize
   }
   static decode(json) {
-    let reason = json.reason || null
-    let requestorId = json.requestor_id || json.requestorId || null
-    let realmName = json.realm_name || json.realmName || null
-    let accessDurationSeconds = json.ttl || json.accessDurationSeconds || null
-    let rawGroups = json.groups || []
-    let groups = []
+    const reason = json.reason || null
+    const requestorId = json.requestor_id || json.requestorId || null
+    const realmName = json.realm_name || json.realmName || null
+    const accessDurationSeconds = json.ttl || json.accessDurationSeconds || null
+    const rawGroups = json.groups || []
+    const groups = []
     for (const group of rawGroups) {
       groups.push({
         id: group.group_id || group.id || null,
@@ -63,18 +63,19 @@ class AccessRequest extends Serializable {
     )
 
     // server defined values
-    let id = json.id || null
-    let state = json.state || null
-    let createdAt = json.created_at || null
-    let autoExpiresAt = json.auto_expires_at || null
-    let requestorUsername = (json.requestor_details || {}).username || ''
+    const id = json.id || null
+    const state = json.state || null
+    const createdAt = json.created_at || null
+    const autoExpiresAt = json.auto_expires_at || null
+    const requestorUsername = (json.requestor_details || {}).username || ''
 
     accessRequest.id = id
     accessRequest.state = state
     accessRequest.createdAt = createdAt
     accessRequest.autoExpiresAt = autoExpiresAt
     accessRequest.requestor = {
-      requestorUsername: requestorUsername
+      toznyId: requestorId,
+      username: requestorUsername,
     }
     return accessRequest
   }
