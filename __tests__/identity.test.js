@@ -149,6 +149,8 @@ describe('Tozny identity client', () => {
     expect(result.accessDurationSeconds).toEqual(accessDurationSeconds)
     expect(result.reason).toEqual(reason)
     expect(result.requestorId).toEqual(identity.storage.config.clientId)
+    expect(result.requestor).toHaveProperty('username')
+    expect(result.requestor.toznyId).toEqual(result.requestorId)
     expect(result.groups[0].id).toEqual(testTozIDGroupName)
     expect(result.groups[0].groupName).not.toBeUndefined()
   })
