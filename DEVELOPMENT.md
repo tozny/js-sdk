@@ -158,6 +158,12 @@ Set a value in your shell corresponding to the new version to publish
 export NEW_VERSION=1.0.1
 ```
 
+Use the npm build command tool to compile the release artifact
+
+```bash
+npm run build
+```
+
 Use the npm version command to automatically update package.json to the new version and create a commit and tag
 
 ```bash
@@ -165,12 +171,6 @@ Use the npm version command to automatically update package.json to the new vers
 npm version $NEW_VERSION
 # preview release
 npm version 1.0.1-alpha.1
-```
-
-Use the npm build command tool to compile the release artifact
-
-```bash
-npm run build
 ```
 
 Create a npm account, request access to the Tozny Organization on npm, create a publishing token
