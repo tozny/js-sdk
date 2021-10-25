@@ -24,13 +24,9 @@ class AccessRequestSearchResponse extends Serializable {
     }
     return toSerialize
   }
-  static async decode(json) {
+  static decode(json) {
     const rawAccessRequests = json.access_requests || []
-    let accessRequests = []
-    for await (const rawAccessRequest of rawAccessRequests) {
-      const accessRequest = await AccessRequest.decode(rawAccessRequest)
-      accessRequests.push(accessRequest)
-    }
+    const accessRequests = rawAccessRequests.map(AccessRequest.decode)
     const nextToken = json.next_token || 0
 
     const accessRequestSearchResponse = new AccessRequestSearchResponse(

@@ -13,6 +13,8 @@ class AccessRequest extends Serializable {
     this.createdAt = null
     this.autoExpiresAt = null
     this.requestor = null
+    this.requiredApprovalsCount = null
+    this.actions = []
   }
 
   serializable() {
@@ -46,13 +48,11 @@ class AccessRequest extends Serializable {
     const realmName = json.realm_name || json.realmName || null
     const accessDurationSeconds = json.ttl || json.accessDurationSeconds || null
     const rawGroups = json.groups || []
-    const groups = []
-    for (const group of rawGroups) {
-      groups.push({
-        id: group.group_id || group.id || null,
-        groupName: group.group_name || group.groupName || null,
-      })
-    }
+    // decode groups
+    const groups = rawGroups.map((group) => ({
+      id: group.group_id || group.id || null,
+      groupName: group.group_name || group.groupName || null,
+    }))
 
     const accessRequest = new AccessRequest(
       reason,
@@ -63,21 +63,29 @@ class AccessRequest extends Serializable {
     )
 
     // server defined values
-    const id = json.id || null
-    const state = json.state || null
-    const createdAt = json.created_at || null
-    const autoExpiresAt = json.auto_expires_at || null
-    const requestorUsername = (json.requestor_details || {}).username || ''
+    Object.assign(accessRequest, {
+      id: json.id || null,
+      state: json.state || null,
+      createdAt: json.created_at || null,
+      autoExpiresAt: json.auto_expires_at || null,
+      requiredApprovalsCount: json.required_approval_count,
+      requestor: AccessRequest._decodeUserDetails(json.requestor_details || {}),
+      actions: (json.actions || []).map((action) => ({
+        user: AccessRequest._decodeUserDetails(action.user_details || {}),
+        takenAt: action.taken_at || null,
+        action: action.action || null,
+        comment: action.comment || '',
+      })),
+    })
 
-    accessRequest.id = id
-    accessRequest.state = state
-    accessRequest.createdAt = createdAt
-    accessRequest.autoExpiresAt = autoExpiresAt
-    accessRequest.requestor = {
-      toznyId: requestorId,
-      username: requestorUsername,
-    }
     return accessRequest
+  }
+
+  static _decodeUserDetails(details) {
+    return {
+      toznyId: details.tozny_id,
+      username: details.username,
+    }
   }
 }
 
