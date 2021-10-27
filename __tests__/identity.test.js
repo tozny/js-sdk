@@ -243,7 +243,7 @@ describe('Tozny identity client', () => {
     )
   })
 
-  it('it can approve an access request', async () => {
+  it('can approve an access request', async () => {
     const reason = 'Reasons' + uuidv4()
     const realmName = realmConfig.realmName
     const accessControlledGroup = {
@@ -270,6 +270,39 @@ describe('Tozny identity client', () => {
       identity,
       realmName,
       [approval]
+    )
+    expect(response).toBeInstanceOf(Array)
+    expect(response).toHaveLength(1)
+    expect(response[0].id).toEqual(createdAccessRequest.id)
+  })
+
+  it('can deny an access request', async () => {
+    const reason = 'Reasons' + uuidv4()
+    const realmName = realmConfig.realmName
+    const accessControlledGroup = {
+      id: testTozIDGroupName,
+    }
+    const accessDurationSeconds = 1000
+    const createdAccessRequest = await ops.createAccessRequest(
+      realmConfig,
+      identity,
+      realmName,
+      [accessControlledGroup],
+      reason,
+      accessDurationSeconds
+    )
+
+    // NOTE: fails due to "Group must have only 1 access policy" but we have none
+    // create in 'Manage Realm' via UI to setup policy record
+    const denial = {
+      accessRequestId: createdAccessRequest.id,
+      comment: 'COMMENT',
+    }
+    const response = await ops.denyAccessRequests(
+      realmConfig,
+      identity,
+      realmName,
+      [denial]
     )
     expect(response).toBeInstanceOf(Array)
     expect(response).toHaveLength(1)
