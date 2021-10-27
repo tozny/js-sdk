@@ -1327,6 +1327,28 @@ module.exports = {
     )
     return JSON.parse(result)
   },
+  async denyAccessRequests(config, user, realmName, denials) {
+    const result = await runInEnvironment(
+      async function (realmJSON, userJSON, realmNameJSON, denialsJSON) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user
+          .denyAccessRequests(realmNameJSON, denialsJSON)
+          .then(JSON.stringify)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      realmName,
+      denials
+    )
+    return JSON.parse(result)
+  },
   async availableAccessRequestGroups(config, user, realmName) {
     const result = await runInEnvironment(
       async function (realmJSON, userJSON, realmNameJSON) {
