@@ -817,6 +817,162 @@ Once you have an identity, you can use it to get JWTs for the configured applica
   main()
 ```
 
+## Privileged Access Management & Multi-party control
+
+TozID supports multi-party controlled groups. A group can be given an access policy that configures
+an approval flow in which users can request access to join the group and users with the correct
+approver roles can approve the request for access. The identity client is capable of programatically
+managing these requests for access.
+
+Due to the increased permissions required for setting up the access policies, they must be setup
+manually from the Realm admin portal, or programatically with the `js-account-sdk`:
+* [configure a group's access policies](https://github.com/tozny/js-account-sdk/blob/master/doc/classes/Client.md#upsertaccesspoliciesforgroup)
+* [list the access policies of groups](https://github.com/tozny/js-account-sdk/blob/master/doc/classes/Client.md#listaccesspoliciesforgroups)
+
+**The realm & groups must be configured for multi-party control in order to make use of the following
+access request functionality.**
+
+All example code is presumed to be inside of an `async` function with an authenticated `identity` client.
+
+### Overview of access requests
+An `AccessRequest` is a representation of a user requesting access to a particular group.
+
+Currently, only one group per access request is supported, though the data structure uses an array to
+be forward-compatible with potentially requesting access to multiple groups in a single request.
+
+**Example Access Request**
+```js
+const accessRequest = {
+  /** identifier of the access request */
+  "id": 159,
+  /** list of group info. currently, only one group is supported */
+  "groups": [
+    {
+      "id": "f54ee4c1-8cf6-482e-9bd6-a5b2129e8e5d",
+      "groupName": "special-privilege-group"
+    }
+  ],
+  /** name of realm containing group */
+  "realmName": "realmName",
+  /** state of request. "open", "approved", or "denied" */
+  "state": "open",
+  /** user-defined reason they want access */
+  "reason": "I'd like access to do X, Y, & Z.",
+  /** number of seconds access will last once approved */
+  "accessDurationSeconds": 86400,
+  /** information about who made the request */
+  "requestor": {
+    "toznyId": "a7a128c5-6cde-4e22-a2e3-24aa8370d1ef",
+    "username": "RobertRequestor"
+  },
+  /** number of required approvals before request is fulfilled */
+  "requiredApprovalsCount": 1,
+  /** past actions performed on the request, see below */
+  "actions": [],
+  /** datetime at which the request will be automatically denied */
+  "autoExpiresAt": "2021-11-03T22:40:24.0582469Z",
+  /** datetime at which the request was created */
+  "createdAt": "2021-11-01T22:40:24.058459Z",
+}
+```
+
+**Example Access Request Action**
+An action is created for each approval/denial that happens to the request:
+```js
+const action = {
+  /** type of action: "approve", "deny" */
+  "action": "approve",
+  /** information about who performed the action */
+  "user": {
+    "toznyId": "a7a128c5-6cde-4e22-a2e3-24aa8370d1ef",
+    "username": "AlannaApprover"
+  },
+  /** datetime at which the action was taken */
+  "takenAt": "2021-10-26T18:54:26.707336Z",
+  /** optional comment from the acting user */
+  "comment": ""
+}
+```
+
+### Enumerating access-controlled groups
+Get info on all the groups governed by an access policy with `availableAccessRequestGroups`:
+```js
+const groups = await identity.availableAccessRequestGroups(realmName)
+//=> array of items like { id, groupName }
+```
+
+### Listing access requests
+There is search functionality for enumerating existing open & historical access requests. The access
+requests returned are dependent on the `identity` querying for them.
+
+**Actionable requests**
+By default, all & only the access requests the user can or could act on (approve or deny) are returned:
+```js
+const accessRequestsUserCanOrCouldApprove = await identity.searchAccessRequests()
+```
+
+This include both pending `open` and historical `approved`/`denied` ones.
+
+**Requests created by a particular user**
+`searchAccessRequests` accepts a filter that can contain a list of `requestorIds` that can be used
+to enumerate the requests from a particular user.
+```js
+// all access requests this identity created
+const toznyIdOfUser = identity.storage.config.clientId
+const accessRequestsCreatedByUser = await identity.searchAccessRequests(
+  { requestorIds: [toznyIdOfUser] }
+)
+
+// or those created by a different identity
+const username = 'RobertRequestor'
+const otherUser = await identity.searchIdentityByUsername(username)
+const accessRequestsCreatedByOtherUser = await identity.searchAccessRequests(
+  { requestorIds: [otherUser.client_id] } // Note: client id, not user id
+)
+```
+Note that only those requests the current `identity` has permission to view are returned.
+An Access Request not created or actionable by the requesting identity will be excluded.
+
+### Requesting access
+With the `identity` of the user who wants access to the group, you can create a request for access:
+```js
+const realmName = 'NameOfRealmGoesHere'
+const groupInfo = { id: groupId }
+const reason = 'This is the user-defined reason for requesting access!'
+const accessDurationSeconds = 24 * 3600 // number of seconds access will be granted for if approved
+const newAccessRequest = await identity.createAccessRequest(
+  realmName,
+  [groupInfo], // array of group info, currently only one is supported.
+  reason,
+  accessDurationSeconds
+)
+```
+
+Note that the `accessDurationSeconds` may be capped by the server.
+
+### Approving or Denying a Request
+
+```js
+const realmName = 'NameOfRealmGoesHere'
+const accessRequestId = accessRequest.id
+const comment = 'Completely optional comment'
+
+// approve an access request
+const approvedRequest = await identity.approveAccessRequests(
+  realmName,
+  [{ accessRequestId, comment }]
+)
+
+// or deny it
+const deniedRequest = await identity.denyAccessRequests(
+  realmName,
+  [{ accessRequestId, comment }]
+)
+```
+
+Both `approveAccessRequests` and `denyAccessRequests` accept a list of objects with `accessRequestId`
+and an optional `comment`. They are capable of approving/denying in bulk.
+
 ## Terms of Service
 
 Your use of the Tozny JavaScript SDK must abide by our [Terms of Service](https://github.com/tozny/e3db-java/blob/master/terms.pdf), as detailed in the linked document.
