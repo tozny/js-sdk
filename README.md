@@ -10,7 +10,7 @@ The Tozny Platform offers powerful tools for developers, enabling them to incorp
 npm install --save @toznysecure/sdk
 ```
 
-**Node**
+### Node
 
 ```js
 const Tozny = require('@toznysecure/sdk/node')
@@ -18,13 +18,15 @@ const Tozny = require('@toznysecure/sdk/node')
 
 _Note: Requires Node 8.3+. Older versions may work depending on the features used._
 
-**Browser: ES6**
+### Browser
+
+**ES6**:
 
 ```js
 import Tozny from '@toznysecure/sdk/browser'
 ```
 
-**Browser: Script Tag**
+**Script Tag**:
 
 ```html
 <script type="text/javascript"  src="https://unpkg.com/@toznysecure/sdk@<version>/dist/tozny-sodium.min.js"></script>
@@ -36,7 +38,7 @@ import Tozny from '@toznysecure/sdk/browser'
 
 ## Tozny Storage
 
-**Register A Client**
+#### Register A Client
 
 Before you can register a storage client with Tozny platform you will need to [sign up for a Tozny Platform account](https://dashboard.tozny.com/register). Create a registration token and inject it into your code.
 
@@ -75,7 +77,7 @@ You can optionally back up the client credentials with the account owner. When c
 const clientInfo  = await Tozny.storage.register(token, name, cryptoKeys, signingKeys, true)
 ```
 
-**Load Existing Client**
+#### Load Existing Client
 
 ```js
 /**
@@ -100,7 +102,7 @@ const client = new Tozny.storage.Client(config)
 
 Records provide durable encryption protected documents to the Tozny Storage database. Once stored, a client can share records by type with any other client registered to the Tozny Platform.
 
-**Write, Read, Update, Delete**
+#### Write, Read, Update, Delete
 
 ```js
 const client = new Tozny.storage.Client(/* config */)
@@ -144,7 +146,7 @@ async function main() {
 main()
 ```
 
-**Basic Search records**
+#### Basic Search records
 
 _Note that the search API is not immediately consistent. It can take a small amount of time to index a newly written record._
 
@@ -169,7 +171,7 @@ async function main() {
 main()
 ```
 
-**Advanced Search records**
+#### Advanced Search records
 
 _Complex search queries can be constructed with various matching, exclude, and range sets._
 
@@ -207,7 +209,7 @@ async function main() {
 main()
 ```
 
-**Share or revoke access to a record type with another client**
+#### Share or Revoke Access to a Record Type With Another Client
 
 ```js
 const client = new Tozny.storage.Client(/* config */)
@@ -229,7 +231,7 @@ async function main() {
 main()
 ```
 
-**authorize or deauthorized another client to share on your behalf**
+#### Authorize or Deauthorized Another Client to Share on Your Behalf
 
 ```js
 const client = new Tozny.storage.Client(/* config */)
@@ -255,13 +257,13 @@ async function main() {
 main()
 ```
 
-#### Files
+### Files
 
 Files are a special type of Tozny Storage record that has additional meta data attached which connects you with a content blob of up to 5GB. File records will be returned from search, just as any other record. However, the blob itself is only available when using the Files API in the Tozny Storage client.
 
 Due to the fact that browsers and Node have _very_ different primitives available when it comes to files and the file system, the inputs and outputs fro the Files API in our Javascript SDK varies by platform. These environment specific differences are called out as they come up.
 
-**Write a file**
+#### Write a File
 
 ```js
 const client = new Tozny.storage.Client(/* config */)
@@ -290,7 +292,7 @@ _**Platform Notes**_
 >
 > _Browser:_ In Browsers, a file handle is a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob) object. This could come from a file input element, created from a fetch response, or even custom constructed.
 
-**Read a File**
+#### Read a File
 
 ```js
 const client = new Tozny.storage.Client(/* config */)
@@ -319,9 +321,9 @@ _**Platform Notes**_
 >
 > _Browser:_ In Browsers, the handle returned is a [ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream). This is _different_ than a Node readable stream, and is native to browsers. Read the linked MDN documentation for more information on what can be done with a ReadableStream. The platform helpers provided allow for easier processing so you do not have to concern yourself with the ReadableStream unless you want to.
 
-##### Helpers
+#### Helpers
 
-**Browser**
+##### Browser
 
 _URL_<br />
 Takes a File object and a MIME Type and creates an object URL for the file. This is useful for things such as displaying an image, video, or offering the file as a download. Note that object URLs can use a lot of memory, so when your program no longer needs the URL make sure to revoke it with `window.URL.revokeObjectURL(url)`.
@@ -366,7 +368,7 @@ const fileObj = await Tozny.helpers.fileAsJSON(file)
 console.log(fileObj.myData)
 ```
 
-**Node**
+#### Node
 
 _Save the file to disk_<br />
 Takes a File object, a path, and an options object. This saves the file to the specified path with the provided options. This is an abstraction over the [createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options) method from Node core. Review the `createWriteStream` documentation for available options.
@@ -383,9 +385,9 @@ const url = await Tozny.helpers.saveFile(
 console.log('File saved!')
 ```
 
-##### Examples
+#### Examples
 
-**Write a file record using a form**
+##### Write a File Record Using a Form
 
 ```html
 <!DOCTYPE html>
@@ -441,7 +443,7 @@ console.log('File saved!')
 </html>
 ```
 
-**Display a file as an Image**
+##### Display a file as an Image
 
 ```html
 <!DOCTYPE html>
@@ -497,7 +499,7 @@ console.log('File saved!')
 </html>
 ```
 
-**Provide a downloadable Link**
+##### Provide a downloadable Link
 
 ```html
 <!DOCTYPE html>
@@ -558,7 +560,7 @@ console.log('File saved!')
 
 Notes provide a mechanism transfer or save data encrypted for a single specified set of cryptographic keys. These keys may or may not belong to another client in the TozStore system. This is a one way transfer. The writer of a note can update or delete the note contents, but they can not read it. The reader of the note can read it, but can not update or delete it. The writer and reader keys on a note can be the same.
 
-**Write, read, and delete**
+#### Write, Read, and Delete
 
 ```js
 const client = new Tozny.storage.Client(/* config */)
@@ -600,7 +602,7 @@ async function main() {
 main()
 ```
 
-**Replace a named note**
+#### Replace a Named Note
 
 Notes are generally speaking immutable. However, note names are global. If a name is relied on. While a normally a new note could be written and then the old note deleted to ensure data integrity, with a note name, this is not possible. For this reason the API provides a single operation endpoint to replace a named note with a new one. If writing the new note throws any kind of error, the operation is rolled back to prevent data loss. The operation amounts to a guaranteed delete-then-write of the named note.
 
@@ -637,7 +639,7 @@ main()
 
 ## Tozny Identity
 
-**Configure a connection to an identity realm**
+### Configure a Connection to an Identity Realm
 
 Before you can work with the Tozny Identity service, you need to [sign up for a Tozny Platform account](https://dashboard.tozny.com/register). Create a new identity realm and register a new client application with the realm.
 
@@ -652,7 +654,7 @@ const realm = new Tozny.identity.Realm(realmName, appName, brokerTargetURL)
 
 Once the realm is configured, it provide methods for interacting with identities belonging to that realm.
 
-**Register an identity**
+### Register an Identity
 
 ```js
 const realm = new Tozny.identity.Realm('...', '...', '...')
@@ -671,7 +673,7 @@ async function main(username, password, emailAddress) {
 main('user', 'password', 'user@example.com')
 ```
 
-**Log in an identity**
+### Log in an Identity
 
 To log in, a user needs an identity token. This token allows fetching of the encrypted stored identity configuration. First login will gather an OIDC login URL which will issue a token to your application.
 
@@ -709,7 +711,7 @@ async function main(username, password, authToken) {
 main('user', 'password')
 ```
 
-**Save an identity locally**
+### Save an Identity Locally
 
 After logging an identity in, it is useful to cache and store it. Without doing this, a refresh or reload of the page or environment will require the user to log in again. Storing the session in something like local storage allows the session to persist.
 
@@ -733,7 +735,7 @@ async function main(identity) {
 main(identity)
 ```
 
-**Reset a user's password via email**
+### Reset a User's Password Via Email
 
 To reset a user's password via email, they must be registered with a valid email address. In addition, a trusted broker client must be set up for the realm. Tozny provides a hosted broker client which can facilitate resets on your behalf. To enable this support, turn on the switch for Email Recovery Enabled for your realm in the Tozny dashboard.
 
@@ -775,7 +777,7 @@ async function main(otp, noteId) {
 main(parsedOTP, parsedId)
 ```
 
-**Perform operations using the identity token**
+### Perform Operations Using the Identity Token
 
 Once you have an identity, you can use it to get JWTs for the configured application, perform Tozny Storage operations with the identities' storage credentials, or change the password for the identity.
 
@@ -817,7 +819,7 @@ Once you have an identity, you can use it to get JWTs for the configured applica
   main()
 ```
 
-## Privileged Access Management & Multi-party control
+### Privileged Access Management & Multi-party control
 
 TozID supports multi-party controlled groups. A group can be given an access policy that configures
 an approval flow in which users can request access to join the group and users with the correct
@@ -834,13 +836,13 @@ access request functionality.**
 
 All example code is presumed to be inside of an `async` function with an authenticated `identity` client.
 
-### Overview of access requests
+#### Overview of Access Requests
 An `AccessRequest` is a representation of a user requesting access to a particular group.
 
 Currently, only one group per access request is supported, though the data structure uses an array to
 be forward-compatible with potentially requesting access to multiple groups in a single request.
 
-**Example Access Request**
+##### Example Access Request
 ```js
 const accessRequest = {
   /** identifier of the access request */
@@ -876,7 +878,7 @@ const accessRequest = {
 }
 ```
 
-**Example Access Request Action**
+##### Example Access Request Action
 An action is created for each approval/denial that happens to the request:
 ```js
 const action = {
@@ -894,18 +896,18 @@ const action = {
 }
 ```
 
-### Enumerating access-controlled groups
+#### Enumerating access-controlled groups
 Get info on all the groups governed by an access policy with `availableAccessRequestGroups`:
 ```js
 const groups = await identity.availableAccessRequestGroups(realmName)
 //=> array of items like { id, groupName }
 ```
 
-### Listing access requests
+### Listing Access Requests
 There is search functionality for enumerating existing open & historical access requests. The access
 requests returned are dependent on the `identity` querying for them.
 
-**Actionable requests**
+#### Actionable Requests
 By default, all & only the access requests the user can or could act on (approve or deny) are returned:
 ```js
 const accessRequestsUserCanOrCouldApprove = await identity.searchAccessRequests()
@@ -913,7 +915,7 @@ const accessRequestsUserCanOrCouldApprove = await identity.searchAccessRequests(
 
 This include both pending `open` and historical `approved`/`denied` ones.
 
-**Requests created by a particular user**
+#### Requests created by a particular user
 `searchAccessRequests` accepts a filter that can contain a list of `requestorIds` that can be used
 to enumerate the requests from a particular user.
 ```js
@@ -933,7 +935,7 @@ const accessRequestsCreatedByOtherUser = await identity.searchAccessRequests(
 Note that only those requests the current `identity` has permission to view are returned.
 An Access Request not created or actionable by the requesting identity will be excluded.
 
-### Requesting access
+#### Requesting Access
 With the `identity` of the user who wants access to the group, you can create a request for access:
 ```js
 const realmName = 'NameOfRealmGoesHere'
@@ -950,7 +952,7 @@ const newAccessRequest = await identity.createAccessRequest(
 
 Note that the `accessDurationSeconds` may be capped by the server.
 
-### Approving or Denying a Request
+#### Approving or Denying a Request
 
 ```js
 const realmName = 'NameOfRealmGoesHere'
