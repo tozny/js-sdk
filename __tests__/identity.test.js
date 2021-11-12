@@ -318,7 +318,14 @@ describe('Tozny identity client', () => {
     )
     expect(response).toBeInstanceOf(Array)
     expect(response.length).toBeGreaterThan(0)
-    expect(response[0].id).not.toBeUndefined()
-    expect(response[0].groupName).not.toBeUndefined()
+    const group = response[0]
+    expect(group.id).not.toBeUndefined()
+    expect(group.groupName).not.toBeUndefined()
+    expect(group.accessPolicies).not.toBeUndefined()
+    expect(group.accessPolicies.length).toBeGreaterThan(0)
+    const policy = group.accessPolicies[0]
+    expect(policy.id).not.toBeUndefined()
+    expect(policy.requiredApprovals).not.toBeUndefined()
+    expect(policy.maxAccessDurationSeconds).not.toBeUndefined()
   })
 })
