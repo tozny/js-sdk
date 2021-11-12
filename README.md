@@ -900,7 +900,8 @@ const action = {
 Get info on all the groups governed by an access policy with `availableAccessRequestGroups`:
 ```js
 const groups = await identity.availableAccessRequestGroups(realmName)
-//=> array of items like { id, groupName }
+//=> array of items like { id, groupName, accessPolicies }
+// where accessPolicies is an array of objects { id, maxAccessDurationSeconds, requiredApprovals }
 ```
 
 ### Listing Access Requests
