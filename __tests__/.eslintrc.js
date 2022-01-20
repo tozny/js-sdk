@@ -3,5 +3,6 @@ module.exports = {
     'jest/globals': true,
     node: true,
   },
+  extends: ['@toznysecure'],
   plugins: ['jest'],
 }
