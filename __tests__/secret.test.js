@@ -3,7 +3,6 @@ const { apiUrl, idRealmName, idAppName, clientRegistrationToken } = global
 const Tozny = require('../node')
 const ops = require('./utils/operations')
 const { SECRET_UUID } = require('../lib/utils/constants')
-// const fs = require('fs')
 
 jest.setTimeout(100000)
 
@@ -46,7 +45,7 @@ beforeAll(async () => {
     `${username2}@example.com`
   )
   identity2 = await realm.login(username2, password2)
-  /* this is commented out until tests can be written that work with 
+  /* this is commented out until tests can be written that work with
     browser and node */
   // fileName = `test-file-${uuidv4()}`
   // fs.writeFile(fileName, 'This is a test file!', err => {
@@ -568,7 +567,9 @@ describe('Tozny identity client', () => {
       identity2,
       sharedList.sharedList[0].meta.recordId
     )
-    expect(sharedList.sharedList[0].meta.recordId).toBe(recordView.secret.meta.recordId)
+    expect(sharedList.sharedList[0].meta.recordId).toBe(
+      recordView.secret.meta.recordId
+    )
   })
   it('can delete a version of an unshared secret', async () => {
     const testName = `test-secret-${uuidv4()}`
@@ -653,10 +654,10 @@ describe('Tozny identity client', () => {
     }
     const namespace = `mytest-for-namespace${uuidv4()}`
     const testUsername = username2
-    const secretCreated = await ops.createSecret(realmConfig, identity, secret)
+    await ops.createSecret(realmConfig, identity, secret)
     const start = new Date()
     await new Promise((r) => setTimeout(r, 5000))
-    let addSecret = await ops.addSecretToNamespace(
+    await ops.addSecretToNamespace(
       realmConfig,
       identity,
       secret.secretName,
@@ -684,18 +685,19 @@ describe('Tozny identity client', () => {
       identity2,
       sharedList.sharedList[0].meta.recordId
     )
-    expect(sharedList.sharedList[0].meta.recordId).toBe(recordView.secret.meta.recordId)
+    expect(sharedList.sharedList[0].meta.recordId).toBe(
+      recordView.secret.meta.recordId
+    )
   })
   it('can delete all secrets created by an identity', async () => {
     let listedSecrets = await ops.getSecrets(realmConfig, identity, 100)
-    len = listedSecrets.list.length
-    for (index = 0; index < len; index++) {
+    for (let index = 0; index < listedSecrets.list.length; index++) {
       let deleted = await ops.deleteSecretVersion(
         realmConfig,
         identity,
         listedSecrets.list[index]
       )
-      expect(deleted.success).toBe(true)      
+      expect(deleted.success).toBe(true)
     }
   })
   // /* These tests are for node only, which means that they will fail the browsers tests on
@@ -769,31 +771,3 @@ describe('Tozny identity client', () => {
   //   })
   // })
 })
-/**
- * Returns a search result filtered to contain only the secrets with the given name
- *
- * If numRequired is set, then it will ensure the results contains at least that many
- * secret are found. By default it ensures at least one secret of the given name
- * exists before returning.
- *
- * If the result gets to the end of the 10 second timeout period, this method throws.
- *
- * @param {SearchResult} query A secrets search result
- * @param {string} name The name of the secrets being looked for
- * @param {int} numRequired The number of secrets which should be found before returning
- */
-async function waitForNextOfName(query, name, numRequired = 1) {
-  const floor = numRequired - 1
-  let filtered
-  const results = await ops.waitForNext(query, (found) => {
-    filtered = found.filter((i) => i.meta.plain.secretName === name)
-    return filtered.length > floor
-  })
-  if (filtered.length < numRequired) {
-    const stringifiedResults = JSON.stringify(results, null, '  ')
-    throw new Error(
-      `Did not find ${numRequired} secret{s} with name ${name} in results: ${stringifiedResults}`
-    )
-  }
-  return filtered
-}

@@ -36,7 +36,7 @@ class SearchResult {
 
     /* eslint-disable */
     let records = await Promise.all(
-      response.results.map(async result => {
+      response.results.map(async (result) => {
         const meta = await Meta.decode(result.meta)
         const record = new Record(meta, result.record_data)
         if (this.request.includeData && result.access_key !== null) {

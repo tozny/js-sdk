@@ -1,10 +1,9 @@
 const { RequestError, GeneralError } = require('./general')
 
-
 /**
  * Indicates that the identity is locked
  */
- class IdentityLockedError extends RequestError {
+class IdentityLockedError extends RequestError {
   constructor(...params) {
     super(...params)
 

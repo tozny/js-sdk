@@ -58,10 +58,10 @@ class Search extends Serializable {
       toSerialize.next_token = this.nextToken
     }
     if (this.matches.length > 0) {
-      toSerialize.match = this.matches.map(m => m.serializable())
+      toSerialize.match = this.matches.map((m) => m.serializable())
     }
     if (this.excludes.length > 0) {
-      toSerialize.exclude = this.excludes.map(e => e.serializable())
+      toSerialize.exclude = this.excludes.map((e) => e.serializable())
     }
     if (this.searchRange) {
       toSerialize.range = this.searchRange.serializable()

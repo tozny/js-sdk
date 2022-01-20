@@ -40,7 +40,7 @@ class FileOperations extends FileOperationsBase {
   decryptDestination() {
     const reader = new stream.PassThrough()
     return {
-      write: chunk => reader.write(chunk),
+      write: (chunk) => reader.write(chunk),
       close: () => reader.end(),
       getReader: () => reader,
     }
@@ -50,9 +50,9 @@ class FileOperations extends FileOperationsBase {
     const filePath = path.join(tmpdir(), uuidv4())
     const writeStream = fs.createWriteStream(filePath)
     return {
-      write: chunk => writeStream.write(chunk),
+      write: (chunk) => writeStream.write(chunk),
       remove: () =>
-        fs.unlink(filePath, err => {
+        fs.unlink(filePath, (err) => {
           if (err) {
             // eslint-disable-next-line no-console
             console.error(err)
@@ -73,7 +73,7 @@ class FileOperations extends FileOperationsBase {
     const requestLib = url.startsWith('https') ? https : http
     return new Promise((res, rej) => {
       requestLib
-        .get(url, response => {
+        .get(url, (response) => {
           // handle http errors
           if (response.statusCode < 200 || response.statusCode > 299) {
             rej(new Error(`Unable to download file: ${response.statusText}`))
@@ -98,7 +98,7 @@ class FileOperations extends FileOperationsBase {
       },
     }
     return new Promise((res, rej) => {
-      const request = requestLib.request(url, options, response => {
+      const request = requestLib.request(url, options, (response) => {
         // handle http errors
         if (response.statusCode < 200 || response.statusCode > 299) {
           rej(new Error(`Unable to upload file: ${response.statusCode}`))
@@ -145,7 +145,7 @@ class StreamReader {
       // no chunk available, wait for 1 milliseconds and try again
       // this basically kicks us to the next tick, but process.nextTick does
       // not work here because of the await.
-      await new Promise(r => setTimeout(r, 1))
+      await new Promise((r) => setTimeout(r, 1))
     }
     return null
   }

@@ -1,7 +1,6 @@
 const { v4: uuidv4 } = require('uuid')
 const { runInEnvironment, apiUrl, clientRegistrationToken } = global
 const Tozny = require('../../node')
-const { AccessRequest } = require('../../types')
 
 // Utilities to help with running things in the configured environment
 module.exports = {

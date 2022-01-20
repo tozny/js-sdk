@@ -37,7 +37,7 @@ class SearchParam extends Serializable {
         this[key] = [terms[key]]
       } else if (
         Array.isArray(terms[key]) &&
-        terms[key].every(t => typeof t === 'string')
+        terms[key].every((t) => typeof t === 'string')
       ) {
         this[key] = terms[key]
       } else if (typeof terms[key] === 'object') {

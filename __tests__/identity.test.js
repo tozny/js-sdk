@@ -7,7 +7,6 @@ const {
   testTozIDGroupName,
 } = global
 const Tozny = require('../node')
-const { AccessRequest } = require('../types')
 const ops = require('./utils/operations')
 
 jest.setTimeout(10000000)

@@ -20,7 +20,7 @@ class Capabilities {
 
   static toObject(capabilityArray) {
     let capabilities = { manage: true }
-    capabilityArray.forEach(capability => {
+    capabilityArray.forEach((capability) => {
       if (capability === 'SHARE_CONTENT') {
         capabilities['share'] = true
       }

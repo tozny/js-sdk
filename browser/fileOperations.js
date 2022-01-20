@@ -132,7 +132,7 @@ class BlobTempFile {
 class DecryptedStream {
   constructor() {
     this.stream = new ReadableStream({
-      start: controller => {
+      start: (controller) => {
         this.controller = controller
       },
     })

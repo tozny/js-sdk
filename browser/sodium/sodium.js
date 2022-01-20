@@ -183,11 +183,11 @@ class SodiumCrypto extends CryptoProvider {
   checksum() {
     const hash = new MD5()
     return {
-      update: b => hash.append(b),
+      update: (b) => hash.append(b),
       digest: () => {
         const hex = hash.end()
         const bytes = new Uint8Array(
-          hex.match(/.{1,2}/g).map(b => parseInt(b, 16))
+          hex.match(/.{1,2}/g).map((b) => parseInt(b, 16))
         )
         return bytes
       },
@@ -199,7 +199,7 @@ class SodiumCrypto extends CryptoProvider {
     const stream = sodium.crypto_secretstream_xchacha20poly1305_init_push(key)
     return {
       header: stream.header,
-      encrypt: function(block, done) {
+      encrypt: function (block, done) {
         const tag = done
           ? sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
           : sodium.crypto_secretstream_xchacha20poly1305_TAG_MESSAGE
@@ -220,7 +220,7 @@ class SodiumCrypto extends CryptoProvider {
       key
     )
     return {
-      decrypt: function(block) {
+      decrypt: function (block) {
         const decrypted = sodium.crypto_secretstream_xchacha20poly1305_pull(
           state,
           block
