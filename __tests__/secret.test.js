@@ -3,6 +3,7 @@ const { apiUrl, idRealmName, idAppName, clientRegistrationToken } = global
 const Tozny = require('../node')
 const ops = require('./utils/operations')
 const { SECRET_UUID } = require('../lib/utils/constants')
+const { testEmail } = require('./utils')
 
 jest.setTimeout(100000)
 
@@ -35,14 +36,14 @@ beforeAll(async () => {
     username,
     password,
     clientRegistrationToken,
-    `${username}@example.com`
+    testEmail(username)
   )
   identity = await realm.login(username, password)
   await realm.register(
     username2,
     password2,
     clientRegistrationToken,
-    `${username2}@example.com`
+    testEmail(username2)
   )
   identity2 = await realm.login(username2, password2)
   /* this is commented out until tests can be written that work with
