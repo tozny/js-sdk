@@ -7,6 +7,7 @@ const {
   testTozIDGroupName,
 } = global
 const Tozny = require('../node')
+const { testEmail } = require('./utils')
 const ops = require('./utils/operations')
 
 jest.setTimeout(10000000)
@@ -35,7 +36,7 @@ beforeAll(async () => {
     username,
     password,
     clientRegistrationToken,
-    `${username}@example.com`
+    testEmail(username)
   )
   identity = await realm.login(username, password)
 })
@@ -54,7 +55,7 @@ describe('Tozny identity client', () => {
   })
   it('can do identity look ups based on emails', async () => {
     let emails = []
-    emails.push(`${username}@example.com`) // Current User
+    emails.push(testEmail(username)) // Current User
     const response = await ops.searchRealmIdentitiesByEmail(
       realmConfig,
       identity,
@@ -62,7 +63,7 @@ describe('Tozny identity client', () => {
     )
     const expectedData = {
       realm_username: username,
-      realm_email: `${username}@example.com`,
+      realm_email: testEmail(username),
     }
     expect(response.search_criteria).toBe('Email')
     expect(response.searched_identities_information[0]).toMatchObject(
@@ -79,7 +80,7 @@ describe('Tozny identity client', () => {
     )
     const expectedData = {
       realm_username: username,
-      realm_email: `${username}@example.com`,
+      realm_email: testEmail(username),
     }
     expect(response.search_criteria).toBe('Username')
     expect(response.searched_identities_information[0]).toMatchObject(
@@ -101,11 +102,11 @@ describe('Tozny identity client', () => {
     const response = await ops.searchIdentityByEmail(
       realmConfig,
       identity,
-      `${username}@example.com`
+      testEmail(username)
     )
     const expectedData = {
       realm_username: username,
-      realm_email: `${username}@example.com`,
+      realm_email: testEmail(username),
     }
     expect(response).toMatchObject(expectedData)
   })
@@ -117,7 +118,7 @@ describe('Tozny identity client', () => {
     )
     const expectedData = {
       realm_username: username,
-      realm_email: `${username}@example.com`,
+      realm_email: testEmail(username),
     }
     expect(response).toMatchObject(expectedData)
   })

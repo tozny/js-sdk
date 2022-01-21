@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require('uuid')
+const { testEmail } = require('.')
 const { runInEnvironment, apiUrl, clientRegistrationToken } = global
 const Tozny = require('../../node')
 
@@ -453,7 +454,7 @@ module.exports = {
     return JSON.parse(result)
   },
   async registerIdentity(config, realm) {
-    const username = `integration-user-${uuidv4()}@example.com`
+    const username = testEmail(`integration-user-${uuidv4()}`)
     const password = uuidv4()
     const user = await runInEnvironment(
       function (realmJSON, clientRegistrationToken, username, password) {
@@ -469,7 +470,7 @@ module.exports = {
             username,
             password,
             clientRegistrationToken,
-            `${username}@example.com`
+            testEmail(username)
           )
           .then(function (user) {
             return user.stringify()
