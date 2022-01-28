@@ -15,6 +15,7 @@ jest.setTimeout(10000000)
 let realmConfig
 let realm
 let identity
+let otherIdentity
 let username
 let password
 beforeAll(async () => {
@@ -39,6 +40,14 @@ beforeAll(async () => {
     testEmail(username)
   )
   identity = await realm.login(username, password)
+  const otherUsername = `${username}-the-second`
+  await realm.register(
+    otherUsername,
+    password,
+    clientRegistrationToken,
+    testEmail(otherUsername)
+  )
+  otherIdentity = await realm.login(otherUsername, password)
 })
 describe('Tozny identity client', () => {
   it('can use refresh tokens to extend its session', async () => {
@@ -267,7 +276,9 @@ describe('Tozny identity client', () => {
     }
     const response = await ops.approveAccessRequests(
       realmConfig,
-      identity,
+      // you can't approve your own requests so a different identity must perform approval.
+      // this only works if the approver roles for the group is a default role that all users have.
+      otherIdentity,
       realmName,
       [approval]
     )
