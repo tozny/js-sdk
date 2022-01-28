@@ -1,26 +1,34 @@
 const Serializable = require('./serializable')
 
-const keyWhitelist = ['CREATED', 'MODIFIED']
+const keySafelist = ['CREATED', 'MODIFIED']
 
 /**
  * Create a search query against Tozny Platform.
  */
 class SearchRange extends Serializable {
+  /**
+   * @param {Date|string} start the start of the search range
+   * @param {Date|string} end the end of the search range
+   * @param {string} [key] the key to compare dates on, either "CREATED" or "MODIFIED"
+   */
   constructor(start, end, key = 'CREATED') {
     super()
-    if (keyWhitelist.indexOf(key) === -1) {
-      throw new Error(`key must one of "${keyWhitelist.join('", "')}"`)
+    if (keySafelist.indexOf(key) === -1) {
+      throw new Error(`key must one of "${keySafelist.join('", "')}"`)
     }
-    if (!(start instanceof Date)) {
-      throw new Error('start must be an instance of Date')
+
+    const parsedStart = Date.parse(start)
+    const parsedEnd = Date.parse(start)
+    if (isNaN(parsedStart)) {
+      throw new Error(`start must be a Date: found ${start}`)
     }
-    if (!(end instanceof Date)) {
-      throw new Error('end must be an instance of Date')
+    if (isNaN(parsedEnd)) {
+      throw new Error(`end must be a Date: found ${end}`)
     }
 
     this.key = key
-    this.start = start
-    this.end = end
+    this.start = new Date(start)
+    this.end = new Date(end)
   }
 
   /**

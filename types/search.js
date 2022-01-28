@@ -37,6 +37,7 @@ class Search extends Serializable {
     this.searchRange = new SearchRange(start, end, key)
     return this
   }
+
   order(sortOrder) {
     this.searchOrder = new SearchOrder(sortOrder)
     return this

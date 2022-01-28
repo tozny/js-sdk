@@ -9,7 +9,7 @@ let readerClient
 let writer
 let testRecords = []
 const searchType = 'test-search-type'
-const test_execution_start_datetime = new Date()
+const testExecutionStartDatetime = new Date()
 beforeAll(async () => {
   writerClient = await ops.registerClient()
   readerClient = await ops.registerClient()
@@ -80,7 +80,7 @@ describe('Tozny storage clients', () => {
     const found = await ops.search(writerClient, request)
     expect(found.length).toBe(1)
   })
-  it('returns no results using a non existant plain search term', async () => {
+  it('returns no results using a non existent plain search term', async () => {
     const request = new Tozny.types.Search()
     request.match({ plain: { x: 'q' } })
     const found = await ops.search(writerClient, request)
@@ -90,7 +90,7 @@ describe('Tozny storage clients', () => {
     let request = new Tozny.types.Search()
     request.match({ type: [searchType] })
     let end_time = new Date()
-    request.range(test_execution_start_datetime, end_time, 'CREATED')
+    request.range(testExecutionStartDatetime, end_time, 'CREATED')
     const found = await ops.search(writerClient, request)
     expect(found.length).toBe(testRecords.length)
   })
