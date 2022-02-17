@@ -1,9 +1,17 @@
+const AccessRequest = require('./accessRequest')
+const AccessRequestSearchResponse = require('./accessRequestSearchResponse')
 const AuthorizerPolicy = require('./authorizerPolicy')
+const Capabilities = require('./capabilities')
 const ClientDetails = require('./clientDetails')
 const ClientInfo = require('./clientInfo')
 const EAKInfo = require('./eakInfo')
 const FileMeta = require('./fileMeta')
+const Group = require('./group')
+const GroupMember = require('./groupMember')
+const GroupMembership = require('./groupMembership')
+const GroupMembershipKeys = require('./groupMembershipKeys')
 const IncomingSharingPolicy = require('./incomingSharingPolicy')
+const InitiateWebAuthnChallengeData = require('./initiateWebAuthnChallengeData')
 const KeyPair = require('./keyPair')
 const Meta = require('./meta')
 const Note = require('./note')
@@ -30,21 +38,22 @@ const SigningKey = require('./signingKey')
 const TozIdEACP = require('./tozIdEACP')
 const ToznyOTPEACP = require('./toznyOTPEACP')
 const errors = require('./errors')
-const Group = require('./group')
-const GroupMembershipKeys = require('./groupMembershipKeys')
-const GroupMembership = require('./groupMembership')
-const Capabilities = require('./capabilities')
-const GroupMember = require('./groupMember')
-const AccessRequest = require('./accessRequest')
-const AccessRequestSearchResponse = require('./accessRequestSearchResponse')
 
 module.exports = {
+  AccessRequest,
+  AccessRequestSearchResponse,
   AuthorizerPolicy,
+  Capabilities,
   ClientDetails,
   ClientInfo,
   EAKInfo,
   FileMeta,
+  Group,
+  GroupMember,
+  GroupMembership,
+  GroupMembershipKeys,
   IncomingSharingPolicy,
+  InitiateWebAuthnChallengeData,
   KeyPair,
   Meta,
   Note,
@@ -71,11 +80,4 @@ module.exports = {
   TozIdEACP,
   ToznyOTPEACP,
   errors,
-  Group,
-  GroupMembershipKeys,
-  GroupMembership,
-  Capabilities,
-  GroupMember,
-  AccessRequest,
-  AccessRequestSearchResponse,
 }

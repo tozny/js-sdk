@@ -339,4 +339,24 @@ describe('Tozny identity client', () => {
     expect(policy.requiredApprovals).not.toBeUndefined()
     expect(policy.maxAccessDurationSeconds).not.toBeUndefined()
   })
+
+  it('can initiate a webauthn mfa challenge for this client', async () => {
+    const response = await ops.initiateWebAuthnChallenge(realmConfig, identity)
+    expect(response).not.toBeUndefined()
+    expect(typeof response.tabId).toBe('string')
+    expect(response.challengeData).toMatchObject({
+      challenge: expect.any(String),
+      username: expect.stringMatching(username),
+      userid: expect.any(String),
+      attestationConveyancePreference: expect.any(String),
+      authenticatorAttachment: expect.any(String),
+      excludeCredentialIds: expect.any(String),
+      requireResidentKey: expect.any(String),
+      signatureAlgorithms: expect.any(String),
+      rpId: expect.any(String),
+      rpEntityName: expect.any(String),
+      userVerificationRequirement: expect.any(String),
+      createTimeout: expect.any(Number),
+    })
+  })
 })
