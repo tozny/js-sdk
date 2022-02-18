@@ -777,6 +777,91 @@ async function main(otp, noteId) {
 main(parsedOTP, parsedId)
 ```
 
+### Managing Multi-factor Authentication Devices
+
+The SDK can mange the MFA devices of the identity.
+
+#### List MFA Devices of Identities
+
+An authenticated identity client can lookup details on the MFA devices registered to themselves or other users.
+
+The method takes an optional `searchParams`. If no search params are used, the search method will default to searching for the currently authenticated identity's MFA devices.
+
+Note that although the response supports a list of devices, only one TOTP device and one WebAuthn device is currently supported per identity.
+
+```js
+const identity = await realm.login("username", "password")
+// no searchParams will default to current identity's MFA devices.
+const mfaDevices = await identity.searchIdentityMFADeviceCredentials(realmName)
+// example response: note that the result is in a list
+// [{
+//   "toznyId": "80037966-2168-40a3-a445-4933c72ed9be",
+//   "userId": "48dfd438-f022-4e25-b6fe-96fa83abda88",
+//   "mfaDevices": {
+//     "totp": [
+//       {
+//         "id": "d6031959-14c0-4a3c-846d-4255e91836b5",
+//         "type": "otp",
+//         "userLabel": "totp",
+//         "createdAt": "2022-02-18T21:40:47.122Z"
+//       }
+//     ],
+//     "webauthn": [
+//       {
+//         "id": "1bc6a54a-2765-4130-9b29-68dc47a13e1f",
+//         "type": "webauthn",
+//         "userLabel": "My WebAuthnDevice",
+//         "createdAt": "2022-02-18T21:44:02.022Z"
+//       }
+//     ]
+//   }
+// }]
+```
+
+A realm admin can view the MFA devices of other users in their realm. An identity's MFA devices can be searched for by their user ID (`userIds`) or by their Tozny storage client ID (`toznyIds`).
+
+```js
+const adminIdentity = await realm.login("usernameOfAdmin", "password")
+
+// search by user ids or Tozny storage client ids
+// one, both, or neither of the search parameter id lists can be used.
+const searchParams = {
+  userIds: ["user-id-here"],
+  toznyIds: ["tozny-id-here"]
+}
+const mfaDevices = await identity.searchIdentityMFADeviceCredentials(realmName, searchParams)
+// returns list containing one item per identity found.
+```
+
+#### Register a WebAuthn Device
+
+The identity client is capable of programatically registering a WebAuthn-compatible device such as a FIDO2 hardware security key. The process is first initiate the registration flow by requesting some challenge data from the server. Then, using the `navigator` API, the user signs the challenge data with their device, and the device is registered and persisted to the user's identity.
+
+Currently, the SDK only support registering a device for the authenticated client's user.
+
+```js
+const identity = await realm.login("username", "password")
+
+// fetch the challenge and public key creation parameters
+const challengeData = await identity.initiateWebAuthnChallenge()
+
+// request the user to sign the challenge data with their hardware security key
+const registrationData = await navigator.credentials.create({
+  publicKey: challengeData.toPublicKeyCredentialCreationOptions(),
+})
+
+// finalize the device registration
+// if successful, the response will contain all the user's MFA devices.
+const response = await identity.registerWebAuthnDevice(
+  registrationData,
+  'User-friendly label for device',
+  // a tab id is returned with the initial challenge data.
+  // it is a security measure to ensure that the same user session that initiated the challenge flow
+  // is the one completing it.
+  challengeData.tabId
+)
+```
+
 ### Perform Operations Using the Identity Token
 
 Once you have an identity, you can use it to get JWTs for the configured application, perform Tozny Storage operations with the identities' storage credentials, or change the password for the identity.
