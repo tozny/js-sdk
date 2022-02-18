@@ -10,6 +10,7 @@ const Group = require('./group')
 const GroupMember = require('./groupMember')
 const GroupMembership = require('./groupMembership')
 const GroupMembershipKeys = require('./groupMembershipKeys')
+const IdentityMFADevices = require('./identityMFADevices')
 const IncomingSharingPolicy = require('./incomingSharingPolicy')
 const InitiateWebAuthnChallengeData = require('./initiateWebAuthnChallengeData')
 const KeyPair = require('./keyPair')
@@ -52,6 +53,7 @@ module.exports = {
   GroupMember,
   GroupMembership,
   GroupMembershipKeys,
+  IdentityMFADevices,
   IncomingSharingPolicy,
   InitiateWebAuthnChallengeData,
   KeyPair,

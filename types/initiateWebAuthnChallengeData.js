@@ -89,6 +89,7 @@ class InitiateWebAuthnChallengeData extends Serializable {
   /**
    * converts the challenge data into the object passed to `navigator.credentials.create` API
    * inspired by https://github.com/keycloak/keycloak/blob/e23969/themes/src/main/resources/theme/base/login/webauthn-register.ftl#L24
+   * @returns {PublicKeyCredentialCreationOptions} the public key credential creation options to pass to navigator api
    */
   toPublicKeyCredentialCreationOptions() {
     const {
