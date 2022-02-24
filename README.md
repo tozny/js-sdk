@@ -862,6 +862,35 @@ const response = await identity.registerWebAuthnDevice(
 )
 ```
 
+#### Remove an MFA Device
+
+An authenticated identity client can remove an MFA device registered to themselves or other users.
+
+```js
+const identity = await realm.login("username", "password")
+
+// fetch the identity's MFA devices
+const mfaDevices = await identity.searchIdentityMFADevicesCredentials(realmName)
+
+// delete the WebAuthn MFA device, `resp` is an empty object {success: true} if successful
+const resp = await identity.removeMFADevice(mfaDevices.webAuthn[0].id)
+```
+
+A realm admin can delete MFA devices of other users in their realm.
+```js
+const identity = await realm.login("usernameOfAdmin", "password")
+
+// fetch an identity's MFA devices as the realm admin
+const searchParams = {
+  userIds: ["user-id-here"],
+  toznyIds: ["tozny-id-here"]
+}
+
+const mfaDevices = await identity.searchIdentityMFADeviceCredentials(realmName, searchParams)
+
+// delete the WebAuthn MFA device, `resp` is an empty object {success: true} if successful
+const resp = await identity.removeMFADevice(mfaDevices.webAuthn[0].id)
+```
 ### Perform Operations Using the Identity Token
 
 Once you have an identity, you can use it to get JWTs for the configured application, perform Tozny Storage operations with the identities' storage credentials, or change the password for the identity.
