@@ -36,7 +36,7 @@ class IdentityMFADevices extends Serializable {
     return {
       tozny_id: this.toznyId,
       user_id: this.userId,
-      totp_device: this.mfaDevices.totp.map(
+      totp_devices: this.mfaDevices.totp.map(
         IdentityMFADevices._serializeMFADevice
       ),
       webauthn_devices: this.mfaDevices.webauthn.map(
@@ -48,7 +48,7 @@ class IdentityMFADevices extends Serializable {
   /** @returns {IdentityMFADevices} */
   static decode(json) {
     const mfaDevices = {
-      totp: (json.totp_device || []).map(IdentityMFADevices._decodeMFADevice),
+      totp: (json.totp_devices || []).map(IdentityMFADevices._decodeMFADevice),
       webauthn: (json.webauthn_devices || []).map(
         IdentityMFADevices._decodeMFADevice
       ),

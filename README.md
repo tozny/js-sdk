@@ -779,7 +779,7 @@ main(parsedOTP, parsedId)
 
 ### Managing Multi-factor Authentication Devices
 
-The SDK can mange the MFA devices of the identity.
+The SDK can manage the MFA devices of the identity.
 
 #### List MFA Devices of Identities
 
