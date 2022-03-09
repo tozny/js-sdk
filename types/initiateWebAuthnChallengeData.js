@@ -83,6 +83,11 @@ class InitiateWebAuthnChallengeData extends Serializable {
       createTimeout: json.login_context.create_timeout,
     }
 
+    // default to "discouraged" for better cross-platform UX
+    if (challengeData.userVerificationRequirement === 'not specified') {
+      challengeData.userVerificationRequirement = 'discouraged'
+    }
+
     return new InitiateWebAuthnChallengeData(json.tab_id, challengeData)
   }
 
