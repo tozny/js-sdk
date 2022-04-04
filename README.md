@@ -26,6 +26,8 @@ _Note: Requires Node 8.3+. Older versions may work depending on the features use
 import Tozny from '@toznysecure/sdk/browser'
 ```
 
+_Note: Due to security protocols, the full crypto capabilities of Tozny SDK are only available in secure environments (localhost or https)._
+
 **Script Tag**:
 
 ```html
