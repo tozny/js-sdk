@@ -31,7 +31,10 @@ _Note: Due to security protocols, the full crypto capabilities of Tozny SDK are 
 **Script Tag**:
 
 ```html
-<script type="text/javascript"  src="https://unpkg.com/@toznysecure/sdk@<version>/dist/tozny-sodium.min.js"></script>
+<script
+  type="text/javascript"
+  src="https://unpkg.com/@toznysecure/sdk@<version>/dist/tozny-sodium.min.js"
+></script>
 <script type="text/javascript">
   // Tozny global is now available
   console.log(Tozny)
@@ -49,9 +52,14 @@ const token = '...'
 
 async function main(name) {
   try {
-    const cryptoKeys  = await Tozny.crypto.generateKeypair();
-    const signingKeys = await Tozny.crypto.generateSigningKeypair();
-    const clientInfo  = await Tozny.storage.register(token, name, cryptoKeys, signingKeys)
+    const cryptoKeys = await Tozny.crypto.generateKeypair()
+    const signingKeys = await Tozny.crypto.generateSigningKeypair()
+    const clientInfo = await Tozny.storage.register(
+      token,
+      name,
+      cryptoKeys,
+      signingKeys
+    )
 
     // Create a full client instance with the returned client details
     const config = new Tozny.storage.Config(
@@ -66,7 +74,7 @@ async function main(name) {
     const client = new Tozny.storage.Client(config)
 
     // Perform additional storage actions with this client...
-  } catch(e) {
+  } catch (e) {
     console.error(e)
   }
 }
@@ -76,7 +84,13 @@ main('example-client')
 You can optionally back up the client credentials with the account owner. When credentials are registered with an account backup, the clients configuration is encrypted and shared with the account. In the [Tozny Dashboard](https://dashboard.tozny.com/) the account owner will have access to the client credentials and record tools for this client.
 
 ```js
-const clientInfo  = await Tozny.storage.register(token, name, cryptoKeys, signingKeys, true)
+const clientInfo = await Tozny.storage.register(
+  token,
+  name,
+  cryptoKeys,
+  signingKeys,
+  true
+)
 ```
 
 #### Load Existing Client
@@ -121,7 +135,7 @@ async function main() {
         phone: '555-555-1212',
       },
       {
-        instrument: 'Trumpet'
+        instrument: 'Trumpet',
       }
     )
     console.log(`Wrote record ${written.meta.recordId}`)
@@ -140,7 +154,7 @@ async function main() {
     // Sending the version ensures no updates have taken place before removal.
     await client.deleteRecord(updated.meta.recordId, updated.meta.version)
     console.log('The record was deleted')
-  } catch(e) {
+  } catch (e) {
     console.error(e)
   }
 }
@@ -163,9 +177,11 @@ async function main() {
     const resultQuery = await writer.search(request)
     const found = await resultQuery.next()
     for (let record of found) {
-      console.log(`Found record ${record.meta.recordId}: ${record.data.first_name} plays ${record.meta.plain.instrument}`)
+      console.log(
+        `Found record ${record.meta.recordId}: ${record.data.first_name} plays ${record.meta.plain.instrument}`
+      )
     }
-  } catch(e) {
+  } catch (e) {
     console.error(e)
   }
 }
@@ -194,16 +210,18 @@ async function main() {
     // fuzzy matching a type of 'music', excluding any record matching the array
     // of record IDs or written the requesting client.
     request
-      .match({ type: 'musicians', key: 'instrument',  }, 'AND', 'EXACT')
+      .match({ type: 'musicians', key: 'instrument' }, 'AND', 'EXACT')
       .match({ type: 'music' }, 'OR', 'FUZZY')
-      .exclude({ records: ['...', '...'], writers: client.config.clientId})
+      .exclude({ records: ['...', '...'], writers: client.config.clientId })
       .range(oneWeekAgo, Date.now(), 'MODIFIED')
     const resultQuery = await writer.search(request)
     const found = await resultQuery.next()
     for (let record of found) {
-      console.log(`Found record ${record.meta.recordId}: ${record.data.first_name} plays ${record.meta.plain.instrument}`)
+      console.log(
+        `Found record ${record.meta.recordId}: ${record.data.first_name} plays ${record.meta.plain.instrument}`
+      )
     }
-  } catch(e) {
+  } catch (e) {
     console.error(e)
   }
 }
@@ -225,7 +243,7 @@ async function main() {
     console.log(`${typeToShare} shared with ${shareToId}`)
     await client.revoke(typeToShare, shareToId)
     console.log(`${sharedType} no longer shared with ${sharedToId}`)
-  } catch(e) {
+  } catch (e) {
     console.error(e)
   }
 }
@@ -244,14 +262,18 @@ const typeToShare = 'shared-type'
 async function main() {
   try {
     await addAuthorizer(typeToShare, authorizerClient.config.clientId)
-    console.log(`${authorizerClient.config.clientId} authorized to share ${typeToShare} on behalf of ${client.config.clientId}`)
+    console.log(
+      `${authorizerClient.config.clientId} authorized to share ${typeToShare} on behalf of ${client.config.clientId}`
+    )
     await shareOnBehalfOf(client.config.clientId, typeToShare, shareToId)
     console.log(`${typeToShare} shared with ${shareToId}`)
     await revokeOnBehalfOf(client.config.clientId, typeToShare, shareToId)
     console.log(`${typeToShare} no longer shared with ${shareToId}`)
     await removeAuthorizer(typeToShare, authorizerClient.config.clientId)
-    console.log(`${authorizerClient.config.clientId} no longer authorized to share ${typeToShare} on behalf of ${client.config.clientId}`)
-  } catch(e) {
+    console.log(
+      `${authorizerClient.config.clientId} no longer authorized to share ${typeToShare} on behalf of ${client.config.clientId}`
+    )
+  } catch (e) {
     console.error(e)
   }
 }
@@ -270,7 +292,7 @@ Due to the fact that browsers and Node have _very_ different primitives availabl
 ```js
 const client = new Tozny.storage.Client(/* config */)
 const type = 'large-file'
-const meta = {plaintext: 'metadata'}
+const meta = { plaintext: 'metadata' }
 const fileHandle = getFileHandle() // Platform specific!
 
 async function main() {
@@ -280,7 +302,7 @@ async function main() {
     // This fetches the record out of the File object
     const record = await file.record()
     console.log(`Wrote file to record ${record.meta.recordId}.`)
-  } catch(e) {
+  } catch (e) {
     console.error(e)
   }
 }
@@ -309,7 +331,7 @@ async function main() {
     // used read the file instead of calling `.read()` directly.
     // See platform notes for available helpers in each platform.
     const handle = await file.read() // Platform specific return.
-  } catch(e) {
+  } catch (e) {
     console.error(e)
   }
 }
@@ -329,7 +351,6 @@ _**Platform Notes**_
 
 _URL_<br />
 Takes a File object and a MIME Type and creates an object URL for the file. This is useful for things such as displaying an image, video, or offering the file as a download. Note that object URLs can use a lot of memory, so when your program no longer needs the URL make sure to revoke it with `window.URL.revokeObjectURL(url)`.
-
 
 ```js
 const file = await client.getFile(fileId)
@@ -375,15 +396,13 @@ console.log(fileObj.myData)
 _Save the file to disk_<br />
 Takes a File object, a path, and an options object. This saves the file to the specified path with the provided options. This is an abstraction over the [createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options) method from Node core. Review the `createWriteStream` documentation for available options.
 
-
 ```js
 const file = await client.getFile(fileId)
 const record = await file.record()
-const url = await Tozny.helpers.saveFile(
-  file,
-  `./${record.meta.fileName}`,
-  { encoding: `${record.meta.encoding}`, mode: 0o644 }
-)
+const url = await Tozny.helpers.saveFile(file, `./${record.meta.fileName}`, {
+  encoding: `${record.meta.encoding}`,
+  mode: 0o644,
+})
 console.log('File saved!')
 ```
 
@@ -394,54 +413,60 @@ console.log('File saved!')
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upload File</title>
-</head>
-<body>
-  <div>
-    <h1>Upload File</h1>
-    <form id="uploadForm">
-      <p>
-        <label for="fileToUpload">Select a file:</label><br />
-        <input name="fileToUpload" id="fileToUpload" type="file" ><br />
-      </p>
-      <p>
-        <button>Upload</button>
-      </p>
-    </form>
-  </div>
-  <div id="results"></div>
-  <script src="https://unpkg.com/@toznysecure/sdk@{{{VERSION}}}/dist/tozny-sodium.min.js"></script>
-  <script>
-    const form = document.getElementById('uploadForm')
-    const results = document.getElementById('results')
-    const creds = {/*...Tozny Client Credentials...*/}
-    const client = new Tozny.storage.Client(Tozny.storage.Config.fromObject(creds))
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      results.innerHTML = ''
-      const formData = new FormData(form)
-      const selectedFile = formData.get('fileToUpload')
-      async function upload(blob) {
-        try {
-          const file = await client.writeFile('test-file', blob, {test: 'meta'})
-          const record = await file.record()
-          const h2 = document.createElement('H2')
-          const pre = document.createElement('PRE')
-          h2.innerText = 'File Uploaded'
-          pre.innerText = JSON.stringify(record, undefined, '  ')
-          results.appendChild(h2)
-          results.appendChild(pre)
-        } catch(e) {
-          console.error(e)
-        }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload File</title>
+  </head>
+  <body>
+    <div>
+      <h1>Upload File</h1>
+      <form id="uploadForm">
+        <p>
+          <label for="fileToUpload">Select a file:</label><br />
+          <input name="fileToUpload" id="fileToUpload" type="file" /><br />
+        </p>
+        <p>
+          <button>Upload</button>
+        </p>
+      </form>
+    </div>
+    <div id="results"></div>
+    <script src="https://unpkg.com/@toznysecure/sdk@{{{VERSION}}}/dist/tozny-sodium.min.js"></script>
+    <script>
+      const form = document.getElementById('uploadForm')
+      const results = document.getElementById('results')
+      const creds = {
+        /*...Tozny Client Credentials...*/
       }
-      upload(selectedFile)
-    })
-  </script>
-</body>
+      const client = new Tozny.storage.Client(
+        Tozny.storage.Config.fromObject(creds)
+      )
+      form.addEventListener('submit', (e) => {
+        e.preventDefault()
+        results.innerHTML = ''
+        const formData = new FormData(form)
+        const selectedFile = formData.get('fileToUpload')
+        async function upload(blob) {
+          try {
+            const file = await client.writeFile('test-file', blob, {
+              test: 'meta',
+            })
+            const record = await file.record()
+            const h2 = document.createElement('H2')
+            const pre = document.createElement('PRE')
+            h2.innerText = 'File Uploaded'
+            pre.innerText = JSON.stringify(record, undefined, '  ')
+            results.appendChild(h2)
+            results.appendChild(pre)
+          } catch (e) {
+            console.error(e)
+          }
+        }
+        upload(selectedFile)
+      })
+    </script>
+  </body>
 </html>
 ```
 
@@ -450,54 +475,58 @@ console.log('File saved!')
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Display Encrypted Image</title>
-</head>
-<body>
-  <div>
-    <h1>Display Encrypted Image</h1>
-    <form id="downloadForm">
-      <p>
-        <label for="recordId">Record ID:</label><br />
-        <input type="text" name="recordId" id="recordId" />
-      </p>
-      <p><button>Download</button></p>
-    </form>
-  </div>
-  <div id="downloadResult"></div>
-  <script src="https://unpkg.com/@toznysecure/sdk@{{{VERSION}}}/dist/tozny-sodium.min.js"></script>
-  <script>
-    const form = document.getElementById('downloadForm')
-    const result = document.getElementById('downloadResult')
-    const creds = {/*...Tozny Client Credentials...*/}
-    const client = new Tozny.storage.Client(Tozny.storage.Config.fromObject(creds))
-    let currentURL
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const formData = new FormData(form)
-      const recordId = formData.get('recordId')
-      async function download(blob) {
-        try {
-          const file = await client.getFile(recordId)
-          if (currentURL) {
-            result.innerHTML = ''
-            // Make sure to revoke URLs we no longer need!
-            window.URL.revokeObjectURL(currentURL)
-          }
-          currentURL = await Tozny.helpers.fileAsUrl(file)
-          const img = document.createElement('IMG')
-          img.src = currentURL
-          result.appendChild(img)
-        } catch(e) {
-          console.error(e)
-        }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Display Encrypted Image</title>
+  </head>
+  <body>
+    <div>
+      <h1>Display Encrypted Image</h1>
+      <form id="downloadForm">
+        <p>
+          <label for="recordId">Record ID:</label><br />
+          <input type="text" name="recordId" id="recordId" />
+        </p>
+        <p><button>Download</button></p>
+      </form>
+    </div>
+    <div id="downloadResult"></div>
+    <script src="https://unpkg.com/@toznysecure/sdk@{{{VERSION}}}/dist/tozny-sodium.min.js"></script>
+    <script>
+      const form = document.getElementById('downloadForm')
+      const result = document.getElementById('downloadResult')
+      const creds = {
+        /*...Tozny Client Credentials...*/
       }
-      download(recordId)
-    })
-  </script>
-</body>
+      const client = new Tozny.storage.Client(
+        Tozny.storage.Config.fromObject(creds)
+      )
+      let currentURL
+      form.addEventListener('submit', (e) => {
+        e.preventDefault()
+        const formData = new FormData(form)
+        const recordId = formData.get('recordId')
+        async function download(blob) {
+          try {
+            const file = await client.getFile(recordId)
+            if (currentURL) {
+              result.innerHTML = ''
+              // Make sure to revoke URLs we no longer need!
+              window.URL.revokeObjectURL(currentURL)
+            }
+            currentURL = await Tozny.helpers.fileAsUrl(file)
+            const img = document.createElement('IMG')
+            img.src = currentURL
+            result.appendChild(img)
+          } catch (e) {
+            console.error(e)
+          }
+        }
+        download(recordId)
+      })
+    </script>
+  </body>
 </html>
 ```
 
@@ -506,55 +535,62 @@ console.log('File saved!')
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Download Encrypted File</title>
-</head>
-<body>
-  <div>
-    <h1>Download Encrypted File</h1>
-    <form id="downloadForm">
-      <p>
-        <label for="recordId">Record ID:</label><br />
-        <input type="text" name="recordId" id="recordId" />
-      </p>
-      <p><button>Decrypt</button></p>
-    </form>
-  </div>
-  <p>Right click and save the file with the link below after decrypting the file.</p>
-  <div id="downloadLink"></div>
-  <script src="https://unpkg.com/@toznysecure/sdk@{{{VERSION}}}/dist/tozny-sodium.min.js"></script>
-  <script>
-    const form = document.getElementById('downloadForm')
-    const result = document.getElementById('downloadLink')
-    const creds = {/*...Tozny Client Credentials...*/}
-    const client = new Tozny.storage.Client(Tozny.storage.Config.fromObject(creds))
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const formData = new FormData(form)
-      const recordId = formData.get('recordId')
-      async function download(blob) {
-        try {
-          const file = await client.getFile(recordId)
-          const url = await Tozny.helpers.fileAsUrl(file)
-          const a = document.createElement('A')
-          a.href = url
-          a.download = true
-          // Note, one issue in browser to be aware of. There is no way to tell
-          // when a download is complete. However, if you revoke the Object URL
-          // before it is complete, the download will fail. Be sure to research
-          // The latest best practices for revoking object URLs used to offer
-          // downloads to the user.
-          result.appendChild(a)
-        } catch(e) {
-          console.error(e)
-        }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Download Encrypted File</title>
+  </head>
+  <body>
+    <div>
+      <h1>Download Encrypted File</h1>
+      <form id="downloadForm">
+        <p>
+          <label for="recordId">Record ID:</label><br />
+          <input type="text" name="recordId" id="recordId" />
+        </p>
+        <p><button>Decrypt</button></p>
+      </form>
+    </div>
+    <p>
+      Right click and save the file with the link below after decrypting the
+      file.
+    </p>
+    <div id="downloadLink"></div>
+    <script src="https://unpkg.com/@toznysecure/sdk@{{{VERSION}}}/dist/tozny-sodium.min.js"></script>
+    <script>
+      const form = document.getElementById('downloadForm')
+      const result = document.getElementById('downloadLink')
+      const creds = {
+        /*...Tozny Client Credentials...*/
       }
-      download(recordId)
-    })
-  </script>
-</body>
+      const client = new Tozny.storage.Client(
+        Tozny.storage.Config.fromObject(creds)
+      )
+      form.addEventListener('submit', (e) => {
+        e.preventDefault()
+        const formData = new FormData(form)
+        const recordId = formData.get('recordId')
+        async function download(blob) {
+          try {
+            const file = await client.getFile(recordId)
+            const url = await Tozny.helpers.fileAsUrl(file)
+            const a = document.createElement('A')
+            a.href = url
+            a.download = true
+            // Note, one issue in browser to be aware of. There is no way to tell
+            // when a download is complete. However, if you revoke the Object URL
+            // before it is complete, the download will fail. Be sure to research
+            // The latest best practices for revoking object URLs used to offer
+            // downloads to the user.
+            result.appendChild(a)
+          } catch (e) {
+            console.error(e)
+          }
+        }
+        download(recordId)
+      })
+    </script>
+  </body>
 </html>
 ```
 
@@ -573,7 +609,7 @@ async function main() {
     const written = await client.writeNote(
       {
         lyric1: 'What a wonderful world',
-        lyric2: 'Oh, the shark, babe, has such teeth, dear'
+        lyric2: 'Oh, the shark, babe, has such teeth, dear',
       },
       client.config.publicKey,
       client.config.publicSigningKey,
@@ -596,7 +632,7 @@ async function main() {
     // Delete the note from the database
     await client.deleteNote(written.noteId)
     console.log('The note was deleted')
-  } catch(e) {
+  } catch (e) {
     console.error(e)
   }
 }
@@ -618,7 +654,7 @@ async function main() {
       {
         lyric1: 'What a wonderful world',
         lyric2: 'Oh, the shark, babe, has such teeth, dear',
-        lyric3: 'I done forgot the words'
+        lyric3: 'I done forgot the words',
       },
       client.config.publicKey,
       client.config.publicSigningKey,
@@ -630,14 +666,37 @@ async function main() {
     )
     console.log(`Replace note with note ${written.noteId}`)
     console.log(`The note name is ${written.options.idString}`)
-
-  } catch(e) {
+  } catch (e) {
     console.error(e)
   }
 }
 
 main()
 ```
+
+### Groups
+
+Groups allow users to share encrypted data with multiple clients, without having to manually share each record.<br>
+Any client can create a group and can be added to an existing group. The creator of the group will automatically be given management capabilities, and may optionally pass in read and/or write capabilities during group creation.<br><br>
+Create a group:
+
+````js
+const Tozny = require('@toznysecure/sdk/node')
+
+/**
+ * Assuming your credentials are stored as defined constants in the application environment
+ */
+const config = Tozny.storage.Config.fromObject({
+  client_id: process.env.CLIENT_ID,
+  api_key_id: process.env.API_KEY_ID,
+  api_secret: process.env.API_SECRET,
+  public_key: process.env.PUBLIC_KEY,
+  private_key: process.env.PRIVATE_KEY,
+  public_signing_key: process.env.PRIVATE_KEY,
+  private_signing_key: process.env.PRIVATE_KEY,
+})
+
+const client = new Tozny.storage.Client(config)
 
 ## TozStore Secure Computation
 TozStore Secure Computations allow users to run computations on encrypted data. In order to run a computation, a user must be *subscribed* to it. <br>
@@ -657,68 +716,78 @@ You must have the client ID for the client subscribing to the computation, as we
   catch(e){
     console.error (e)
   }
-```
-If successful, ```subscribeToComputation()``` will return an object that contains the ```computation ID```, as well as a list of ```recordTypesRequired```, which indicate the type (or types) of record required to run the computation, as well as the client ID with whom the records must be shared. If unsuccessful, it will throw an error.
+````
+
+If successful, `subscribeToComputation()` will return an object that contains the `computation ID`, as well as a list of `recordTypesRequired`, which indicate the type (or types) of record required to run the computation, as well as the client ID with whom the records must be shared. If unsuccessful, it will throw an error.
+
 ### Fetch all Subscribed Computations
+
 ```js
-  try{
-    const fetchSubscriptionsRequest = {
-      ToznyClientID: clientID,
-    }
-    let subscriptions = await client.fetchSubscriptionsToComputations(fetchSubscriptionsRequest)
-    console.log(subscriptions)
+try {
+  const fetchSubscriptionsRequest = {
+    ToznyClientID: clientID,
   }
-  catch(e) {
-    console.error(e)
-  }
-  ```
-If successful, ```fetchSubscriptionsToComputations()``` will return a list of all computations that the client whose ID is provided is subscribed to, otherwise it will throw an error.
+  let subscriptions = await client.fetchSubscriptionsToComputations(
+    fetchSubscriptionsRequest
+  )
+  console.log(subscriptions)
+} catch (e) {
+  console.error(e)
+}
+```
+
+If successful, `fetchSubscriptionsToComputations()` will return a list of all computations that the client whose ID is provided is subscribed to, otherwise it will throw an error.
 
 ### Fetch all Available Computations
+
 ```js
- try{
-    let subscriptions = await client.fetchAvailableComputations()
-    console.log(subscriptions)
-  }
-  catch(e) {
-    console.error(e)
-  }
+try {
+  let subscriptions = await client.fetchAvailableComputations()
+  console.log(subscriptions)
+} catch (e) {
+  console.error(e)
+}
 ```
-If successful, ```fetchAvailableComputations()``` will return a list of all computations available, otherwise it will throw an error.
+
+If successful, `fetchAvailableComputations()` will return a list of all computations available, otherwise it will throw an error.
+
 ### Unsubscribe From a Computation
+
 ```js
-  try{
-    const unsubscribeRequest = {
-      ToznyClientID: clientID,
-      ComputationID: computationID,
-    }
-    let unsubscribed = await client.unsubscribeFromComputation(unsubscribeRequest)
-    console.log(unsubscribed)
+try {
+  const unsubscribeRequest = {
+    ToznyClientID: clientID,
+    ComputationID: computationID,
   }
-  catch(e) {
-    console.error(e)
-  }
+  let unsubscribed = await client.unsubscribeFromComputation(unsubscribeRequest)
+  console.log(unsubscribed)
+} catch (e) {
+  console.error(e)
+}
 ```
-```unsubscribeFromComputation()``` will return ```true``` if the client has successfully been unsubscribed.
+
+`unsubscribeFromComputation()` will return `true` if the client has successfully been unsubscribed.
+
 ### Run an Analysis
+
 ```js
- try{
-    let data = new Map([['key', 'val']])
-    let analysisRequest = {
-      ComputationID: computationID,
-      ToznyClientID: clientID,
-      DataStartTimestamp: start,
-      DataEndTimestamp: end,
-      DataRequired: data,
-    }
-    let analysis = await client.computeAnalysis(analysisRequest)
-    console.log(analysis)
+try {
+  let data = new Map([['key', 'val']])
+  let analysisRequest = {
+    ComputationID: computationID,
+    ToznyClientID: clientID,
+    DataStartTimestamp: start,
+    DataEndTimestamp: end,
+    DataRequired: data,
   }
-  catch(e) {
-    console.error(e)
-  }
+  let analysis = await client.computeAnalysis(analysisRequest)
+  console.log(analysis)
+} catch (e) {
+  console.error(e)
+}
 ```
-If there is extra data that is required for the computation to run, it must be included in the ```DataRequired``` field, in the form of key value pairs.
+
+If there is extra data that is required for the computation to run, it must be included in the `DataRequired` field, in the form of key value pairs.
 
 ## Tozny Identity
 
@@ -746,9 +815,14 @@ const token = '...' // A registration token from your Tozny Platform account
 async function main(username, password, emailAddress) {
   try {
     // username and email address can be the same for ease of use
-    const identity  = await realm.register(username, password, token, emailAddress)
+    const identity = await realm.register(
+      username,
+      password,
+      token,
+      emailAddress
+    )
     // Perform operations with the registered identity.
-  } catch(e) {
+  } catch (e) {
     console.error(e)
   }
 }
@@ -766,9 +840,9 @@ const realm = new Tozny.identity.Realm('...', '...', '...')
 async function main(username, password) {
   try {
     const redirectURL = '...' // this URL handles the redirect from the OIDC login and extracts the included authentication token.
-    const loginRequest  = await realm.login(username, password, redirectUrl)
+    const loginRequest = await realm.login(username, password, redirectUrl)
     window.location = loginRequest.redirect
-  } catch(e) {
+  } catch (e) {
     console.error(e)
   }
 }
@@ -784,9 +858,9 @@ const authToken = '...' // parsed from the returned URL
 
 async function main(username, password, authToken) {
   try {
-    const identity  = await realm.completeLogin(username, password, authToken)
+    const identity = await realm.completeLogin(username, password, authToken)
     // Perform operations with the registered identity.
-  } catch(e) {
+  } catch (e) {
     console.error(e)
   }
 }
@@ -810,7 +884,7 @@ async function main(identity) {
     serialized = localStorage.getItem('stored-identity')
     identity = realm.fromObject(serialized)
     // Perform operations with the registered identity.
-  } catch(e) {
+  } catch (e) {
     console.error(e)
   }
 }
@@ -831,7 +905,7 @@ async function main(username) {
   try {
     await realm.initiateRecovery(username)
     // a return of true indicates a successful request.
-  } catch(e) {
+  } catch (e) {
     console.error(e)
   }
 }
@@ -852,7 +926,7 @@ async function main(otp, noteId) {
   try {
     const identity = await completeEmailRecovery(otp, noteId)
     // Perform operations with the registered identity.
-  } catch(e) {
+  } catch (e) {
     console.error(e)
   }
 }
@@ -873,7 +947,7 @@ The method takes an optional `searchParams`. If no search params are used, the s
 Note that although the response supports a list of devices, only one TOTP device and one WebAuthn device is currently supported per identity.
 
 ```js
-const identity = await realm.login("username", "password")
+const identity = await realm.login('username', 'password')
 // no searchParams will default to current identity's MFA devices.
 const mfaDevices = await identity.searchIdentityMFADeviceCredentials(realmName)
 // example response: note that the result is in a list
@@ -904,15 +978,18 @@ const mfaDevices = await identity.searchIdentityMFADeviceCredentials(realmName)
 A realm admin can view the MFA devices of other users in their realm. An identity's MFA devices can be searched for by their user ID (`userIds`) or by their Tozny storage client ID (`toznyIds`).
 
 ```js
-const adminIdentity = await realm.login("usernameOfAdmin", "password")
+const adminIdentity = await realm.login('usernameOfAdmin', 'password')
 
 // search by user ids or Tozny storage client ids
 // one, both, or neither of the search parameter id lists can be used.
 const searchParams = {
-  userIds: ["user-id-here"],
-  toznyIds: ["tozny-id-here"]
+  userIds: ['user-id-here'],
+  toznyIds: ['tozny-id-here'],
 }
-const mfaDevices = await identity.searchIdentityMFADeviceCredentials(realmName, searchParams)
+const mfaDevices = await identity.searchIdentityMFADeviceCredentials(
+  realmName,
+  searchParams
+)
 // returns list containing one item per identity found.
 ```
 
@@ -923,7 +1000,7 @@ The identity client is capable of programatically registering a WebAuthn-compati
 Currently, the SDK only support registering a device for the authenticated client's user.
 
 ```js
-const identity = await realm.login("username", "password")
+const identity = await realm.login('username', 'password')
 
 // fetch the challenge and public key creation parameters
 const challengeData = await identity.initiateWebAuthnChallenge()
@@ -950,7 +1027,7 @@ const response = await identity.registerWebAuthnDevice(
 An authenticated identity client can remove an MFA device registered to themselves or other users.
 
 ```js
-const identity = await realm.login("username", "password")
+const identity = await realm.login('username', 'password')
 
 // fetch the identity's MFA devices
 const mfaDevices = await identity.searchIdentityMFADevicesCredentials(realmName)
@@ -960,60 +1037,65 @@ const resp = await identity.removeMFADevice(mfaDevices.webAuthn[0].id)
 ```
 
 A realm admin can delete MFA devices of other users in their realm.
+
 ```js
-const identity = await realm.login("usernameOfAdmin", "password")
+const identity = await realm.login('usernameOfAdmin', 'password')
 
 // fetch an identity's MFA devices as the realm admin
 const searchParams = {
-  userIds: ["user-id-here"],
-  toznyIds: ["tozny-id-here"]
+  userIds: ['user-id-here'],
+  toznyIds: ['tozny-id-here'],
 }
 
-const mfaDevices = await identity.searchIdentityMFADeviceCredentials(realmName, searchParams)
+const mfaDevices = await identity.searchIdentityMFADeviceCredentials(
+  realmName,
+  searchParams
+)
 
 // delete the WebAuthn MFA device, `resp` is an empty object {success: true} if successful
 const resp = await identity.removeMFADevice(mfaDevices.webAuthn[0].id)
 ```
+
 ### Perform Operations Using the Identity Token
 
 Once you have an identity, you can use it to get JWTs for the configured application, perform Tozny Storage operations with the identities' storage credentials, or change the password for the identity.
 
 ```js
-  const serialized = localStorage.getItem('stored-identity')
-  const identity = realm.fromObject(serialized)
+const serialized = localStorage.getItem('stored-identity')
+const identity = realm.fromObject(serialized)
 
-  async function main() {
-    try {
-      const jwtInfo = await identity.tokenInfo() // full info including auth token, expiration, etc.
-      const jwt = await identity.token() // the raw bearer token to use in requests, automatically refreshed
-      const response = await identity.fetch('http://myAPI.com/some/endpoint', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json'
-        },
-        body: JSON.stringify({data: 'special data to send'})
-      }) // a basic fetch call made with the bearer token in the Authentication header
-      // To change a password for an identity user:
-      identity.changePassword('newPassword')
-      // Tozny Storage operations are available as well
-      const record = await identity.storage.writeRecord(
-        'musician',
-        {
-          first_name: 'Buddy',
-          last_name: 'Rich',
-          phone: '555-555-9383',
-        },
-        {
-          instrument: 'drums'
-        }
-      )
-      console.log(`Wrote record: ${record.meta.recordId}`)
-    } catch(e) {
-      console.error(e)
-    }
+async function main() {
+  try {
+    const jwtInfo = await identity.tokenInfo() // full info including auth token, expiration, etc.
+    const jwt = await identity.token() // the raw bearer token to use in requests, automatically refreshed
+    const response = await identity.fetch('http://myAPI.com/some/endpoint', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ data: 'special data to send' }),
+    }) // a basic fetch call made with the bearer token in the Authentication header
+    // To change a password for an identity user:
+    identity.changePassword('newPassword')
+    // Tozny Storage operations are available as well
+    const record = await identity.storage.writeRecord(
+      'musician',
+      {
+        first_name: 'Buddy',
+        last_name: 'Rich',
+        phone: '555-555-9383',
+      },
+      {
+        instrument: 'drums',
+      }
+    )
+    console.log(`Wrote record: ${record.meta.recordId}`)
+  } catch (e) {
+    console.error(e)
   }
+}
 
-  main()
+main()
 ```
 
 ### Privileged Access Management & Multi-party control
@@ -1025,8 +1107,9 @@ managing these requests for access.
 
 Due to the increased permissions required for setting up the access policies, they must be setup
 manually from the Realm admin portal, or programatically with the `js-account-sdk`:
-* [configure a group's access policies](https://github.com/tozny/js-account-sdk/blob/master/doc/classes/Client.md#upsertaccesspoliciesforgroup)
-* [list the access policies of groups](https://github.com/tozny/js-account-sdk/blob/master/doc/classes/Client.md#listaccesspoliciesforgroups)
+
+- [configure a group's access policies](https://github.com/tozny/js-account-sdk/blob/master/doc/classes/Client.md#upsertaccesspoliciesforgroup)
+- [list the access policies of groups](https://github.com/tozny/js-account-sdk/blob/master/doc/classes/Client.md#listaccesspoliciesforgroups)
 
 **The realm & groups must be configured for multi-party control in order to make use of the following
 access request functionality.**
@@ -1034,67 +1117,73 @@ access request functionality.**
 All example code is presumed to be inside of an `async` function with an authenticated `identity` client.
 
 #### Overview of Access Requests
+
 An `AccessRequest` is a representation of a user requesting access to a particular group.
 
 Currently, only one group per access request is supported, though the data structure uses an array to
 be forward-compatible with potentially requesting access to multiple groups in a single request.
 
 ##### Example Access Request
+
 ```js
 const accessRequest = {
   /** identifier of the access request */
-  "id": 159,
+  id: 159,
   /** list of group info. currently, only one group is supported */
-  "groups": [
+  groups: [
     {
-      "id": "f54ee4c1-8cf6-482e-9bd6-a5b2129e8e5d",
-      "groupName": "special-privilege-group"
-    }
+      id: 'f54ee4c1-8cf6-482e-9bd6-a5b2129e8e5d',
+      groupName: 'special-privilege-group',
+    },
   ],
   /** name of realm containing group */
-  "realmName": "realmName",
+  realmName: 'realmName',
   /** state of request. "open", "approved", or "denied" */
-  "state": "open",
+  state: 'open',
   /** user-defined reason they want access */
-  "reason": "I'd like access to do X, Y, & Z.",
+  reason: "I'd like access to do X, Y, & Z.",
   /** number of seconds access will last once approved */
-  "accessDurationSeconds": 86400,
+  accessDurationSeconds: 86400,
   /** information about who made the request */
-  "requestor": {
-    "toznyId": "a7a128c5-6cde-4e22-a2e3-24aa8370d1ef",
-    "username": "RobertRequestor"
+  requestor: {
+    toznyId: 'a7a128c5-6cde-4e22-a2e3-24aa8370d1ef',
+    username: 'RobertRequestor',
   },
   /** number of required approvals before request is fulfilled */
-  "requiredApprovalsCount": 1,
+  requiredApprovalsCount: 1,
   /** past actions performed on the request, see below */
-  "actions": [],
+  actions: [],
   /** datetime at which the request will be automatically denied */
-  "autoExpiresAt": "2021-11-03T22:40:24.0582469Z",
+  autoExpiresAt: '2021-11-03T22:40:24.0582469Z',
   /** datetime at which the request was created */
-  "createdAt": "2021-11-01T22:40:24.058459Z",
+  createdAt: '2021-11-01T22:40:24.058459Z',
 }
 ```
 
 ##### Example Access Request Action
+
 An action is created for each approval/denial that happens to the request:
+
 ```js
 const action = {
   /** type of action: "approve", "deny" */
-  "action": "approve",
+  action: 'approve',
   /** information about who performed the action */
-  "user": {
-    "toznyId": "a7a128c5-6cde-4e22-a2e3-24aa8370d1ef",
-    "username": "AlannaApprover"
+  user: {
+    toznyId: 'a7a128c5-6cde-4e22-a2e3-24aa8370d1ef',
+    username: 'AlannaApprover',
   },
   /** datetime at which the action was taken */
-  "takenAt": "2021-10-26T18:54:26.707336Z",
+  takenAt: '2021-10-26T18:54:26.707336Z',
   /** optional comment from the acting user */
-  "comment": ""
+  comment: '',
 }
 ```
 
 #### Enumerating access-controlled groups
+
 Get info on all the groups governed by an access policy with `availableAccessRequestGroups`:
+
 ```js
 const groups = await identity.availableAccessRequestGroups(realmName)
 //=> array of items like { id, groupName, accessPolicies }
@@ -1102,26 +1191,32 @@ const groups = await identity.availableAccessRequestGroups(realmName)
 ```
 
 ### Listing Access Requests
+
 There is search functionality for enumerating existing open & historical access requests. The access
 requests returned are dependent on the `identity` querying for them.
 
 #### Actionable Requests
+
 By default, all & only the access requests the user can or could act on (approve or deny) are returned:
+
 ```js
-const accessRequestsUserCanOrCouldApprove = await identity.searchAccessRequests()
+const accessRequestsUserCanOrCouldApprove =
+  await identity.searchAccessRequests()
 ```
 
 This include both pending `open` and historical `approved`/`denied` ones.
 
 #### Requests created by a particular user
+
 `searchAccessRequests` accepts a filter that can contain a list of `requestorIds` that can be used
 to enumerate the requests from a particular user.
+
 ```js
 // all access requests this identity created
 const toznyIdOfUser = identity.storage.config.clientId
-const accessRequestsCreatedByUser = await identity.searchAccessRequests(
-  { requestorIds: [toznyIdOfUser] }
-)
+const accessRequestsCreatedByUser = await identity.searchAccessRequests({
+  requestorIds: [toznyIdOfUser],
+})
 
 // or those created by a different identity
 const username = 'RobertRequestor'
@@ -1130,11 +1225,14 @@ const accessRequestsCreatedByOtherUser = await identity.searchAccessRequests(
   { requestorIds: [otherUser.client_id] } // Note: client id, not user id
 )
 ```
+
 Note that only those requests the current `identity` has permission to view are returned.
 An Access Request not created or actionable by the requesting identity will be excluded.
 
 #### Requesting Access
+
 With the `identity` of the user who wants access to the group, you can create a request for access:
+
 ```js
 const realmName = 'NameOfRealmGoesHere'
 const groupInfo = { id: groupId }
@@ -1158,16 +1256,14 @@ const accessRequestId = accessRequest.id
 const comment = 'Completely optional comment'
 
 // approve an access request
-const approvedRequest = await identity.approveAccessRequests(
-  realmName,
-  [{ accessRequestId, comment }]
-)
+const approvedRequest = await identity.approveAccessRequests(realmName, [
+  { accessRequestId, comment },
+])
 
 // or deny it
-const deniedRequest = await identity.denyAccessRequests(
-  realmName,
-  [{ accessRequestId, comment }]
-)
+const deniedRequest = await identity.denyAccessRequests(realmName, [
+  { accessRequestId, comment },
+])
 ```
 
 Both `approveAccessRequests` and `denyAccessRequests` accept a list of objects with `accessRequestId`
