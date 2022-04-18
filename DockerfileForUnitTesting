@@ -1,0 +1,19 @@
+# Choose the Image which has Node installed already
+FROM node:lts-alpine
+
+# make the 'app' folder the current working directory
+WORKDIR /app
+
+ENV PATH /app:$PATH
+
+# copy both 'package.json' and 'package-lock.json' (if available)
+COPY package*.json ./
+
+# copy project files and folders to the current working directory (i.e. 'app' folder)
+COPY . ./
+
+RUN rm ./.env
+
+RUN npm install
+
+ENTRYPOINT ["test.sh"]
