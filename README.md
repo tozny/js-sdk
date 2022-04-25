@@ -674,49 +674,28 @@ async function main() {
 main()
 ```
 
-### Groups
-
-Groups allow users to share encrypted data with multiple clients, without having to manually share each record.<br>
-Any client can create a group and can be added to an existing group. The creator of the group will automatically be given management capabilities, and may optionally pass in read and/or write capabilities during group creation.<br><br>
-Create a group:
-
-````js
-const Tozny = require('@toznysecure/sdk/node')
-
-/**
- * Assuming your credentials are stored as defined constants in the application environment
- */
-const config = Tozny.storage.Config.fromObject({
-  client_id: process.env.CLIENT_ID,
-  api_key_id: process.env.API_KEY_ID,
-  api_secret: process.env.API_SECRET,
-  public_key: process.env.PUBLIC_KEY,
-  private_key: process.env.PRIVATE_KEY,
-  public_signing_key: process.env.PRIVATE_KEY,
-  private_signing_key: process.env.PRIVATE_KEY,
-})
-
-const client = new Tozny.storage.Client(config)
-
 ## TozStore Secure Computation
-TozStore Secure Computations allow users to run computations on encrypted data. In order to run a computation, a user must be *subscribed* to it. <br>
-A computation takes the encrypted data, runs a specific analysis on it, and writes the resulting analysis to a record that only subscription *managers* have access to.
+
+TozStore Secure Computations allow users to run computations on encrypted data. In order to run a computation, a user must be _subscribed_ to it. <br>
+A computation takes the encrypted data, runs a specific analysis on it, and writes the resulting analysis to a record that only subscription _managers_ have access to.
+
 ### Subscribe to a Computation:
+
 You must have the client ID for the client subscribing to the computation, as well as the computation ID. When subscribing to a computation, you can optionally pass in client IDs for any clients you wish to make a manager.
-``` js
- try{
-    const subscriptionRequest = {
-      ToznyClientID: clientID,
-      ComputationID: computationID,
-      SubscriptionManagers: [],
-    }
-    const subscription = await client.subscribeToComputation(subscriptionRequest)
-    console.log(subscription)
+
+```js
+try {
+  const subscriptionRequest = {
+    ToznyClientID: clientID,
+    ComputationID: computationID,
+    SubscriptionManagers: [],
   }
-  catch(e){
-    console.error (e)
-  }
-````
+  const subscription = await client.subscribeToComputation(subscriptionRequest)
+  console.log(subscription)
+} catch (e) {
+  console.error(e)
+}
+```
 
 If successful, `subscribeToComputation()` will return an object that contains the `computation ID`, as well as a list of `recordTypesRequired`, which indicate the type (or types) of record required to run the computation, as well as the client ID with whom the records must be shared. If unsuccessful, it will throw an error.
 
@@ -1268,6 +1247,175 @@ const deniedRequest = await identity.denyAccessRequests(realmName, [
 
 Both `approveAccessRequests` and `denyAccessRequests` accept a list of objects with `accessRequestId`
 and an optional `comment`. They are capable of approving/denying in bulk.
+
+### TozStore Groups
+
+Groups allow users to share encrypted data with multiple clients, without having to manually share each record.<br>
+Any client can create a group and can be added to an existing group. The creator of the group will automatically be given management capabilities, and may optionally pass in read and/or write capabilities during group creation.<br><br>
+
+#### Create a group:
+
+```js
+const Tozny = require('@toznysecure/sdk/node')
+/**
+ * Assuming your credentials are stored as defined constants in the application environment
+ */
+const config = Tozny.storage.Config.fromObject({
+  client_id: process.env.CLIENT_ID,
+  api_key_id: process.env.API_KEY_ID,
+  api_secret: process.env.API_SECRET,
+  public_key: process.env.PUBLIC_KEY,
+  private_key: process.env.PRIVATE_KEY,
+  public_signing_key: process.env.PRIVATE_KEY,
+  private_signing_key: process.env.PRIVATE_KEY,
+})
+const client = new Tozny.storage.Client(config)
+// Create a group, giving read and share capabilities to the client.
+// Management capabilities will also be set by default.
+const example_group = await client.createGroup(
+  'ExampleGroup',
+  ['READ_CONTENT', 'SHARE_CONTENT'],
+  'Example Description'
+)
+```
+
+The call to `createGroup()` will return a GroupMembership object with the following fields: <br>
+
+```js
+clientID,
+group: Group {
+  groupName,
+  publicKey,
+  description,
+  createdAt,
+  lastModified,
+  groupID,
+  accountID,
+  memberCount
+},
+capabilities: {}
+```
+
+These fields can be used as parameters to various groups functions. The group ID is particularly useful for this.<br>
+Get the groupID from the GroupMembership object returned:
+
+```js
+const groupID = example_group.group.groupID
+```
+
+#### Add one or more group members:
+
+```js
+// List group members before adding new members
+let members = await client.listGroupMembers(groupID)
+console.log('Before adding new member, group members = \n', members)
+// Create GroupMember objects for client2 and client3
+const client2GroupMember = new types.GroupMember(client2ID, {
+  share: true,
+  manage: false,
+  read: true,
+})
+const client3GroupMember = new types.GroupMember(client3ID, {
+  share: true,
+  manage: false,
+  read: true,
+})
+// Add new members to the group
+const addedMembers = await client.addGroupMembers(groupID, [
+  client2GroupMember,
+  client3GroupMember,
+])
+console.log('Members added = \n', addedMembers)
+// List group members after adding new members
+members = await client.listGroupMembers(groupID)
+console.log('After adding new member, group members = \n', members)
+```
+
+`addGroupMembers()` will return a list of GroupMember objects, one for each member added. Each GroupMember object contains the added member's client ID (`client_id`), membership key (`membership_key`) and a list of their capabilities for that group (`capability_names`)<br><br>
+
+#### Delete one or more group members:
+
+```js
+// List group members before deletion
+let members = await client.listGroupMembers(groupID)
+console.log('Before deleting group member, members = \n', members)
+try {
+  // Remove client2 from group
+  const isDeleted = await client.removeGroupMembers(groupID, [client2ID])
+  if (isDeleted) {
+    // List group members after deletion
+    members = await client.listGroupMembers(groupID)
+    console.log('After deleting group member, members = \n', members)
+  }
+} catch (e) {
+  console.error(e)
+}
+```
+
+`removeGroupMembers()` will return true if removal was successful and will otherwise throw an error.<br><br>
+
+#### Get a single group's info:
+
+```js
+let groupInfo = await client.readGroup(groupID)
+```
+
+This can also be accomplished using a group's name:
+
+```js
+let groupInfo = await client.groupInfo('ExampleGroup')
+```
+
+`readGroup()` and `groupInfo()`will return a Group object containing the group's name, public key, description, creation timestamp, last modified timestamp, group ID, account ID, and the number of members.<br><br>
+
+#### List all groups for a client:
+
+```js
+const groups = await client.listGroups()
+```
+
+`listGroups()` will return a list of Group objects. Optional parameters are: `clientID`, `groupNames` (an array of strings to filter the response by), `nextToken` (where to start pagination of results), and `max` (the maximum number of results returned per request).<br><br>
+
+#### Share a record with a group and list shared records:
+
+```js
+// Share records of type 'musician' with a group
+// client must have share capabilities for this group
+let sharedRecord = await client.shareRecordWithGroup(groupID, 'musicians')
+console.log(`${sharedRecord.record_type} shared with group ${groupID}`)
+// List all records shared with a group.
+// client2 must have read capabilities for this group
+let records = await client2.listRecordsSharedWithGroup(groupID)
+console.log(records)
+```
+
+`listRecordsWithGroup()` will return a list of Record objects. Optional arguments are writerIds (an array of client IDs used for filtering writers), nextToken (where to start pagination of results), and max (maximum number of results returned per request).<br><br>
+
+#### Revoke records shared with a group:
+
+```js
+try {
+  let isRevoked = client.revokeRecordWithGroup(groupID, 'musicians')
+  if (isRevoked) console.log('Records have been successfully revoked')
+} catch (e) {
+  console.error(e)
+}
+```
+
+`revokeRecordWithGroup()` will return true if the record is successfully revoked and will otherwise throw an error. <br><br>
+
+#### Delete a group:
+
+```js
+try {
+  let isDeleted = await client.deleteGroup(groupID)
+  if (isDeleted) console.log(`Group ${groupID} has been deleted`)
+} catch (e) {
+  console.error(e)
+}
+```
+
+`deleteGroup()` will return true if the group is successfully removed and will otherwise throw an error. <br><br>
 
 ## Terms of Service
 
