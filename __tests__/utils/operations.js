@@ -1388,4 +1388,39 @@ module.exports = {
     )
     return JSON.parse(result)
   },
+  async fetchSubscriptionsToComputations(config, subscription) {
+    const subscriptions = await runInEnvironment(
+      function (configJSON, subscription) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.fetchSubscriptionsToComputations(subscription)
+      },
+      JSON.stringify(config),
+      subscription
+    )
+    return subscriptions
+  },
+  async fetchAllSubscriptionsToComputations(config) {
+    const subscriptions = await runInEnvironment(
+      function (configJSON, subscription) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.fetchAvailableComputations(subscription)
+      },
+      JSON.stringify(config),
+    )
+    return subscriptions
+  },
+  async computeAnalysis(config, params) {
+    const computations = await runInEnvironment(
+      function (configJSON, params) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.computeAnalysis(params)
+      },
+      JSON.stringify(config),
+      params
+    )
+    return computations
+  },
 }
