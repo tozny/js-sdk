@@ -1393,6 +1393,7 @@ module.exports = {
       function (configJSON, subscription) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
+        console.log(`Client = ${client}`)
         return client.fetchSubscriptionsToComputations(subscription)
       },
       JSON.stringify(config),
@@ -1405,6 +1406,7 @@ module.exports = {
       function (configJSON, subscription) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
+        console.log(`Client = ${client}`)
         return client.fetchAvailableComputations(subscription)
       },
       JSON.stringify(config),
@@ -1416,6 +1418,7 @@ module.exports = {
       function (configJSON, params) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
+        console.log(`Client = ${client}`)
         return client.computeAnalysis(params)
       },
       JSON.stringify(config),
