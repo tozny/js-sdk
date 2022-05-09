@@ -1,3 +1,8 @@
+/**
+ * Computation data for Tozny's Secure Compute.
+ *
+ *  @property {object} computation Wraps data for a Secure Compute computation.
+ */
 class Computation {
     constructor(computations) {
       this.computations = computations
