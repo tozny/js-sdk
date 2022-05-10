@@ -4,6 +4,7 @@ const AuthorizerPolicy = require('./authorizerPolicy')
 const Capabilities = require('./capabilities')
 const ClientDetails = require('./clientDetails')
 const ClientInfo = require('./clientInfo')
+const Computation = require('./computation')
 const EAKInfo = require('./eakInfo')
 const FileMeta = require('./fileMeta')
 const Group = require('./group')
@@ -47,6 +48,7 @@ module.exports = {
   Capabilities,
   ClientDetails,
   ClientInfo,
+  Computation,
   EAKInfo,
   FileMeta,
   Group,

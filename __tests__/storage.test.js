@@ -615,4 +615,27 @@ describe('Tozny', () => {
     )
     expect(list).toMatchObject(listTest)
   })
+  it('Can fetch subscriptions to computations', async () => {
+    const fetchSubscriptionsRequest = {
+      ToznyClientID: readerClient.ClientId,
+    }
+    const subscriptions = await ops.fetchSubscriptionsToComputations(readerClient, fetchSubscriptionsRequest)
+    expect(subscriptions.computations).toMatchObject([])
+  })
+  it('Can fetch all subscriptions to computations', async () => {
+    const subscriptions = await ops.fetchAllSubscriptionsToComputations(readerClient)
+    expect(subscriptions.computations).toMatchObject([])
+  })
+  it('Can run a computation analysis', async () => {
+    let map = new Map([["key", "val"]]);
+    let params = {
+      ComputationID: uuidv4(),
+      ToznyClientID: readerClient.ClientId,
+      DataStartTimestamp: Date.now(),
+      DataEndTimestamp: Date.now(),
+      DataRequired: map,
+    }
+    const computations = await ops.computeAnalysis(readerClient, params)
+    expect(computations.computations).toMatchObject([])
+  })
 })
