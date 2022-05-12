@@ -642,7 +642,7 @@ main()
 ## TozStore Secure Computation
 TozStore Secure Computations allow users to run computations on encrypted data. In order to run a computation, a user must be *subscribed* to it. <br>
 A computation takes the encrypted data, runs a specific analysis on it, and writes the resulting analysis to a record that only subscription *managers* have access to.
-### Subscribe to a computation:
+### Subscribe to a Computation:
 You must have the client ID for the client subscribing to the computation, as well as the computation ID. When subscribing to a computation, you can optionally pass in client IDs for any clients you wish to make a manager.
 ``` js
  try{
@@ -659,7 +659,7 @@ You must have the client ID for the client subscribing to the computation, as we
   }
 ```
 If successful, ```subscribeToComputation()``` will return an object that contains the ```computation ID```, as well as a list of ```recordTypesRequired```, which indicate the type (or types) of record required to run the computation, as well as the client ID with whom the records must be shared. If unsuccessful, it will throw an error.
-### Fetch all subscribed computations
+### Fetch all Subscribed Computations
 ```js
   try{
     const fetchSubscriptionsRequest = {
@@ -674,7 +674,7 @@ If successful, ```subscribeToComputation()``` will return an object that contain
   ```
 If successful, ```fetchSubscriptionsToComputations()``` will return a list of all computations that the client whose ID is provided is subscribed to, otherwise it will throw an error.
 
-### Fetch all available computations
+### Fetch all Available Computations
 ```js
  try{
     let subscriptions = await client.fetchAvailableComputations()
@@ -685,7 +685,7 @@ If successful, ```fetchSubscriptionsToComputations()``` will return a list of al
   }
 ```
 If successful, ```fetchAvailableComputations()``` will return a list of all computations available, otherwise it will throw an error.
-### Unsubscribe from a computation
+### Unsubscribe From a Computation
 ```js
   try{
     const unsubscribeRequest = {
@@ -700,7 +700,7 @@ If successful, ```fetchAvailableComputations()``` will return a list of all comp
   }
 ```
 ```unsubscribeFromComputation()``` will return ```true``` if the client has successfully been unsubscribed.
-### Run an analysis
+### Run an Analysis
 ```js
  try{
     let data = new Map([['key', 'val']])
