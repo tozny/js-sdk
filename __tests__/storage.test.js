@@ -619,15 +619,17 @@ describe('Tozny', () => {
     const fetchSubscriptionsRequest = {
       ToznyClientID: readerClient.clientId,
     }
-    const subscriptions = await ops.fetchSubscriptionsToComputations(readerClient, fetchSubscriptionsRequest)
+    const subscriptions = await ops.fetchSubscriptionsToComputations(
+      readerClient,
+      fetchSubscriptionsRequest
+    )
     expect(subscriptions.computations).toMatchObject([])
   })
   it('Can fetch all subscriptions to computations', async () => {
-    const subscriptions = await ops.fetchAvailableComputations(readerClient)
-    expect(subscriptions.computations).toBeInstanceOf(Array)
+    await ops.fetchAvailableComputations(readerClient)
   })
   it('Can run a computation analysis', async () => {
-    let map = new Map([["key", "val"]]);
+    let map = new Map([['key', 'val']])
     let params = {
       ComputationID: uuidv4(),
       ToznyClientID: readerClient.clientId,
@@ -635,52 +637,63 @@ describe('Tozny', () => {
       DataEndTimestamp: Date.now(),
       DataRequired: map,
     }
-    const computations = await ops.computeAnalysis(readerClient, params)
-    expect(computations.computations).toBeInstanceOf(Array)
+    await ops.computeAnalysis(readerClient, params)
   })
   it('can subscribe to a computation', async () => {
     const computations = await ops.fetchAvailableComputations(readerClient)
     const subscriptionRequest = {
       ToznyClientID: readerClient.clientId,
-      ComputationID:  computations.computations[0].computation_id,
+      ComputationID: computations.computations[0].computation_id,
       SubscriptionManagers: [],
     }
-    const subscription = await ops.subscribeToComputation(readerClient, subscriptionRequest)
+    const subscription = await ops.subscribeToComputation(
+      readerClient,
+      subscriptionRequest
+    )
     expect(typeof subscription.computationID).toBe('string')
   })
   it('can unsubscribe from a computation', async () => {
     const computations = await ops.fetchAvailableComputations(readerClient)
     const subscriptionRequest = {
       ToznyClientID: readerClient.clientId,
-      ComputationID:  computations.computations[0].computation_id,
+      ComputationID: computations.computations[0].computation_id,
       SubscriptionManagers: [],
     }
-    const subscriptions = await ops.subscribeToComputation(readerClient, subscriptionRequest)
+    const subscriptions = await ops.subscribeToComputation(
+      readerClient,
+      subscriptionRequest
+    )
     expect(typeof subscriptions.computationID).toBe('string')
 
     // Subscribe before unsubscribing
 
     const unsubscribeRequest = {
       ToznyClientID: readerClient.clientId,
-      ComputationID:  subscriptions.computationID,
+      ComputationID: subscriptions.computationID,
     }
-    const unsubscribe = await ops.unsubscribeFromComputation(readerClient, unsubscribeRequest)
+    const unsubscribe = await ops.unsubscribeFromComputation(
+      readerClient,
+      unsubscribeRequest
+    )
     expect(unsubscribe).toBe(true)
   })
   it('can update subscription to a computation', async () => {
     const computations = await ops.fetchAvailableComputations(readerClient)
     const subscriptionRequest = {
       ToznyClientID: readerClient.clientId,
-      ComputationID:  computations.computations[0].computation_id,
+      ComputationID: computations.computations[0].computation_id,
       SubscriptionManagers: [],
     }
     await ops.subscribeToComputation(readerClient, subscriptionRequest)
 
     const updateSubscriptionRequest = {
-      ComputationID:  computations.computations[0].computation_id,
+      ComputationID: computations.computations[0].computation_id,
       SubscriptionManagers: [],
     }
-    const update = await ops.updateSubscriptionToComputation(readerClient, updateSubscriptionRequest)
+    const update = await ops.updateSubscriptionToComputation(
+      readerClient,
+      updateSubscriptionRequest
+    )
     expect(update).toBe(true)
   })
 })
