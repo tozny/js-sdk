@@ -12,8 +12,10 @@ COPY package*.json ./
 # copy project files and folders to the current working directory (i.e. 'app' folder)
 COPY . ./
 
-RUN rm ./.env
+# RUN rm ./.env
 
 RUN npm install
+
+RUN npm i jest-html-reporter
 
 ENTRYPOINT ["test.sh"]
