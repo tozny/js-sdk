@@ -37,6 +37,7 @@ const Signable = require('./signable')
 const SignedDocument = require('./signedDocument')
 const SignedString = require('./signedString')
 const SigningKey = require('./signingKey')
+const Subscription = require('./subscription')
 const TozIdEACP = require('./tozIdEACP')
 const ToznyOTPEACP = require('./toznyOTPEACP')
 const errors = require('./errors')
@@ -81,6 +82,7 @@ module.exports = {
   SignedDocument,
   SignedString,
   SigningKey,
+  Subscription,
   TozIdEACP,
   ToznyOTPEACP,
   errors,

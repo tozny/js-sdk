@@ -1393,7 +1393,6 @@ module.exports = {
       function (configJSON, subscription) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
-        console.log(`Client = ${client}`)
         return client.fetchSubscriptionsToComputations(subscription)
       },
       JSON.stringify(config),
@@ -1401,12 +1400,11 @@ module.exports = {
     )
     return subscriptions
   },
-  async fetchAllSubscriptionsToComputations(config) {
+  async fetchAvailableComputations(config) {
     const subscriptions = await runInEnvironment(
       function (configJSON, subscription) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
-        console.log(`Client = ${client}`)
         return client.fetchAvailableComputations(subscription)
       },
       JSON.stringify(config),
@@ -1418,12 +1416,47 @@ module.exports = {
       function (configJSON, params) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
-        console.log(`Client = ${client}`)
         return client.computeAnalysis(params)
       },
       JSON.stringify(config),
       params
     )
     return computations
+  },
+  async subscribeToComputation(config, subscription) {
+    const result = await runInEnvironment(
+      function (configJSON, subscription) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.subscribeToComputation(subscription)
+      },
+      JSON.stringify(config),
+      subscription
+    )
+    return result
+  },
+  async unsubscribeFromComputation(config, unsubscribe) {
+    const result = await runInEnvironment(
+      function (configJSON, unsubscribe) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.unsubscribeFromComputation(unsubscribe)
+      },
+      JSON.stringify(config),
+      unsubscribe
+    )
+    return JSON.parse(result)
+  },
+  async updateSubscriptionToComputation(config, update) {
+    const result = await runInEnvironment(
+      function (configJSON, update) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.updateSubscriptionToComputation(update)
+      },
+      JSON.stringify(config),
+      update
+    )
+    return JSON.parse(result)
   },
 }
