@@ -685,7 +685,7 @@ If successful, ```fetchSubscriptionsToComputations()``` will return a list of al
   }
 ```
 If successful, ```fetchAvailableComputations()``` will return a list of all computations available, otherwise it will throw an error.
-### Unsubscribe From a Computation
+### Unsubscribe from a computation
 ```js
   try{
     const unsubscribeRequest = {
