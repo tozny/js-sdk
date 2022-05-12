@@ -12,6 +12,7 @@ class Subscription extends Serializable {
    * @param {string[]} recordTypesRequired The identity's user ID
    */
   constructor(computationID, recordTypesRequired) {
+    super()
     this.computationID = computationID
     this.recordTypesRequired = recordTypesRequired
   }
@@ -25,7 +26,7 @@ class Subscription extends Serializable {
 
   /** @returns {Subscription} */
   static decode(json) {
-    computationData = {
+    const computationData = {
       computationID: json.computation_id,
       recordTypesRequired: json.record_types_required
     }

@@ -1433,7 +1433,7 @@ module.exports = {
       JSON.stringify(config),
       subscription
     )
-    return JSON.parse(result)
+    return result
   },
   async unsubscribeFromComputation(config, unsubscribe) {
     const result = await runInEnvironment(
@@ -1452,7 +1452,7 @@ module.exports = {
       function (configJSON, update) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
-        return client.subscribeToComputation(update)
+        return client.updateSubscriptionToComputation(update)
       },
       JSON.stringify(config),
       update
