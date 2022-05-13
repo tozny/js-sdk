@@ -639,6 +639,87 @@ async function main() {
 main()
 ```
 
+## TozStore Secure Computation
+TozStore Secure Computations allow users to run computations on encrypted data. In order to run a computation, a user must be *subscribed* to it. <br>
+A computation takes the encrypted data, runs a specific analysis on it, and writes the resulting analysis to a record that only subscription *managers* have access to.
+### Subscribe to a Computation:
+You must have the client ID for the client subscribing to the computation, as well as the computation ID. When subscribing to a computation, you can optionally pass in client IDs for any clients you wish to make a manager.
+``` js
+ try{
+    const subscriptionRequest = {
+      ToznyClientID: clientID,
+      ComputationID: computationID,
+      SubscriptionManagers: [],
+    }
+    const subscription = await client.subscribeToComputation(subscriptionRequest)
+    console.log(subscription)
+  }
+  catch(e){
+    console.error (e)
+  }
+```
+If successful, ```subscribeToComputation()``` will return an object that contains the ```computation ID```, as well as a list of ```recordTypesRequired```, which indicate the type (or types) of record required to run the computation, as well as the client ID with whom the records must be shared. If unsuccessful, it will throw an error.
+### Fetch all Subscribed Computations
+```js
+  try{
+    const fetchSubscriptionsRequest = {
+      ToznyClientID: clientID,
+    }
+    let subscriptions = await client.fetchSubscriptionsToComputations(fetchSubscriptionsRequest)
+    console.log(subscriptions)
+  }
+  catch(e) {
+    console.error(e)
+  }
+  ```
+If successful, ```fetchSubscriptionsToComputations()``` will return a list of all computations that the client whose ID is provided is subscribed to, otherwise it will throw an error.
+
+### Fetch all Available Computations
+```js
+ try{
+    let subscriptions = await client.fetchAvailableComputations()
+    console.log(subscriptions)
+  }
+  catch(e) {
+    console.error(e)
+  }
+```
+If successful, ```fetchAvailableComputations()``` will return a list of all computations available, otherwise it will throw an error.
+### Unsubscribe From a Computation
+```js
+  try{
+    const unsubscribeRequest = {
+      ToznyClientID: clientID,
+      ComputationID: computationID,
+    }
+    let unsubscribed = await client.unsubscribeFromComputation(unsubscribeRequest)
+    console.log(unsubscribed)
+  }
+  catch(e) {
+    console.error(e)
+  }
+```
+```unsubscribeFromComputation()``` will return ```true``` if the client has successfully been unsubscribed.
+### Run an Analysis
+```js
+ try{
+    let data = new Map([['key', 'val']])
+    let analysisRequest = {
+      ComputationID: computationID,
+      ToznyClientID: clientID,
+      DataStartTimestamp: start,
+      DataEndTimestamp: end,
+      DataRequired: data,
+    }
+    let analysis = await client.computeAnalysis(analysisRequest)
+    console.log(analysis)
+  }
+  catch(e) {
+    console.error(e)
+  }
+```
+If there is extra data that is required for the computation to run, it must be included in the ```DataRequired``` field, in the form of key value pairs.
+
 ## Tozny Identity
 
 ### Configure a Connection to an Identity Realm
