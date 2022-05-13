@@ -643,7 +643,7 @@ main()
 TozStore Secure Computations allow users to run computations on encrypted data. In order to run a computation, a user must be *subscribed* to it. <br>
 A computation takes the encrypted data, runs a specific analysis on it, and writes the resulting analysis to a record that only subscription *managers* have access to.
 ### Subscribe to a Computation:
-You must have the client ID for the client subscribing to the computation, as well as the computation ID. When subscribing to a computation, you can optionally pass in client IDs for any clients you wish to make a manager.
+You must have the client ID for the client subscribing to the computation, as well as the computation ID. When subscribing to a computation, you can optionally pass in IDs for any clients you wish to make a manager.
 ``` js
  try{
     const subscriptionRequest = {
@@ -658,7 +658,7 @@ You must have the client ID for the client subscribing to the computation, as we
     console.error (e)
   }
 ```
-If successful, ```subscribeToComputation()``` will return an object that contains the ```computation ID```, as well as a list of ```recordTypesRequired```, which indicate the type (or types) of record required to run the computation, as well as the client ID with whom the records must be shared. If unsuccessful, it will throw an error.
+If successful, ```subscribeToComputation()``` will return an object that contains the ```computation ID```, as well as a list of ```recordTypesRequired```, which indicate the type (or types) of record required to run the computation and the client ID with whom the records must be shared. If unsuccessful, it will throw an error.
 ### Update a Subscription
 ```updateSubscriptionToComputation()``` can be used to add or remove managers from a subscription to a computation. The new list of managers (```SubscriptionManagers```) will replace the existing list. In order to delete a manger,  you must pass in a list of manager IDs that does not include the manager you wish to delete. To add a new manager without deleting existing managers, you must pass in a list of manager IDs that includes the new manager's ID *and* the IDs of existing managers.
 ```js
