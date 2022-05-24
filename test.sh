@@ -1,2 +1,2 @@
 #!/bin/sh
-npm run test
+npm test -- search.test.js
