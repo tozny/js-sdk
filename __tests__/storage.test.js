@@ -645,11 +645,24 @@ describe('Tozny', () => {
     await ops.computeAnalysis(readerClient, params)
   })
   it('can subscribe to a computation', async () => {
+    let managerUUID = uuidv4()
     const computations = await ops.fetchAvailableComputations(readerClient)
     const subscriptionRequest = {
       ToznyClientID: readerClient.clientId,
       ComputationID: computations.computations[0].computation_id,
-      SubscriptionManagers: [],
+      SubscriptionManagers: [managerUUID],
+    }
+    const subscription = await ops.subscribeToComputation(
+      readerClient,
+      subscriptionRequest
+    )
+    expect(typeof subscription.computationID).toBe('string')
+  })
+  it('can subscribe to a computation with no manager ', async () => {
+    const computations = await ops.fetchAvailableComputations(readerClient)
+    const subscriptionRequest = {
+      ToznyClientID: readerClient.clientId,
+      ComputationID: computations.computations[0].computation_id,
     }
     const subscription = await ops.subscribeToComputation(
       readerClient,
@@ -683,11 +696,30 @@ describe('Tozny', () => {
     expect(unsubscribe).toBe(true)
   })
   it('can update subscription to a computation', async () => {
+    let managerUUID = uuidv4()
     const computations = await ops.fetchAvailableComputations(readerClient)
     const subscriptionRequest = {
       ToznyClientID: readerClient.clientId,
       ComputationID: computations.computations[0].computation_id,
+      SubscriptionManagers: [managerUUID],
+    }
+    await ops.subscribeToComputation(readerClient, subscriptionRequest)
+
+    const updateSubscriptionRequest = {
+      ComputationID: computations.computations[0].computation_id,
       SubscriptionManagers: [],
+    }
+    const update = await ops.updateSubscriptionToComputation(
+      readerClient,
+      updateSubscriptionRequest
+    )
+    expect(update).toBe(true)
+  })
+  it('can update subscription to a computation with no manager', async () => {
+    const computations = await ops.fetchAvailableComputations(readerClient)
+    const subscriptionRequest = {
+      ToznyClientID: readerClient.clientId,
+      ComputationID: computations.computations[0].computation_id,
     }
     await ops.subscribeToComputation(readerClient, subscriptionRequest)
 
