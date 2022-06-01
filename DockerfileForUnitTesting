@@ -18,4 +18,6 @@ RUN npm install
 
 RUN npm i jest-html-reporter
 
-ENTRYPOINT ["test.sh"]
+RUN chmod +x ./test.sh
+
+ENTRYPOINT ["./test.sh"]
