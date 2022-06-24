@@ -1,4 +1,5 @@
 const EAKInfo = require('./eakInfo')
+const EGAKInfo = require('./EgakInfo')
 const Meta = require('./meta')
 const Record = require('./record')
 
@@ -34,20 +35,21 @@ class SearchResult {
       return []
     }
 
-    /* eslint-disable */
-    let records = await Promise.all(
+     /* eslint-disable */
+     let records = await Promise.all(
       response.results.map(async (result) => {
         const meta = await Meta.decode(result.meta)
         const record = new Record(meta, result.record_data)
-        if (this.request.includeData && result.access_key !== null) {
-          const eak = await EAKInfo.decode(result.access_key)
+        // TODO Make a method for direct/groups accesskey
+        if (this.request.includeData) {
+          const eak = await EGAKInfo.decode(result.group_access_key)
           const ak = await this.client.crypto.decryptEak(
             this.client.config.privateKey,
-            eak
+            eak.serializable()
           )
+
           return this.client.crypto.decryptRecord(record, ak)
         }
-
         return record
       })
     )
