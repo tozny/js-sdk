@@ -761,9 +761,8 @@ describe('Tozny', () => {
     const type = `say-hello-${uuidv4()}`
     const data = { hello: 'world' }
     const meta = { hola: 'mundo' }
-    let recordInfo = await ops.writeRecord(readerClient, type, data, meta)
+    await ops.writeRecord(readerClient, type, data, meta)
 
-    console.log(recordInfo)
     await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
 
     // Wait for indexer
@@ -773,7 +772,6 @@ describe('Tozny', () => {
     const request = new Tozny.types.Search(true, true)
     request.match({ type: type })
     const found = await ops.search(authorizerClient, request)
-    console.log(found)
 
     let match = false
     for (let record of found)

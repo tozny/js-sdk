@@ -1,5 +1,5 @@
 const PublicKey = require('./publicKey')
-const AccessKeyWrapper = require('./accessKeyWrapper')
+const GroupAccessKeyWrapper = require('./groupAccessKeyWrapper')
 const Serializable = require('./serializable')
 //const SigningKey = require('./signingKey')
 
@@ -25,7 +25,7 @@ class EGAKInfo extends Serializable {
     this.authorizerPublicKey = new PublicKey(authorizerPublicKey)
     this.accessKeyWrappers = []
     for (let AK of accessKeyWrappers) {
-        this.accessKeyWrappers.push(new AccessKeyWrapper(AK))
+        this.accessKeyWrappers.push(new GroupAccessKeyWrapper(AK))
     }
   }
 
@@ -79,14 +79,13 @@ class EGAKInfo extends Serializable {
    * @return {Promise<GroupEAKInfo>}
    */
   static async decode(json) {
-    return Promise.resolve(
-      new EGAKInfo(
+      let eak = new EGAKInfo(
         json.eak,
         json.authorizer_id,
         json.authorizer_public_key.curve25519,
         json.access_key_wrappers,
       )
-    )
+      return eak.serializable()
   }
 }
 
