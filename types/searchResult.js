@@ -1,4 +1,5 @@
 const EAKInfo = require('./eakInfo')
+const EGAKInfo = require('./EgakInfo')
 const Meta = require('./meta')
 const Record = require('./record')
 
@@ -24,6 +25,7 @@ class SearchResult {
       return []
     }
 
+
     let response = await this.client._search(this.request)
     // If we've reached the last page, keep track and exit
     if (response.last_index === 0) {
@@ -39,15 +41,10 @@ class SearchResult {
       response.results.map(async (result) => {
         const meta = await Meta.decode(result.meta)
         const record = new Record(meta, result.record_data)
-        if (this.request.includeData && result.access_key !== null) {
-          const eak = await EAKInfo.decode(result.access_key)
-          const ak = await this.client.crypto.decryptEak(
-            this.client.config.privateKey,
-            eak
-          )
+        if (this.request.includeData) {
+          const ak = await this.decodeAccessKey(result.sharing_model, result.access_key, result.group_access_key)
           return this.client.crypto.decryptRecord(record, ak)
         }
-
         return record
       })
     )
@@ -62,6 +59,30 @@ class SearchResult {
     }
 
     return records
+  }
+
+  /**
+   * Uses the sharing model specified to determine what kind of access key is being used and returns
+   * the decoded access key.
+   *
+   * @param {string} sharingModel
+   * @param {object} accessKey
+   * @param {object} groupsAccessKey
+   * @return {Promise<EAKInfo|EGAKInfo>}
+   */
+  async decodeAccessKey(sharingModel, accessKey, groupsAccessKey){
+    let eak
+    if (sharingModel == "GROUP"){
+      eak = await EGAKInfo.decode(groupsAccessKey)
+    }
+    else {
+      eak = await EAKInfo.decode(accessKey)
+    }
+
+    return this.client.crypto.decryptEak(
+      this.client.config.privateKey,
+      eak
+    )
   }
 }
 

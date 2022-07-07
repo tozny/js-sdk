@@ -733,4 +733,51 @@ describe('Tozny', () => {
     )
     expect(update).toBe(true)
   })
+  it('It can search for a record shared with a group', async () => {
+    const groupName = `testGroup-updated-${uuidv4()}`
+    const groupDesciption = 'this is a group meant to search'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
+    console.log(created)
+    const groupMember = new GroupMember(readerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    const groupMember2 = new GroupMember(authorizerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    let groupMembersToAdd = []
+    groupMembersToAdd.push(groupMember)
+    groupMembersToAdd.push(groupMember2)
+    await ops.addGroupMembers(
+      writerClient,
+      created.group.groupID,
+      groupMembersToAdd
+    )
+    const type = `say-hello-${uuidv4()}`
+    const data = { hello: 'world' }
+    const meta = { hola: 'mundo' }
+    await ops.writeRecord(readerClient, type, data, meta)
+
+    await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
+
+    // Wait for indexer
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+    await delay(5000);
+
+    const request = new Tozny.types.Search(true, true)
+    request.match({ type: type })
+    const found = await ops.search(authorizerClient, request)
+
+    let match = false
+    for (let record of found)
+      if (record.data.hello == "world")
+        match = true
+
+    expect(match).toBe(true)
+  })
 })
