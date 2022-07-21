@@ -775,12 +775,12 @@ If there is extra data that is required for the computation to run, it must be i
 Before you can work with the Tozny Identity service, you need to [sign up for a Tozny Platform account](https://dashboard.tozny.com/register). Create a new identity realm and register a new client application with the realm.
 
 ```js
-const realmName = 'NameOfRealmGoesHere'
+const realmName = 'realmName'
 // Currently 'account' is the only app name supported value
 const appName = 'account'
 // This is a URL in your application which handle password reset flows.
 // The default value using the Tozny Hosted Broker is https://<TozIdBaseURL>/<YourRealmName>/recover
-const brokerTargetURL = 'https://id.tozny.com/NameOfRealmGoesHere/recover'
+const brokerTargetURL = 'https://id.tozny.com/realmName/recover'
 
 const realm = new Tozny.identity.Realm(realmName, appName, brokerTargetURL)
 ```
@@ -1215,7 +1215,7 @@ An Access Request not created or actionable by the requesting identity will be e
 With the `identity` of the user who wants access to the group, you can create a request for access:
 
 ```js
-const realmName = 'NameOfRealmGoesHere'
+const realmName = 'realmName'
 const groupInfo = { id: groupId }
 const reason = 'This is the user-defined reason for requesting access!'
 const accessDurationSeconds = 24 * 3600 // number of seconds access will be granted for if approved
@@ -1232,7 +1232,7 @@ Note that the `accessDurationSeconds` may be capped by the server.
 #### Approving or Denying a Request
 
 ```js
-const realmName = 'NameOfRealmGoesHere'
+const realmName = 'realmName'
 const accessRequestId = accessRequest.id
 const comment = 'Completely optional comment'
 
