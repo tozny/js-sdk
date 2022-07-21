@@ -775,10 +775,12 @@ If there is extra data that is required for the computation to run, it must be i
 Before you can work with the Tozny Identity service, you need to [sign up for a Tozny Platform account](https://dashboard.tozny.com/register). Create a new identity realm and register a new client application with the realm.
 
 ```js
-const realmName = '...'
-const appName = '...'
+const realmName = 'NameOfRealmGoesHere'
+// Currently 'account' is the only app name supported value
+const appName = 'account'
 // This is a URL in your application which handle password reset flows.
-const brokerTargetURL = '...'
+// The default value using the Tozny Hosted Broker is https://<TozIdBaseURL>/<YourRealmName>/recover
+const brokerTargetURL = 'https://id.tozny.com/NameOfRealmGoesHere/recover'
 
 const realm = new Tozny.identity.Realm(realmName, appName, brokerTargetURL)
 ```
@@ -788,7 +790,7 @@ Once the realm is configured, it provide methods for interacting with identities
 ### Register an Identity
 
 ```js
-const realm = new Tozny.identity.Realm('...', '...', '...')
+const realm = new Tozny.identity.Realm(realmName, appName, brokerTargetURL)
 const token = '...' // A registration token from your Tozny Platform account
 
 async function main(username, password, emailAddress) {
@@ -814,7 +816,7 @@ main('user', 'password', 'user@example.com')
 To log in, a user needs an identity token. This token allows fetching of the encrypted stored identity configuration. First login will gather an OIDC login URL which will issue a token to your application.
 
 ```js
-const realm = new Tozny.identity.Realm('...', '...', '...')
+const realm = new Tozny.identity.Realm(realmName, appName, brokerTargetURL)
 
 async function main(username, password) {
   try {
@@ -832,7 +834,7 @@ main('user', 'password')
 The identity service will then request all required information for the user logging and send the user back to the `redirectUrl` provided including an identity authentication token.
 
 ```js
-const realm = new Tozny.identity.Realm('...', '...', '...')
+const realm = new Tozny.identity.Realm(realmName, appName, brokerTargetURL)
 const authToken = '...' // parsed from the returned URL
 
 async function main(username, password, authToken) {
@@ -852,7 +854,7 @@ main('user', 'password')
 After logging an identity in, it is useful to cache and store it. Without doing this, a refresh or reload of the page or environment will require the user to log in again. Storing the session in something like local storage allows the session to persist.
 
 ```js
-const realm = new Tozny.identity.Realm('...', '...', '...')
+const realm = new Tozny.identity.Realm(realmName, appName, brokerTargetURL)
 // Gather an identity from login, register, etc...
 
 async function main(identity) {
@@ -878,7 +880,7 @@ To reset a user's password via email, they must be registered with a valid email
 First, initiate a reset, which will send an email to the user. When registering the user, you must provide a valid application URL which will handle the link from the email sent.
 
 ```js
-const realm = new Tozny.identity.Realm('...', '...', '...')
+const realm = new Tozny.identity.Realm(realmName, appName, brokerTargetURL)
 
 async function main(username) {
   try {
@@ -897,7 +899,7 @@ _An email will only be sent if the user is a member of the requesting realm with
 When the user clicks the email, the application link you provided will be hit with query parameters for `email_otp` and `note_id`. Parse these from the URL.
 
 ```js
-const realm = new Tozny.identity.Realm('...', '...', '...')
+const realm = new Tozny.identity.Realm(realmName, appName, brokerTargetURL)
 const parsedOTP = '...'
 const parsedId = '...'
 
