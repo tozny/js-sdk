@@ -261,15 +261,15 @@ const typeToShare = 'shared-type'
 
 async function main() {
   try {
-    await addAuthorizer(typeToShare, authorizerClient.config.clientId)
+    await client.addAuthorizer(typeToShare, authorizerClient.config.clientId)
     console.log(
       `${authorizerClient.config.clientId} authorized to share ${typeToShare} on behalf of ${client.config.clientId}`
     )
-    await shareOnBehalfOf(client.config.clientId, typeToShare, shareToId)
+    await authorizerClient.shareOnBehalfOf(client.config.clientId, typeToShare, shareToId)
     console.log(`${typeToShare} shared with ${shareToId}`)
-    await revokeOnBehalfOf(client.config.clientId, typeToShare, shareToId)
+    await authorizerClient.revokeOnBehalfOf(client.config.clientId, typeToShare, shareToId)
     console.log(`${typeToShare} no longer shared with ${shareToId}`)
-    await removeAuthorizer(typeToShare, authorizerClient.config.clientId)
+    await client.removeAuthorizer(typeToShare, authorizerClient.config.clientId)
     console.log(
       `${authorizerClient.config.clientId} no longer authorized to share ${typeToShare} on behalf of ${client.config.clientId}`
     )
