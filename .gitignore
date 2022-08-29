@@ -5,6 +5,7 @@ coverage
 testingbot_tunnel
 scratch
 .env
+.tool-versions
 
 # Make sure the very big dev version doesn't bloat the git repo. The normal compiled version is plenty already.
 dist/*.dev.js
