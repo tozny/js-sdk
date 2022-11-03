@@ -9,3 +9,4 @@ scratch
 
 # Make sure the very big dev version doesn't bloat the git repo. The normal compiled version is plenty already.
 dist/*.dev.js
+.npmrc
