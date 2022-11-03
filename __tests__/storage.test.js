@@ -636,6 +636,7 @@ describe('Tozny', () => {
       SubscriptionManagers: [],
     }
     await ops.subscribeToComputation(readerClient, subscriptionRequest)
+
     let params = {
       ComputationID: computations.computations[0].computation_id,
       ToznyClientID: readerClient.clientId,
