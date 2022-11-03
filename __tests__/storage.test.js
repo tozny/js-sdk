@@ -632,12 +632,13 @@ describe('Tozny', () => {
     const computations = await ops.fetchAvailableComputations(readerClient)
     const subscriptionRequest = {
       ToznyClientID: readerClient.clientId,
-      ComputationID: computations.computations[0].computation_id,
+      ComputationID: computations.computations[1].computation_id,
       SubscriptionManagers: [],
     }
     await ops.subscribeToComputation(readerClient, subscriptionRequest)
+
     let params = {
-      ComputationID: computations.computations[0].computation_id,
+      ComputationID: computations.computations[1].computation_id,
       ToznyClientID: readerClient.clientId,
       DataStartTimestamp: '2012-11-01T22:08:41+00:00',
       DataEndTimestamp: '2012-11-01T22:08:41+00:00',
