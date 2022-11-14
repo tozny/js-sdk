@@ -6,6 +6,10 @@ const ops = require('./utils/operations')
 // Set really high for slower browser runs.
 jest.setTimeout(100000)
 
+function delay(time) {
+  return new Promise(resolve => setTimeout(resolve, time));
+}
+
 let writerClient
 let readerClient
 let authorizerClient
@@ -440,13 +444,14 @@ describe('Tozny', () => {
       created.group.groupID,
       groupMembersToAdd
     )
+    const groupIds = [created.group.groupID]
     let sharedWithGroup = await ops.listRecordsSharedWithGroup(
       readerClient,
-      created.group.groupID,
-      [],
+      groupIds,
       0,
       10
     )
+    console.log(`sharedWithGrou = ${JSON.stringify(sharedWithGroup)}`)
     let sharedWithGroupExpected = []
     expect(sharedWithGroup).toMatchObject(sharedWithGroupExpected)
   })
@@ -478,15 +483,18 @@ describe('Tozny', () => {
     const data = { hello: 'world' }
     const meta = { hola: 'mundo' }
     let recordInfo = await ops.writeRecord(readerClient, type, data, meta)
+    console.log(`recordInfo = ${JSON.stringify(recordInfo)}`)
+    let groupIds = [created.group.groupID]
     await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
+    await delay(10000)
     let sharedWithGroup = await ops.listRecordsSharedWithGroup(
       authorizerClient,
-      created.group.groupID,
-      [],
+      groupIds,
       0,
       10
     )
-    expect(sharedWithGroup[0][0].meta.recordId).toBe(recordInfo.meta.recordId)
+    console.log(`sharedWithGroup = ${JSON.stringify(sharedWithGroup)}`)
+    expect(sharedWithGroup[0].meta.recordId).toBe(recordInfo.meta.recordId)
   })
   it('can paginate through records shared with group', async () => {
     const groupName = `testGroup-${uuidv4()}`
