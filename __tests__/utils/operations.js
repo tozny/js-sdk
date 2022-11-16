@@ -643,22 +643,25 @@ module.exports = {
   async listRecordsSharedWithGroup(
     config,
     groupId,
+    writerIds = [],
     nextToken = null,
     max = null
   ) {
     const result = await runInEnvironment(
-      function (configJson, groupId, nextToken, max) {
+      function (configJson, groupId, writerIdsJSON, nextToken, max) {
         var config = Tozny.storage.Config.fromObject(configJson)
         var client = new Tozny.storage.Client(config)
-        console.log(`from operations nextToken = ${nextToken} max = ${max}`)
+        var writerIds = JSON.parse(writerIdsJSON)
         return client.listRecordsSharedWithGroup(
           groupId,
+          writerIds,
           nextToken,
           max
         )
       },
       JSON.stringify(config),
       groupId,
+      JSON.stringify(writerIds),
       nextToken,
       max
     )

@@ -234,6 +234,7 @@ describe('Tozny identity client', () => {
     // use local search to wait
     await ops.createSecret(realmConfig, identity, secret)
     // wait for proper indexing of secret
+    await new Promise((r) => setTimeout(r, 5000))
     let result = await ops.getSecrets(realmConfig, identity, 10)
     expect(result.list[result.list.length - 1].data.secretValue).toBe(
       'secret-value'
@@ -247,6 +248,7 @@ describe('Tozny identity client', () => {
       description: 'this is a description',
     }
     const created = await ops.createSecret(realmConfig, identity, secret)
+    await new Promise((r) => setTimeout(r, 5000))
     const returned = await ops.viewSecret(
       realmConfig,
       identity,
@@ -334,6 +336,7 @@ describe('Tozny identity client', () => {
     await ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
     const start = new Date()
     let latestVersionOfSecret
+    await new Promise((r) => setTimeout(r, 5000))
     while (new Date() - start < 30000) {
       latestVersionOfSecret = await ops.getLatestSecret(
         realmConfig,
@@ -479,6 +482,7 @@ describe('Tozny identity client', () => {
       // delay 200 milliseconds between tries
       await new Promise((r) => setTimeout(r, 200))
     }
+    await new Promise((r) => setTimeout(r, 5000))
     const listResponse = await ops.getSecretSharedList(
       realmConfig,
       identity,
@@ -531,6 +535,7 @@ describe('Tozny identity client', () => {
       // delay 200 milliseconds between tries
       await new Promise((r) => setTimeout(r, 200))
     }
+    await new Promise((r) => setTimeout(r, 5000))
     let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
     expect(sharedList.sharedList[0].data.secretValue).toBe('secret-value')
   })
@@ -561,6 +566,7 @@ describe('Tozny identity client', () => {
       // delay 200 milliseconds between tries
       await new Promise((r) => setTimeout(r, 200))
     }
+    await new Promise((r) => setTimeout(r, 5000))
     let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
     expect(sharedList.sharedList[0].data.secretValue).toBe('secret-value')
     let recordView = await ops.viewSecret(

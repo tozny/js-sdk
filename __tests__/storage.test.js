@@ -6,10 +6,6 @@ const ops = require('./utils/operations')
 // Set really high for slower browser runs.
 jest.setTimeout(100000)
 
-function delay(time) {
-  return new Promise(resolve => setTimeout(resolve, time));
-}
-
 let writerClient
 let readerClient
 let authorizerClient
@@ -444,14 +440,14 @@ describe('Tozny', () => {
       created.group.groupID,
       groupMembersToAdd
     )
-    const groupIds = [created.group.groupID]
+    await new Promise((r) => setTimeout(r, 5000))
     let sharedWithGroup = await ops.listRecordsSharedWithGroup(
       readerClient,
-      groupIds,
+      created.group.groupID,
+      [],
       0,
       10
     )
-    console.log(`sharedWithGrou = ${JSON.stringify(sharedWithGroup)}`)
     let sharedWithGroupExpected = []
     expect(sharedWithGroup).toMatchObject(sharedWithGroupExpected)
   })
@@ -483,18 +479,16 @@ describe('Tozny', () => {
     const data = { hello: 'world' }
     const meta = { hola: 'mundo' }
     let recordInfo = await ops.writeRecord(readerClient, type, data, meta)
-    console.log(`recordInfo = ${JSON.stringify(recordInfo)}`)
-    let groupIds = [created.group.groupID]
     await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
-    await delay(10000)
+    await new Promise((r) => setTimeout(r, 5000))
     let sharedWithGroup = await ops.listRecordsSharedWithGroup(
       authorizerClient,
-      groupIds,
+      created.group.groupID,
+      [],
       0,
-      10
+      1
     )
-    console.log(`sharedWithGroup = ${JSON.stringify(sharedWithGroup)}`)
-    expect(sharedWithGroup[0].meta.recordId).toBe(recordInfo.meta.recordId)
+    expect(sharedWithGroup[0][0].meta.recordId).toBe(recordInfo.meta.recordId)
   })
   it('can paginate through records shared with group', async () => {
     const groupName = `testGroup-${uuidv4()}`
@@ -520,7 +514,7 @@ describe('Tozny', () => {
       created.group.groupID,
       groupMembersToAdd
     )
-    const type = 'say-hello'
+    const type = `say-hello-${uuidv4()}`
     const data1 = { hi: 'world' }
     const meta1 = { hola: 'mundo' }
     await ops.writeRecord(readerClient, type, data1, meta1)
@@ -534,6 +528,7 @@ describe('Tozny', () => {
     const meta4 = { hola: 'mundo' }
     await ops.writeRecord(readerClient, type, data4, meta4)
     await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
+    await new Promise((r) => setTimeout(r, 5000))
     let sharedWithGroup = await ops.listRecordsSharedWithGroup(
       authorizerClient,
       created.group.groupID,
@@ -549,7 +544,7 @@ describe('Tozny', () => {
       0,
       10
     )
-    expect(sharedWithGroup2[0].length).toBe(5)
+    expect(sharedWithGroup2[0].length).toBe(4)
   })
   it('It can share and unshare a record with a group', async () => {
     const groupName = `testGroup-updated-${uuidv4()}`
@@ -580,6 +575,7 @@ describe('Tozny', () => {
     const meta = { hola: 'mundo' }
     let recordInfo = await ops.writeRecord(readerClient, type, data, meta)
     await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
+    await new Promise((r) => setTimeout(r, 5000))
     let sharedWithGroup = await ops.listRecordsSharedWithGroup(
       authorizerClient,
       created.group.groupID,
@@ -750,7 +746,6 @@ describe('Tozny', () => {
       groupName,
       groupDesciption
     )
-    console.log(created)
     const groupMember = new GroupMember(readerClient.clientId, {
       read: true,
       share: true,
