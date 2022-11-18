@@ -272,6 +272,7 @@ describe('Tozny identity client', () => {
     }
     await ops.createSecret(realmConfig, identity, oldSecret)
     await ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
+    await new Promise((r) => setTimeout(r, 5000))
     const secretsWithUpdatedRecord = await identity.getSecrets(100)
     const newLengthSecrets = secretsWithUpdatedRecord.list.length
     // Tests
