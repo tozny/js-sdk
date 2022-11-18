@@ -42,7 +42,7 @@ class SearchResult {
         const meta = await Meta.decode(result.meta)
         const record = new Record(meta, result.record_data)
         if (this.request.includeData) {
-          if (record.isFile || result.sharing_model == "GROUP"){
+          if (record.isFile && result.sharing_model == "GROUP"){
             await this.client._getCachedAk(
               meta.writerId,
               meta.userId,
