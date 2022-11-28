@@ -12,7 +12,9 @@ class Search extends Serializable {
     includeData = false,
     includeAllWriters = false,
     count = DEFAULT_QUERY_COUNT,
-    nextToken
+    nextToken,
+    groupIds = [],
+    includeOnlyGroups = false,
   ) {
     super()
     this.includeData = includeData
@@ -21,6 +23,8 @@ class Search extends Serializable {
     this.nextToken = nextToken
     this.matches = []
     this.excludes = []
+    this.groupIds = groupIds
+    this.includeOnlyGroups = includeOnlyGroups
   }
 
   match(terms, condition, strategy) {
@@ -54,6 +58,8 @@ class Search extends Serializable {
       limit: this.count,
       include_all_writers: this.includeAllWriters,
       include_data: this.includeData,
+      group_ids: this.groupIds,
+      include_only_groups: this.includeOnlyGroups,
     }
     if (this.nextToken) {
       toSerialize.next_token = this.nextToken
@@ -69,6 +75,9 @@ class Search extends Serializable {
     }
     if (this.searchOrder) {
       toSerialize.order = this.searchOrder.serializable()
+    }
+    if (this.groupIds){
+      toSerialize.group_ids = this.groupIds
     }
     return toSerialize
   }

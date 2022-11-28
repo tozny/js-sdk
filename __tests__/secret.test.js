@@ -5,7 +5,7 @@ const ops = require('./utils/operations')
 const { SECRET_UUID } = require('../lib/utils/constants')
 const { testEmail } = require('./utils')
 
-jest.setTimeout(100000)
+jest.setTimeout(200000)
 
 let realmConfig
 let realm
@@ -234,6 +234,7 @@ describe('Tozny identity client', () => {
     // use local search to wait
     await ops.createSecret(realmConfig, identity, secret)
     // wait for proper indexing of secret
+    await new Promise((r) => setTimeout(r, 5000))
     let result = await ops.getSecrets(realmConfig, identity, 10)
     expect(result.list[result.list.length - 1].data.secretValue).toBe(
       'secret-value'
@@ -247,6 +248,7 @@ describe('Tozny identity client', () => {
       description: 'this is a description',
     }
     const created = await ops.createSecret(realmConfig, identity, secret)
+    await new Promise((r) => setTimeout(r, 5000))
     const returned = await ops.viewSecret(
       realmConfig,
       identity,
@@ -270,6 +272,7 @@ describe('Tozny identity client', () => {
     }
     await ops.createSecret(realmConfig, identity, oldSecret)
     await ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
+    await new Promise((r) => setTimeout(r, 5000))
     const secretsWithUpdatedRecord = await identity.getSecrets(100)
     const newLengthSecrets = secretsWithUpdatedRecord.list.length
     // Tests
@@ -334,6 +337,7 @@ describe('Tozny identity client', () => {
     await ops.updateSecret(realmConfig, identity, oldSecret, newSecret)
     const start = new Date()
     let latestVersionOfSecret
+    await new Promise((r) => setTimeout(r, 5000))
     while (new Date() - start < 30000) {
       latestVersionOfSecret = await ops.getLatestSecret(
         realmConfig,
@@ -479,6 +483,7 @@ describe('Tozny identity client', () => {
       // delay 200 milliseconds between tries
       await new Promise((r) => setTimeout(r, 200))
     }
+    await new Promise((r) => setTimeout(r, 5000))
     const listResponse = await ops.getSecretSharedList(
       realmConfig,
       identity,
@@ -531,6 +536,7 @@ describe('Tozny identity client', () => {
       // delay 200 milliseconds between tries
       await new Promise((r) => setTimeout(r, 200))
     }
+    await new Promise((r) => setTimeout(r, 5000))
     let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
     expect(sharedList.sharedList[0].data.secretValue).toBe('secret-value')
   })
@@ -561,6 +567,7 @@ describe('Tozny identity client', () => {
       // delay 200 milliseconds between tries
       await new Promise((r) => setTimeout(r, 200))
     }
+    await new Promise((r) => setTimeout(r, 5000))
     let sharedList = await ops.getSharedSecrets(realmConfig, identity2)
     expect(sharedList.sharedList[0].data.secretValue).toBe('secret-value')
     let recordView = await ops.viewSecret(
@@ -691,6 +698,7 @@ describe('Tozny identity client', () => {
     )
   })
   it('can delete all secrets created by an identity', async () => {
+    await new Promise((r) => setTimeout(r, 5000))
     let listedSecrets = await ops.getSecrets(realmConfig, identity, 100)
     for (let index = 0; index < listedSecrets.list.length; index++) {
       let deleted = await ops.deleteSecretVersion(
