@@ -5,7 +5,7 @@ const ops = require('./utils/operations')
 const { SECRET_UUID } = require('../lib/utils/constants')
 const { testEmail } = require('./utils')
 
-jest.setTimeout(100000)
+jest.setTimeout(200000)
 
 let realmConfig
 let realm
