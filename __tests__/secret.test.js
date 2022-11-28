@@ -698,6 +698,7 @@ describe('Tozny identity client', () => {
     )
   })
   it('can delete all secrets created by an identity', async () => {
+    jest.setTimeout(200000);
     let listedSecrets = await ops.getSecrets(realmConfig, identity, 100)
     for (let index = 0; index < listedSecrets.list.length; index++) {
       let deleted = await ops.deleteSecretVersion(
