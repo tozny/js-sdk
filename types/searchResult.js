@@ -42,6 +42,15 @@ class SearchResult {
         const meta = await Meta.decode(result.meta)
         const record = new Record(meta, result.record_data)
         if (this.request.includeData) {
+          if (record.isFile && result.sharing_model == "GROUP"){
+            await this.client._getCachedAk(
+              meta.writerId,
+              meta.userId,
+              this.client.config.clientId,
+              meta.type,
+              result.group_access_key
+            )
+          }
           const ak = await this.decodeAccessKey(result.sharing_model, result.access_key, result.group_access_key)
           return this.client.crypto.decryptRecord(record, ak)
         }

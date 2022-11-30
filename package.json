@@ -1,6 +1,6 @@
 {
   "name": "@toznysecure/sdk",
-  "version": "1.5.13",
+  "version": "1.5.14",
   "description": "Tozny Platform software developers kit.",
   "main": "index.js",
   "engines": {
