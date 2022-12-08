@@ -42,6 +42,13 @@ class SearchResult {
         const meta = await Meta.decode(result.meta)
         const record = new Record(meta, result.record_data)
         if (this.request.includeData) {
+        // Note: When fetching group records, particularly for the files use-case
+        // using the cached AK gives us the benefit of placing the AK in the cache
+        // which means later when downloading the file, the AK does not need to
+        // be fetched from the API. The gotcha here for now is that the API does
+        // not currently support AK fetches when access is granted via group
+        // permissions. This hides that by making sure the direct fetch is not
+        // needed, however for it to work the group records must be fetched first.
           if (record.isFile && result.sharing_model == "GROUP"){
             await this.client._getCachedAk(
               meta.writerId,
