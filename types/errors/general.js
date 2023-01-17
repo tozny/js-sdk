@@ -23,7 +23,19 @@ class RequestError extends GeneralError {
   }
 }
 
+/**
+ * Indicates that too may requests have been sent
+ */
+class TooManyRequestsError extends RequestError {
+  constructor(...params) {
+    super(...params)
+
+    this.name = 'TooManyRequestsError'
+  }
+}
+
 module.exports = {
   GeneralError,
   RequestError,
+  TooManyRequestsError,
 }
