@@ -228,6 +228,30 @@ async function main() {
 
 main()
 ```
+If “AND” then all of the attributes passed in the first parameter of match will be under “AND”. If “OR” then all of the attributes passed in the first parameter of match will be under “OR”.
+
+**Example:**
+
+**AND**
+```
+.match({ type: ‘musicians’, keys: 'instrument', values:[‘guitar’, ‘violin’] }, “AND”, “EXACT”)
+```
+
+ It will fetch all records that match all of these attributes, type “musicians” and keys “instrument” and values “guitar” and “violin”.
+
+**OR**
+```
+.match({ type: ‘musicians’, keys: 'instrument', values:[‘guitar’, ‘violin’] }, “OR”, “EXACT”)
+```
+
+ It will fetch all records matching any of these attributes, type “musicians” OR keys “instrument” OR value “guitar” OR value “violin”.
+
+If you want to find any instrument of value "guitar" or "violin", then use multiple match with "AND", "EXACT”.  Multiple matches and excludes stack with “OR”.
+
+```
+.match({ type: ‘musicians’, keys: 'instrument', values:[‘guitar’] }, “AND”, “EXACT”)
+.match({ type: ‘musicians’, keys: 'instrument', values:[‘violin’] }, “AND”, “EXACT”)
+```
 
 #### Share or Revoke Access to a Record Type With Another Client
 
