@@ -20,7 +20,7 @@ let username
 let password
 
 beforeAll(async () => {
-  const password = uuidv4()
+  password = uuidv4()
   username = `it-user-${uuidv4()}`
   realmConfig = {
     realmName: idRealmName,
