@@ -20,7 +20,7 @@ class ListIdentitiesResult {
     if (this.done) {
       return []
     }
-
+    
     let response = await this.client._listIdentities(
       this.realmName,
       this.max,

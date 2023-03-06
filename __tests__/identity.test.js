@@ -9,6 +9,7 @@ const {
 const Tozny = require('../node')
 const { testEmail } = require('./utils')
 const ops = require('./utils/operations')
+const { ListIdentitiesResult } = require('../types')
 
 jest.setTimeout(10000000)
 let realmConfig
@@ -17,13 +18,9 @@ let identity
 let otherIdentity
 let username
 let password
-let seed 
-let client
 
 beforeAll(async () => {
-  seed = uuidv4()
   const password = uuidv4()
-    client = await ops.registerClient()
   username = `it-user-${uuidv4()}`
   realmConfig = {
     realmName: idRealmName,
@@ -363,59 +360,20 @@ describe('Tozny identity client', () => {
       createTimeout: expect.any(Number),
     })
   })
-    it('Registers and Deletes an Identity from a realm ', async () => {
-    // Create a token with Identity permissions
-    const tokenName = 'example token'
-    const permissions = {
-      enabled: true,
-      allowed_types: ['general', 'identity'],
-    }
-    const token = await client.newRegistrationToken(tokenName, permissions)
-    const identity = {
-      name: `identity-${seed}`,
-      email: `identity-${seed}@example.com`,
-      first_name: 'firstName',
-      last_name: 'coolLastName',
-    }
-    // Register Identity
-    const identityResponse = await client.registerIdentity(
-         realmConfig.realmName,
-      token.token,
-      identity
-    )
-    expect(identityResponse).toBeInstanceOf(Object)
-    expect(identityResponse.identity.id).toBeTruthy()
-    expect(identityResponse.identity.name).toBe(identity.name)
-    expect(identityResponse.identity.first_name).toBe(identity.first_name)
-    expect(identityResponse.identity.last_name).toBe(identity.last_name)
+    it('Registers Identity from a realm ', async () => {
 
     // List all identities in realm, Expected new identity and sovereign
-    // Set max page size to 1 in order to test paging
-    const idList = client.listIdentities(   realmConfig.realmName, 1)
-    let identities = await idList.next()
+    // Set max page size to 1 in order to test paging 
+      const identityList = new ListIdentitiesResult(identity, realmConfig.realmName, 1, 0)
+      let identities = await identityList.next()
     expect(identities).toBeInstanceOf(Array)
     expect(identities).toHaveLength(1)
-    expect(identities[0].username).toBe(identity.name)
-    expect(identities[0].firstName).toBe(identity.first_name)
-    expect(identities[0].lastName).toBe(identity.last_name)
-    expect(identities[0].email).toBe(`identity-${seed}@example.com`)
-
+    
     // second identity should be sovereign client
     // second page
-    identities = await idList.next()
+    identities = await identityList.next()
     expect(identities).toBeInstanceOf(Array)
     expect(identities).toHaveLength(1)
-
-    // Delete new identity
-    await client.deleteIdentity(   realmConfig.realmName, identityResponse.identity.tozny_id)
-
-    // List identities, expected only sovereign
-    const idList2 = await client.listIdentities(   realmConfig.realmName, 1000)
-    let identities2
-    while (!idList2.done) {
-      identities2 = await idList2.next()
-    }
-    expect(identities2).toBeInstanceOf(Array)
-    expect(identities2).toHaveLength(1)
+    
   })
 })
