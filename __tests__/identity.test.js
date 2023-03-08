@@ -360,20 +360,30 @@ describe('Tozny identity client', () => {
       createTimeout: expect.any(Number),
     })
   })
-    it('Registers Identity from a realm ', async () => {
+  it('Lists Identity from a realm ', async () => {
 
     // List all identities in realm, Expected new identity and sovereign
     // Set max page size to 1 in order to test paging 
-      const identityList = new ListIdentitiesResult(identity, realmConfig.realmName, 1, 0)
-      let identities = await identityList.next()
+    const identityList = new ListIdentitiesResult(identity, realmConfig.realmName, [], [], [], 1, 0)
+    let identities = await identityList.next()
     expect(identities).toBeInstanceOf(Array)
     expect(identities).toHaveLength(1)
-    
+
     // second identity should be sovereign client
     // second page
     identities = await identityList.next()
     expect(identities).toBeInstanceOf(Array)
     expect(identities).toHaveLength(1)
-    
+
+  })
+  it('Lists Identity from a realm with username filter ', async () => {
+
+    // List all identities in realm, Expected new identity and sovereign
+    // Set max page size to 1 in order to test paging 
+    const identityList = new ListIdentitiesResult(identity, realmConfig.realmName, [username], [], [], 100, 0)
+    let identities = await identityList.next()
+    expect(identities).toBeInstanceOf(Array)
+    expect(identities).toHaveLength(1)
+
   })
 })
