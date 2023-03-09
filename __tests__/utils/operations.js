@@ -1459,4 +1459,28 @@ module.exports = {
     )
     return JSON.parse(result)
   },
+   async listRealmIdentities(config,user, realmName, max, next) {
+    const result = await runInEnvironment(
+     async function (realmJSON, userJSON, realmNameJSON) {
+        const realmConfig = JSON.parse(realmJSON)
+        const realm = new Tozny.identity.Realm(
+          realmConfig.realmName,
+          realmConfig.appName,
+          realmConfig.brokerTargetUrl,
+          realmConfig.apiUrl
+        )
+        const user = realm.fromObject(userJSON)
+        return user
+          .listIdentities(realmNameJSON, max, next)
+          .then(JSON.stringify)
+      },
+      JSON.stringify(config),
+      user.stringify(),
+      realmName,
+      max,
+      next,
+    )
+    return JSON.parse(result)
+  },
+
 }

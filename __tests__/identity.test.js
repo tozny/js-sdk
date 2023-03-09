@@ -9,18 +9,19 @@ const {
 const Tozny = require('../node')
 const { testEmail } = require('./utils')
 const ops = require('./utils/operations')
+const { ListIdentitiesResult } = require('../types')
 
 jest.setTimeout(10000000)
-
 let realmConfig
 let realm
 let identity
 let otherIdentity
 let username
 let password
+
 beforeAll(async () => {
-  username = `it-user-${uuidv4()}`
   password = uuidv4()
+  username = `it-user-${uuidv4()}`
   realmConfig = {
     realmName: idRealmName,
     appName: idAppName,
@@ -358,5 +359,31 @@ describe('Tozny identity client', () => {
       userVerificationRequirement: expect.any(String),
       createTimeout: expect.any(Number),
     })
+  })
+  it('Lists Identity from a realm ', async () => {
+
+    // List all identities in realm, Expected new identity and sovereign
+    // Set max page size to 1 in order to test paging 
+    const identityList = new ListIdentitiesResult(identity, realmConfig.realmName, [], [], [], 1, 0)
+    let identities = await identityList.next()
+    expect(identities).toBeInstanceOf(Array)
+    expect(identities).toHaveLength(1)
+
+    // second identity should be sovereign client
+    // second page
+    identities = await identityList.next()
+    expect(identities).toBeInstanceOf(Array)
+    expect(identities).toHaveLength(1)
+
+  })
+  it('Lists Identity from a realm with username filter ', async () => {
+
+    // List all identities in realm, Expected new identity and sovereign
+    // Set max page size to 1 in order to test paging 
+    const identityList = new ListIdentitiesResult(identity, realmConfig.realmName, [username], [], [], 100, 0)
+    let identities = await identityList.next()
+    expect(identities).toBeInstanceOf(Array)
+    expect(identities).toHaveLength(1)
+
   })
 })

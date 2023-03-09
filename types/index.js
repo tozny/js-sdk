@@ -41,6 +41,8 @@ const Subscription = require('./subscription')
 const TozIdEACP = require('./tozIdEACP')
 const ToznyOTPEACP = require('./toznyOTPEACP')
 const errors = require('./errors')
+const ListIdentitiesResult = require('./listIdentitiesResult')
+const IdentityDetails = require('./IdentityDetails')
 
 module.exports = {
   AccessRequest,
@@ -86,4 +88,6 @@ module.exports = {
   TozIdEACP,
   ToznyOTPEACP,
   errors,
+  IdentityDetails,
+  ListIdentitiesResult,
 }
