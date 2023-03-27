@@ -667,6 +667,25 @@ module.exports = {
     )
     return result
   },
+  async bulkListRecordsSharedWithGroup(
+    config,
+    groupIds = [],
+    nextToken = null,
+    max = null
+  ) {
+    const result = await runInEnvironment(
+      function (configJson, groupIds, nextToken, max) {
+        var config = Tozny.storage.Config.fromObject(configJson)
+        var client = new Tozny.storage.Client(config)
+        return client.bulkListRecordsSharedWithGroup(groupIds, nextToken, max)
+      },
+      JSON.stringify(config),
+      groupIds,
+      nextToken,
+      max
+    )
+    return result
+  },
   async shareRecordWithGroup(config, groupId, recordType) {
     const result = await runInEnvironment(
       function (configJson, groupId, recordType) {
@@ -1401,14 +1420,15 @@ module.exports = {
     return subscriptions
   },
   async fetchAvailableComputations(config) {
-    const subscriptions = await runInEnvironment(
-      function (configJSON, subscription) {
-        var config = Tozny.storage.Config.fromObject(configJSON)
-        var client = new Tozny.storage.Client(config)
-        return client.fetchAvailableComputations(subscription)
-      },
-      JSON.stringify(config),
-    )
+    const subscriptions = await runInEnvironment(function (
+      configJSON,
+      subscription
+    ) {
+      var config = Tozny.storage.Config.fromObject(configJSON)
+      var client = new Tozny.storage.Client(config)
+      return client.fetchAvailableComputations(subscription)
+    },
+    JSON.stringify(config))
     return subscriptions
   },
   async computeAnalysis(config, params) {
@@ -1459,9 +1479,9 @@ module.exports = {
     )
     return JSON.parse(result)
   },
-   async listRealmIdentities(config,user, realmName, max, next) {
+  async listRealmIdentities(config, user, realmName, max, next) {
     const result = await runInEnvironment(
-     async function (realmJSON, userJSON, realmNameJSON) {
+      async function (realmJSON, userJSON, realmNameJSON) {
         const realmConfig = JSON.parse(realmJSON)
         const realm = new Tozny.identity.Realm(
           realmConfig.realmName,
@@ -1478,9 +1498,8 @@ module.exports = {
       user.stringify(),
       realmName,
       max,
-      next,
+      next
     )
     return JSON.parse(result)
   },
-
 }
