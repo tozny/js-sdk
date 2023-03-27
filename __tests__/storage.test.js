@@ -783,7 +783,7 @@ describe('Tozny', () => {
     expect(match).toBe(true)
   })
 })
-it('can share records two groups and list the records shared with each', async () => {
+it('can share records with two groups and list the records shared with each', async () => {
   const groupName = `testGroup-${uuidv4()}`
   const group2Name = `testGroup2-${uuidv4()}`
 
@@ -857,7 +857,7 @@ it('can share records two groups and list the records shared with each', async (
   expect(sharedWithGroup.nextToken).toBe("0")
 
 })
-it('can share records two groups and list the records shared with each and paginate', async () => {
+it('can share records with two groups and list the records shared with each and paginate', async () => {
   const groupName = `testGroupA-${uuidv4()}`
   const group2Name = `testGroupA2-${uuidv4()}`
 
