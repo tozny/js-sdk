@@ -640,6 +640,18 @@ module.exports = {
     )
     return result
   },
+  async bulkListGroupMembers(config, ids) {
+    const result = await runInEnvironment(
+      function (configJson, ids) {
+        var config = Tozny.storage.Config.fromObject(configJson)
+        var client = new Tozny.storage.Client(config)
+        return client.bulkListGroupMembers(ids)
+      },
+      JSON.stringify(config),
+      ids
+    )
+    return result
+  },
   async listRecordsSharedWithGroup(
     config,
     groupId,
