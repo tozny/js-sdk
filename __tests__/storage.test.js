@@ -465,8 +465,6 @@ describe('Tozny', () => {
       created2.group.groupID,
     ])
 
-    console.log(members)
-
     // Find members in group 1
     let foundCreator1 = false
     let foundMember1 = false
