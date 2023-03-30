@@ -844,18 +844,23 @@ it('can share records with two groups and list the records shared with each', as
   let foundFirstRecord = false
   let foundSecondRecord = false
 
-  for (let groupRecords of sharedWithGroup.records) {
-    for (let record of groupRecords.records) {
-      if (record.meta.recordId == recordInfo.meta.recordId)
-        foundFirstRecord = true
-      if (record.meta.recordId == recordInfo2.meta.recordId)
-        foundSecondRecord = true
-    }
+  // Look through first group
+  for (let record of sharedWithGroup.records.get(created.group.groupID)) {
+    if (record.meta.recordId == recordInfo.meta.recordId)
+      foundFirstRecord = true
   }
+
+  // Look through second group
+  for (let record of sharedWithGroup.records.get(created2.group.groupID)) {
+    if (record.meta.recordId == recordInfo2.meta.recordId)
+      foundSecondRecord = true
+  }
+
+  expect(sharedWithGroup.records.has(created.group.groupID)).toBe(true)
+  expect(sharedWithGroup.records.has(created2.group.groupID)).toBe(true)
   expect(foundFirstRecord).toBe(true)
   expect(foundSecondRecord).toBe(true)
-  expect(sharedWithGroup.nextToken).toBe("0")
-
+  expect(sharedWithGroup.nextToken).toBe('0')
 })
 it('can share records with two groups and list the records shared with each and paginate', async () => {
   const groupName = `testGroupA-${uuidv4()}`
@@ -914,6 +919,7 @@ it('can share records with two groups and list the records shared with each and 
     '',
     1
   )
+
   let sharedWithGroup2 = await ops.bulkListRecordsSharedWithGroup(
     authorizerClient,
     [created.group.groupID, created2.group.groupID],
@@ -925,20 +931,21 @@ it('can share records with two groups and list the records shared with each and 
   let foundFirstRecord = false
   let foundSecondRecord = false
 
-  for (let groupRecords of sharedWithGroup.records) {
-    for (let record of groupRecords.records) {
-      if (record.meta.recordId == recordInfo.meta.recordId)
-        foundFirstRecord = true
-    }
+  for (let record of sharedWithGroup.records.get(created.group.groupID)) {
+    if (record.meta.recordId == recordInfo.meta.recordId)
+      foundFirstRecord = true
   }
 
-  for (let groupRecords of sharedWithGroup2.records) {
-    for (let record of groupRecords.records) {
-      if (record.meta.recordId == recordInfo2.meta.recordId)
-        foundSecondRecord = true
-    }
+  for (let record of sharedWithGroup2.records.get(created2.group.groupID)) {
+    if (record.meta.recordId == recordInfo2.meta.recordId)
+      foundSecondRecord = true
   }
+
+  expect(sharedWithGroup.records.has(created.group.groupID)).toBe(true)
+  expect(sharedWithGroup.records.has(created2.group.groupID)).toBe(false)
+  expect(sharedWithGroup2.records.has(created2.group.groupID)).toBe(true)
+  expect(sharedWithGroup2.records.has(created.group.groupID)).toBe(false)
   expect(foundFirstRecord).toBe(true)
   expect(foundSecondRecord).toBe(true)
-  expect(sharedWithGroup2.nextToken).toBe("0")
+  expect(sharedWithGroup2.nextToken).toBe('0')
 })
