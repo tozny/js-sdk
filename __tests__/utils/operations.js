@@ -667,6 +667,25 @@ module.exports = {
     )
     return result
   },
+  async bulkListRecordsSharedWithGroup(
+    config,
+    groupIds = [],
+    nextToken = null,
+    max = null
+  ) {
+    const result = await runInEnvironment(
+      function (configJson, groupIds, nextToken, max) {
+        var config = Tozny.storage.Config.fromObject(configJson)
+        var client = new Tozny.storage.Client(config)
+        return client.bulkListRecordsSharedWithGroup(groupIds, nextToken, max)
+      },
+      JSON.stringify(config),
+      groupIds,
+      nextToken,
+      max
+    )
+    return result
+  },
   async shareRecordWithGroup(config, groupId, recordType) {
     const result = await runInEnvironment(
       function (configJson, groupId, recordType) {
