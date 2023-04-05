@@ -675,7 +675,7 @@ module.exports = {
         return client.bulkListRecordsSharedWithGroup(groupIds, nextToken, max)
       },
       JSON.stringify(config),
-      JSON.stringify(groupIds),
+      groupIds,
       nextToken,
       max
     )
