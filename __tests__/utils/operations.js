@@ -672,6 +672,7 @@ module.exports = {
       function (configJson, groupIds, nextToken, max) {
         var config = Tozny.storage.Config.fromObject(configJson)
         var client = new Tozny.storage.Client(config)
+        console.log("calling bulkListRecordsSharedWithGroup in client.js")
         return client.bulkListRecordsSharedWithGroup(groupIds, nextToken, max)
       },
       JSON.stringify(config),
