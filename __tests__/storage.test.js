@@ -770,17 +770,15 @@ describe('Tozny', () => {
     await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
 
     // Wait for indexer
-    const delay = ms => new Promise(res => setTimeout(res, ms));
-    await delay(5000);
+    const delay = (ms) => new Promise((res) => setTimeout(res, ms))
+    await delay(5000)
 
     const request = new Tozny.types.Search(true, true)
     request.match({ type: type })
     const found = await ops.search(authorizerClient, request)
 
     let match = false
-    for (let record of found)
-      if (record.data.hello == "world")
-        match = true
+    for (let record of found) if (record.data.hello == 'world') match = true
 
     expect(match).toBe(true)
   })
@@ -835,11 +833,15 @@ it('can share records with two groups and list the records shared with each', as
   const meta2 = { hola2: 'mundo2' }
   let recordInfo2 = await ops.writeRecord(readerClient, type2, data2, meta2)
   await ops.shareRecordWithGroup(readerClient, created2.group.groupID, type2)
-  let sharedWithGroup = await ops.bulkListRecordsSharedWithGroup(
+  let sharedWithGroupRaw = await ops.bulkListRecordsSharedWithGroup(
     authorizerClient,
     [created.group.groupID, created2.group.groupID],
     '',
     2
+  )
+
+  let sharedWithGroup = new Map(
+    sharedWithGroupRaw.records.map((obj) => [obj.groupID, obj.records])
   )
 
   // Make sure both records are found
@@ -847,22 +849,22 @@ it('can share records with two groups and list the records shared with each', as
   let foundSecondRecord = false
 
   // Look through first group
-  for (let record of sharedWithGroup.records.get(created.group.groupID)) {
+  for (let record of sharedWithGroup.get(created.group.groupID)) {
     if (record.meta.recordId == recordInfo.meta.recordId)
       foundFirstRecord = true
   }
 
   // Look through second group
-  for (let record of sharedWithGroup.records.get(created2.group.groupID)) {
+  for (let record of sharedWithGroup.get(created2.group.groupID)) {
     if (record.meta.recordId == recordInfo2.meta.recordId)
       foundSecondRecord = true
   }
 
-  expect(sharedWithGroup.records.has(created.group.groupID)).toBe(true)
-  expect(sharedWithGroup.records.has(created2.group.groupID)).toBe(true)
+  expect(sharedWithGroup.has(created.group.groupID)).toBe(true)
+  expect(sharedWithGroup.has(created2.group.groupID)).toBe(true)
   expect(foundFirstRecord).toBe(true)
   expect(foundSecondRecord).toBe(true)
-  expect(sharedWithGroup.nextToken).toBe('0')
+  expect(sharedWithGroupRaw.nextToken).toBe('0')
 })
 it('can share records with two groups and list the records shared with each and paginate', async () => {
   const groupName = `testGroupA-${uuidv4()}`
@@ -915,41 +917,48 @@ it('can share records with two groups and list the records shared with each and 
   let recordInfo2 = await ops.writeRecord(readerClient, type2, data2, meta2)
   await ops.shareRecordWithGroup(readerClient, created2.group.groupID, type2)
   await new Promise((r) => setTimeout(r, 5000))
-  let sharedWithGroup = await ops.bulkListRecordsSharedWithGroup(
+  let sharedWithGroupRaw = await ops.bulkListRecordsSharedWithGroup(
     authorizerClient,
     [created.group.groupID, created2.group.groupID],
     '',
     1
   )
 
-  let sharedWithGroup2 = await ops.bulkListRecordsSharedWithGroup(
+  let sharedWithGroup = new Map(
+    sharedWithGroupRaw.records.map((obj) => [obj.groupID, obj.records])
+  )
+
+  let sharedWithGroup2Raw = await ops.bulkListRecordsSharedWithGroup(
     authorizerClient,
     [created.group.groupID, created2.group.groupID],
-    sharedWithGroup.nextToken,
+    sharedWithGroupRaw.nextToken,
     1
   )
+
+  let sharedWithGroup2 = new Map(sharedWithGroup2Raw.records.map(obj => [obj.groupID, obj.records]));
 
   // Make sure both records are found
   let foundFirstRecord = false
   let foundSecondRecord = false
 
-  for (let record of sharedWithGroup.records.get(created.group.groupID)) {
-    if (record.meta.recordId == recordInfo.meta.recordId)
+  for (let record of sharedWithGroup.get(created.group.groupID)) {
+    if (record.meta.recordId == recordInfo.meta.recordId) {
       foundFirstRecord = true
+    }
   }
 
-  for (let record of sharedWithGroup2.records.get(created2.group.groupID)) {
+  for (let record of sharedWithGroup2.get(created2.group.groupID)) {
     if (record.meta.recordId == recordInfo2.meta.recordId)
       foundSecondRecord = true
   }
 
-  expect(sharedWithGroup.records.has(created.group.groupID)).toBe(true)
-  expect(sharedWithGroup.records.has(created2.group.groupID)).toBe(false)
-  expect(sharedWithGroup2.records.has(created2.group.groupID)).toBe(true)
-  expect(sharedWithGroup2.records.has(created.group.groupID)).toBe(false)
+  expect(sharedWithGroup.has(created.group.groupID)).toBe(true)
+  expect(sharedWithGroup.has(created2.group.groupID)).toBe(false)
+  expect(sharedWithGroup2.has(created2.group.groupID)).toBe(true)
+  expect(sharedWithGroup2.has(created.group.groupID)).toBe(false)
   expect(foundFirstRecord).toBe(true)
   expect(foundSecondRecord).toBe(true)
-  expect(sharedWithGroup2.nextToken).toBe('0')
+  expect(sharedWithGroup2Raw.nextToken).toBe('0')
 })
 
 it('can bulk list group members from a group', async () => {
@@ -988,10 +997,12 @@ it('can bulk list group members from a group', async () => {
     groupMembersToAdd2
   )
 
-  let members = await ops.bulkListGroupMembers(writerClient, [
+  let rawMembers = await ops.bulkListGroupMembers(writerClient, [
     created.group.groupID,
     created2.group.groupID,
   ])
+
+  let members = new Map(Object.entries(rawMembers))
 
   // Find members in group 1
   let foundCreator1 = false
