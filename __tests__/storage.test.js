@@ -951,3 +951,68 @@ it('can share records with two groups and list the records shared with each and 
   expect(foundSecondRecord).toBe(true)
   expect(sharedWithGroup2.nextToken).toBe('0')
 })
+
+it('can bulk list group members from a group', async () => {
+  // Create group 1
+  const groupName = `testGroup-${uuidv4()}`
+  const groupDesciption = 'this is a test group'
+  const created = await ops.createGroup(
+    writerClient,
+    groupName,
+    groupDesciption
+  )
+  const groupMember = new GroupMember(readerClient.clientId, { read: true })
+  let groupMembersToAdd = []
+  groupMembersToAdd.push(groupMember)
+  await ops.addGroupMembers(
+    writerClient,
+    created.group.groupID,
+    groupMembersToAdd
+  )
+
+  // Create group 2
+  const group2Name = `testGroup2-${uuidv4()}`
+  const created2 = await ops.createGroup(
+    writerClient,
+    group2Name,
+    groupDesciption
+  )
+  const groupMember2 = new GroupMember(authorizerClient.clientId, {
+    share: true,
+  })
+  let groupMembersToAdd2 = []
+  groupMembersToAdd2.push(groupMember2)
+  await ops.addGroupMembers(
+    writerClient,
+    created2.group.groupID,
+    groupMembersToAdd2
+  )
+
+  let members = await ops.bulkListGroupMembers(writerClient, [
+    created.group.groupID,
+    created2.group.groupID,
+  ])
+
+  // Find members in group 1
+  let foundCreator1 = false
+  let foundMember1 = false
+  for (let groupMember of members.get(created.group.groupID)) {
+    if (groupMember.client_id == writerClient.clientId) foundCreator1 = true
+    if (groupMember.client_id == readerClient.clientId) foundMember1 = true
+  }
+
+  // Find members in group 2
+  let foundCreator2 = false
+  let foundMember2 = false
+  for (let groupMember of members.get(created2.group.groupID)) {
+    if (groupMember.client_id == writerClient.clientId) foundCreator2 = true
+    if (groupMember.client_id == authorizerClient.clientId) foundMember2 = true
+  }
+
+  expect(foundCreator1).toBe(true)
+  expect(foundMember1).toBe(true)
+  expect(foundCreator2).toBe(true)
+  expect(foundMember2).toBe(true)
+  expect(members.has(created.group.groupID)).toBe(true)
+  expect(members.has(created2.group.groupID)).toBe(true)
+})
