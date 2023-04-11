@@ -640,6 +640,18 @@ module.exports = {
     )
     return result
   },
+  async bulkListGroupMembers(config, ids) {
+    const result = await runInEnvironment(
+      function (configJson, ids) {
+        var config = Tozny.storage.Config.fromObject(configJson)
+        var client = new Tozny.storage.Client(config)
+        return client.bulkListGroupMembers(JSON.parse(ids))
+      },
+      JSON.stringify(config),
+      JSON.stringify(ids)
+    )
+    return result
+  },
   async listRecordsSharedWithGroup(
     config,
     groupId,
@@ -662,6 +674,20 @@ module.exports = {
       JSON.stringify(config),
       groupId,
       JSON.stringify(writerIds),
+      nextToken,
+      max
+    )
+    return result
+  },
+  async bulkListRecordsSharedWithGroup(config, groupIds = [], nextToken, max) {
+    const result = await runInEnvironment(
+      function (configJson, groupIds, nextToken, max) {
+        var config = Tozny.storage.Config.fromObject(configJson)
+        var client = new Tozny.storage.Client(config)
+        return client.bulkListRecordsSharedWithGroup(JSON.parse(groupIds), nextToken, max)
+      },
+      JSON.stringify(config),
+      JSON.stringify(groupIds),
       nextToken,
       max
     )
@@ -1459,9 +1485,9 @@ module.exports = {
     )
     return JSON.parse(result)
   },
-   async listRealmIdentities(config,user, realmName, max, next) {
+  async listRealmIdentities(config, user, realmName, max, next) {
     const result = await runInEnvironment(
-     async function (realmJSON, userJSON, realmNameJSON) {
+      async function (realmJSON, userJSON, realmNameJSON) {
         const realmConfig = JSON.parse(realmJSON)
         const realm = new Tozny.identity.Realm(
           realmConfig.realmName,
