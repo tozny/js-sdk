@@ -38,7 +38,9 @@ class ListIdentitiesResult {
 		}
 		this.nextToken = response.next
 
-		return response.identities
+		let identities = response.identities
+		console.log(identities)
+		return identities
 	}
 }
 
