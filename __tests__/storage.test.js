@@ -61,6 +61,20 @@ describe('Tozny', () => {
     )
     expect(removed).toBe(true)
   })
+  it('can write and bulk delete', async () => {
+    const type = 'say-hello'
+    const data = { hello: 'world' }
+    const meta = { hola: 'mundo' }
+    const record = await ops.writeRecord(writerClient, type, data, meta)
+    expect(record).toMatchObject(test)
+    expect(record.meta.recordId).toBeTruthy()
+    const read = await ops.readRecord(writerClient, record.meta.recordId)
+    expect(read).toMatchObject(test)
+
+    const bulkDelete = await ops.deleteBulkRecord(writerClient, [record.meta.recordId, uuidv4])
+    console.log(bulkDelete)
+
+  })
 
   it('allows sharing of records', async () => {
     const type = 'to-share'
