@@ -147,7 +147,7 @@ module.exports = {
       function (configJSON, recordIds) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
-        return client.deleteRecordsBulk(recordIds).then(JSON.stringify)
+        return client.deleteRecordsBulk(recordIds)
       },
       JSON.stringify(config),
       recordIds,
