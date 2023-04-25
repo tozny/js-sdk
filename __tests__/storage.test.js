@@ -61,6 +61,31 @@ describe('Tozny', () => {
     )
     expect(removed).toBe(true)
   })
+  it('can write and bulk delete', async () => {
+    const type = 'say-hello'
+    const data = { hello: 'world' }
+    const meta = { hola: 'mundo' }
+    const test = {
+      meta: { plain: meta },
+      data: data,
+    }
+    let fakeRecordID = uuidv4()
+    const testBulk = {
+      record_delete_error: {
+        'N/A': [{
+          "error": "Not Found",
+          "record_id": fakeRecordID,
+        },]
+      }
+    }
+    const record = await ops.writeRecord(writerClient, type, data, meta)
+    expect(record.meta.recordId).toBeTruthy()
+    const read = await ops.readRecord(writerClient, record.meta.recordId)
+    expect(read).toMatchObject(test)
+    const bulkDelete = await ops.deleteBulkRecord(writerClient, [record.meta.recordId, fakeRecordID])
+    expect(bulkDelete).toMatchObject(testBulk)
+
+  })
 
   it('allows sharing of records', async () => {
     const type = 'to-share'

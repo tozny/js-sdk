@@ -142,6 +142,19 @@ module.exports = {
     )
     return JSON.parse(result)
   },
+  async deleteBulkRecord(config, recordIds) {
+    const result = await runInEnvironment(
+      function (configJSON, recordIds) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.deleteRecordsBulk(recordIds).then(JSON.stringify)
+      },
+      JSON.stringify(config),
+      recordIds,
+
+    )
+    return JSON.parse(result)
+  },
   async writeNote(
     config,
     data,
