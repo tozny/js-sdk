@@ -9,6 +9,7 @@ class IdentityDetails {
     firstName,
     lastName,
     tozny_id,
+    attributes,
   ) {
     this.user_id = user_id
     this.toznyId = tozny_id
@@ -16,6 +17,7 @@ class IdentityDetails {
     this.email = email
     this.firstName = firstName
     this.lastName = lastName
+    this.attributes = attributes
   }
 
   /**
@@ -29,7 +31,7 @@ class IdentityDetails {
    *   name: 'jsmith',
    *   email: 'jsmith@example.com'
    *   first_name: 'John',
-   *   last_name: 'Smith', 
+   *   last_name: 'Smith',
    * })
    * <code>
    *
@@ -44,7 +46,8 @@ class IdentityDetails {
       json.email,
       json.first_name,
       json.last_name,
-      json.tozny_id
+      json.tozny_id,
+      json.attributes
     )
   }
 }
