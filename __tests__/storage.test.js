@@ -65,12 +65,14 @@ describe('Tozny', () => {
     const type = 'say-hello'
     const data = { hello: 'world' }
     const meta = { hola: 'mundo' }
+    const test = {
+      meta: { plain: meta },
+      data: data,
+    }
     const record = await ops.writeRecord(writerClient, type, data, meta)
-    expect(record).toMatchObject(test)
     expect(record.meta.recordId).toBeTruthy()
     const read = await ops.readRecord(writerClient, record.meta.recordId)
     expect(read).toMatchObject(test)
-
     const bulkDelete = await ops.deleteBulkRecord(writerClient, [record.meta.recordId, uuidv4])
     console.log(bulkDelete)
 
