@@ -81,7 +81,7 @@ describe('Tozny', () => {
     expect(record.meta.recordId).toBeTruthy()
     const read = await ops.readRecord(writerClient, record.meta.recordId)
     expect(read).toMatchObject(test)
-    const bulkDelete = await ops.deleteBulkRecord(writerClient, [record.meta.recordId, uuidv4])
+    const bulkDelete = await ops.deleteBulkRecord(writerClient, [record.meta.recordId, uuidv4()])
     expect(bulkDelete).toMatchObject(testBulk)
 
   })
