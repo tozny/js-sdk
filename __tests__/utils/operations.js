@@ -150,7 +150,7 @@ module.exports = {
         return client.deleteRecordsBulk(recordIds).then(JSON.stringify)
       },
       JSON.stringify(config),
-      JSON.stringify(recordIds),
+      recordIds,
 
     )
     return JSON.parse(result)

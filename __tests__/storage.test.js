@@ -69,12 +69,20 @@ describe('Tozny', () => {
       meta: { plain: meta },
       data: data,
     }
+    const testBulk = {
+      record_delete_error: {
+        'N/A': [{
+          "error": "Not Found",
+          "record_id": "00000000-0000-0000-0000-000000000000",
+        },]
+      }
+    }
     const record = await ops.writeRecord(writerClient, type, data, meta)
     expect(record.meta.recordId).toBeTruthy()
     const read = await ops.readRecord(writerClient, record.meta.recordId)
     expect(read).toMatchObject(test)
     const bulkDelete = await ops.deleteBulkRecord(writerClient, [record.meta.recordId, uuidv4])
-    console.log(bulkDelete)
+    expect(bulkDelete).toMatchObject(testBulk)
 
   })
 
