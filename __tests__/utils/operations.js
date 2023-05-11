@@ -552,10 +552,11 @@ module.exports = {
   },
   async deleteGroup(config, groupID) {
     const result = await runInEnvironment(
-      function (configJSON, groupID) {
+      async function (configJSON, groupID) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
-        return client.deleteGroup(groupID).then(JSON.stringify)
+        const value = await client.deleteGroup(groupID)
+        return JSON.stringify(value)
       },
       JSON.stringify(config),
       groupID
@@ -567,14 +568,12 @@ module.exports = {
       function (configJson, id) {
         var config = Tozny.storage.Config.fromObject(configJson)
         var client = new Tozny.storage.Client(config)
-        return client.readGroup(id).then(function (group) {
-          return group.stringify()
-        })
+        return client.readGroup(id)
       },
       JSON.stringify(config),
       id
     )
-    return Tozny.types.Group.decode(JSON.parse(groupJson))
+    return groupJson
   },
   async listGroups(
     config,
