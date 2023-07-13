@@ -94,6 +94,21 @@ const helpers = {
     const response = await helpers.fileAsResponse(file, 'application/json')
     return response.json()
   },
+
+
+  /**
+   * 
+   * @param {List[File]} files List of  File object ready for reading.
+   * @returns {Map<UUID,Blob>} - contains userId and profile Image Blob
+   */
+  async getListOfFileUrl(files){
+    const sample  =   files?files[0]:""
+    let listOfUrls = await sample.listOfRecordsWithFileURL(files);  
+    if(listOfUrls && listOfUrls.size > 0){
+      return listOfUrls;   
+    }
+    return null;   
+  },
   /**
    * Reads the decrypted file bytes and parses them as a UTF8 string.
    *
