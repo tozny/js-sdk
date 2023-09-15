@@ -705,6 +705,18 @@ module.exports = {
     )
     return result
   },
+  async listGroupAllowedReads(config, contentTypes = []) {
+    const result = await runInEnvironment(
+      function (configJson, contentTypes) {
+        var config = Tozny.storage.Config.fromObject(configJson)
+        var client = new Tozny.storage.Client(config)
+        return client.listGroupAllowedReads(JSON.parse(contentTypes))
+      },
+      JSON.stringify(config),
+      JSON.stringify(contentTypes),
+    )
+    return result
+  },
   async shareRecordWithGroup(config, groupId, recordType) {
     const result = await runInEnvironment(
       function (configJson, groupId, recordType) {
