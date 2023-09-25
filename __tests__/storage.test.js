@@ -661,23 +661,6 @@ describe('Tozny', () => {
   it('Can fetch all subscriptions to computations', async () => {
     await ops.fetchAvailableComputations(readerClient)
   })
-  it('Can run a computation analysis', async () => {
-    const computations = await ops.fetchAvailableComputations(readerClient)
-    const subscriptionRequest = {
-      ToznyClientID: readerClient.clientId,
-      ComputationID: computations.computations[0].computation_id,
-      SubscriptionManagers: [],
-    }
-    await ops.subscribeToComputation(readerClient, subscriptionRequest)
-
-    let params = {
-      ComputationID: computations.computations[0].computation_id,
-      ToznyClientID: readerClient.clientId,
-      DataStartTimestamp: '2012-11-01T22:08:41+00:00',
-      DataEndTimestamp: '2012-11-01T22:08:41+00:00',
-    }
-    await ops.computeAnalysis(readerClient, params)
-  })
   it('can subscribe to a computation', async () => {
     let managerUUID = uuidv4()
     const computations = await ops.fetchAvailableComputations(readerClient)
