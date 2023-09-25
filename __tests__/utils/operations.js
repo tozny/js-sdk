@@ -150,8 +150,7 @@ module.exports = {
         return client.deleteRecordsBulk(recordIds).then(JSON.stringify)
       },
       JSON.stringify(config),
-      recordIds,
-
+      recordIds
     )
     return JSON.parse(result)
   },
@@ -696,12 +695,40 @@ module.exports = {
       function (configJson, groupIds, nextToken, max) {
         var config = Tozny.storage.Config.fromObject(configJson)
         var client = new Tozny.storage.Client(config)
-        return client.bulkListRecordsSharedWithGroup(JSON.parse(groupIds), nextToken, max)
+        return client.bulkListRecordsSharedWithGroup(
+          JSON.parse(groupIds),
+          nextToken,
+          max
+        )
       },
       JSON.stringify(config),
       JSON.stringify(groupIds),
       nextToken,
       max
+    )
+    return result
+  },
+  async listGroupAllowedReads(config, contentTypes = []) {
+    const result = await runInEnvironment(
+      function (configJson, contentTypes) {
+        var config = Tozny.storage.Config.fromObject(configJson)
+        var client = new Tozny.storage.Client(config)
+        return client.listGroupAllowedReads(JSON.parse(contentTypes))
+      },
+      JSON.stringify(config),
+      JSON.stringify(contentTypes)
+    )
+    return result
+  },
+  async listGroupsByID(config, groupIDs = []) {
+    const result = await runInEnvironment(
+      function (configJson, groupIDs) {
+        var config = Tozny.storage.Config.fromObject(configJson)
+        var client = new Tozny.storage.Client(config)
+        return client.listGroupsByID(JSON.parse(groupIDs))
+      },
+      JSON.stringify(config),
+      JSON.stringify(groupIDs)
     )
     return result
   },
@@ -1439,14 +1466,15 @@ module.exports = {
     return subscriptions
   },
   async fetchAvailableComputations(config) {
-    const subscriptions = await runInEnvironment(
-      function (configJSON, subscription) {
-        var config = Tozny.storage.Config.fromObject(configJSON)
-        var client = new Tozny.storage.Client(config)
-        return client.fetchAvailableComputations(subscription)
-      },
-      JSON.stringify(config),
-    )
+    const subscriptions = await runInEnvironment(function (
+      configJSON,
+      subscription
+    ) {
+      var config = Tozny.storage.Config.fromObject(configJSON)
+      var client = new Tozny.storage.Client(config)
+      return client.fetchAvailableComputations(subscription)
+    },
+    JSON.stringify(config))
     return subscriptions
   },
   async computeAnalysis(config, params) {
@@ -1516,9 +1544,8 @@ module.exports = {
       user.stringify(),
       realmName,
       max,
-      next,
+      next
     )
     return JSON.parse(result)
   },
-
 }
