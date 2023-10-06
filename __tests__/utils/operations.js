@@ -732,6 +732,19 @@ module.exports = {
     )
     return result
   },
+  async updateGroupDescription(config, groupId, updatedDescription) {
+    const result = await runInEnvironment(
+      function (configJson, groupId) {
+        var config = Tozny.storage.Config.fromObject(configJson)
+        var client = new Tozny.storage.Client(config)
+        return client.updateGroupDescription(groupId, updatedDescription)
+      },
+      JSON.stringify(config),
+      groupId,
+      updatedDescription
+    )
+    return result
+  },
   async shareRecordWithGroup(config, groupId, recordType) {
     const result = await runInEnvironment(
       function (configJson, groupId, recordType) {
