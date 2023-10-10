@@ -276,6 +276,7 @@ describe('Tozny', () => {
     )
     expect(created).toMatchObject(createTest)
   })
+
   it('can delete a group', async () => {
     const groupName = `testGroup-${uuidv4()}`
     const groupDesciption = 'this is a test group'
@@ -1114,6 +1115,7 @@ it('can share records with two groups and list the groups as allowed readers', a
   expect(group2FoundForType1).toBe(true)
   expect(group1FoundForType2).toBe(true)
 })
+
 it('can add a member to two groups and list both group info by ID', async () => {
   const groupName = `testGroupA-${uuidv4()}`
   const group2Name = `testGroupA2-${uuidv4()}`
@@ -1155,3 +1157,26 @@ it('can add a member to two groups and list both group info by ID', async () => 
   expect(groupsInfo[group1ID].group_name).toBe(groupName)
   expect(groupsInfo[group2ID].group_name).toBe(group2Name)
 })
+
+it('can update a description of a group', async () => {
+  const groupName = `testGroup-${uuidv4()}`
+  const groupDescription = 'testGroup Description'
+  const created = await ops.createGroup(
+    writerClient,
+    groupName,
+    groupDescription
+  )
+  const groupDescriptionUpdated = 'testGroup Description Updated'
+  let groupID = created.group.groupID
+
+  let result = await ops.updateGroupDescription(writerClient, groupID, groupDescriptionUpdated)
+  expect(result.description).toBe(groupDescriptionUpdated)
+
+  let groupsInfo = await ops.listGroupsByID(writerClient, [
+    created.group.groupID,
+  ])
+  expect(Object.prototype.hasOwnProperty.call(groupsInfo, groupID)).toBe(true)
+  expect(groupsInfo[groupID].group_name).toBe(groupName)
+  expect(groupsInfo[groupID].description).toBe(groupDescriptionUpdated)
+})
+
