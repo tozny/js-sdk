@@ -734,7 +734,7 @@ module.exports = {
   },
   async updateGroupDescription(config, groupId, updatedDescription) {
     const result = await runInEnvironment(
-      function (configJson, groupId) {
+      function (configJson, groupId, updatedDescription) {
         var config = Tozny.storage.Config.fromObject(configJson)
         var client = new Tozny.storage.Client(config)
         return client.updateGroupDescription(groupId, updatedDescription)
