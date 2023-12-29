@@ -15,7 +15,7 @@ const Signable = require('./signable')
  * @property {string}     signature Signature over unencrypted record data
  */
 class Record extends Signable {
-  constructor(meta, data, signature = null) {
+  constructor(meta, data, signature = null, clientsSharedWith = null) {
     super()
     if (meta instanceof Meta) {
       this.meta = meta
@@ -31,6 +31,8 @@ class Record extends Signable {
     }
 
     this.signature = signature
+
+    this.clientsSharedWith = clientsSharedWith
   }
 
   /**

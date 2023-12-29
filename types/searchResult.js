@@ -25,7 +25,6 @@ class SearchResult {
       return []
     }
 
-
     let response = await this.client._search(this.request)
     // If we've reached the last page, keep track and exit
     if (response.last_index === 0) {
@@ -39,10 +38,16 @@ class SearchResult {
     /* eslint-disable */
     let records = await Promise.all(
       response.results.map(async (result) => {
+        console.log(`result = ${JSON.stringify(result)}`)
         const meta = await Meta.decode(result.meta)
-        const record = new Record(meta, result.record_data)
+        const record = new Record(
+          meta,
+          result.record_data,
+          null,
+          result.clients_shared_with
+        )
         if (this.request.includeData) {
-          if (record.isFile && result.sharing_model == "GROUP"){
+          if (record.isFile && result.sharing_model == 'GROUP') {
             await this.client._getCachedAk(
               meta.writerId,
               meta.userId,
@@ -51,8 +56,13 @@ class SearchResult {
               result.group_access_key
             )
           }
-          const ak = await this.decodeAccessKey(result.sharing_model, result.access_key, result.group_access_key)
-          return this.client.crypto.decryptRecord(record, ak)
+          const ak = await this.decodeAccessKey(
+            result.sharing_model,
+            result.access_key,
+            result.group_access_key
+          )
+          let decryptedRecord = this.client.crypto.decryptRecord(record, ak)
+          return decryptedRecord
         }
         return record
       })
@@ -79,19 +89,15 @@ class SearchResult {
    * @param {object} groupsAccessKey
    * @return {Promise<EAKInfo|EGAKInfo>}
    */
-  async decodeAccessKey(sharingModel, accessKey, groupsAccessKey){
+  async decodeAccessKey(sharingModel, accessKey, groupsAccessKey) {
     let eak
-    if (sharingModel == "GROUP"){
+    if (sharingModel == 'GROUP') {
       eak = await EGAKInfo.decode(groupsAccessKey)
-    }
-    else {
+    } else {
       eak = await EAKInfo.decode(accessKey)
     }
 
-    return this.client.crypto.decryptEak(
-      this.client.config.privateKey,
-      eak
-    )
+    return this.client.crypto.decryptEak(this.client.config.privateKey, eak)
   }
 }
 
