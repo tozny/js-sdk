@@ -9,6 +9,9 @@ class Capabilities {
     if (capabilityBool.share === true) {
       capabilities.push('SHARE_CONTENT')
     }
+    if (capabilityBool.edit === true) {
+      capabilities.push('EDIT_CONTENT')
+    }
     if (capabilityBool.manage === true) {
       capabilities.push('MANAGE_MEMBERSHIP')
     }
@@ -23,6 +26,9 @@ class Capabilities {
     capabilityArray.forEach((capability) => {
       if (capability === 'SHARE_CONTENT') {
         capabilities['share'] = true
+      }
+      if (capability === 'EDIT_CONTENT') {
+        capabilities['edit'] = true
       }
       if (capability === 'READ_CONTENT') {
         capabilities['read'] = true
