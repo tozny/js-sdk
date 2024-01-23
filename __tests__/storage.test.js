@@ -1023,7 +1023,7 @@ it('can bulk list group members from a group', async () => {
   // // Find members in group 1
   let foundCreator1 = false
   let foundMember1 = false
-  for (let groupMember of members[created.group.groupID]) {
+  for (let groupMember of members.results[created.group.groupID]) {
     if (groupMember.client_id == writerClient.clientId) foundCreator1 = true
     if (groupMember.client_id == readerClient.clientId) foundMember1 = true
   }
@@ -1031,7 +1031,7 @@ it('can bulk list group members from a group', async () => {
   // Find members in group 2
   let foundCreator2 = false
   let foundMember2 = false
-  for (let groupMember of members[created2.group.groupID]) {
+  for (let groupMember of members.results[created2.group.groupID]) {
     if (groupMember.client_id == writerClient.clientId) foundCreator2 = true
     if (groupMember.client_id == authorizerClient.clientId) foundMember2 = true
   }
