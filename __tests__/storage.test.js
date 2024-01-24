@@ -1152,10 +1152,10 @@ it('can add a member to two groups and list both group info by ID', async () => 
     created2.group.groupID,
   ])
 
-  expect(Object.prototype.hasOwnProperty.call(groupsInfo, group1ID)).toBe(true)
-  expect(Object.prototype.hasOwnProperty.call(groupsInfo, group2ID)).toBe(true)
-  expect(groupsInfo[group1ID].group_name).toBe(groupName)
-  expect(groupsInfo[group2ID].group_name).toBe(group2Name)
+  expect(Object.prototype.hasOwnProperty.call(groupsInfo.results, group1ID)).toBe(true)
+  expect(Object.prototype.hasOwnProperty.call(groupsInfo.results, group2ID)).toBe(true)
+  expect(groupsInfo.results[group1ID].group_name).toBe(groupName)
+  expect(groupsInfo.results[group2ID].group_name).toBe(group2Name)
 })
 
 it('can update a description of a group', async () => {
@@ -1175,8 +1175,8 @@ it('can update a description of a group', async () => {
   let groupsInfo = await ops.listGroupsByID(writerClient, [
     created.group.groupID,
   ])
-  expect(Object.prototype.hasOwnProperty.call(groupsInfo, groupID)).toBe(true)
-  expect(groupsInfo[groupID].group_name).toBe(groupName)
-  expect(groupsInfo[groupID].description).toBe(groupDescriptionUpdated)
+  expect(Object.prototype.hasOwnProperty.call(groupsInfo.results, groupID)).toBe(true)
+  expect(groupsInfo.results[groupID].group_name).toBe(groupName)
+  expect(groupsInfo.results[groupID].description).toBe(groupDescriptionUpdated)
 })
 
