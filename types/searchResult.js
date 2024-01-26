@@ -38,7 +38,6 @@ class SearchResult {
     /* eslint-disable */
     let records = await Promise.all(
       response.results.map(async (result) => {
-        console.log(`result = ${JSON.stringify(result)}`)
         const meta = await Meta.decode(result.meta)
         const record = new Record(
           meta,
