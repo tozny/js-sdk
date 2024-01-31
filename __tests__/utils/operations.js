@@ -390,7 +390,11 @@ module.exports = {
           serial.include_data,
           serial.include_all_writers,
           serial.limit,
-          serial.next_token
+          serial.next_token,
+          serial.group_ids,
+          serial.include_only_groups,
+          serial.exclude_group_records,
+          serial.include_only_direct_shares
         )
         var i
         function arrangeTerms(terms) {
@@ -742,6 +746,19 @@ module.exports = {
       JSON.stringify(config),
       groupId,
       updatedDescription
+    )
+    return result
+  },
+  async share(config, recordType, readerId) {
+    const result = await runInEnvironment(
+      function (configJson, recordType, readerId) {
+        var config = Tozny.storage.Config.fromObject(configJson)
+        var client = new Tozny.storage.Client(config)
+        return client.share(recordType, readerId)
+      },
+      JSON.stringify(config),
+      recordType,
+      readerId
     )
     return result
   },
@@ -1561,4 +1578,16 @@ module.exports = {
     )
     return JSON.parse(result)
   },
+  async outgoingSharingByRecordType(config, recordType) {
+    const result = await runInEnvironment(
+      function (configJson, recordType) {
+        var config = Tozny.storage.Config.fromObject(configJson)
+        var client = new Tozny.storage.Client(config)
+        return client.outgoingSharingByRecordType(recordType)
+      },
+      JSON.stringify(config),
+      recordType,
+    )
+    return result
+  }
 }

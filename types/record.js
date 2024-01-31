@@ -100,6 +100,7 @@ class Record extends Signable {
   static async decode(json) {
     let meta = await Meta.decode(json.meta)
     let signature = json.rec_sig === undefined ? null : json.rec_sig
+    // let clientsSharedWith = json.clients_shared_with ? json.clients_shared_with : null
 
     return Promise.resolve(new Record(meta, json.data, signature))
   }
