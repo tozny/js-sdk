@@ -795,388 +795,569 @@ describe('Tozny', () => {
 
     expect(match).toBe(true)
   })
-})
-it('can share records with two groups and list the records shared with each', async () => {
-  const groupName = `testGroup-${uuidv4()}`
-  const group2Name = `testGroup2-${uuidv4()}`
 
-  const groupDesciption = 'this is a group meant to list'
-  const created = await ops.createGroup(
-    writerClient,
-    groupName,
-    groupDesciption
-  )
-  const created2 = await ops.createGroup(
-    writerClient,
-    group2Name,
-    groupDesciption
-  )
-  const groupMember = new GroupMember(readerClient.clientId, {
-    read: true,
-    share: true,
-  })
-  const groupMember2 = new GroupMember(authorizerClient.clientId, {
-    read: true,
-    share: true,
-  })
-  let groupMembersToAdd = []
-  groupMembersToAdd.push(groupMember)
-  groupMembersToAdd.push(groupMember2)
-  await ops.addGroupMembers(
-    writerClient,
-    created.group.groupID,
-    groupMembersToAdd
-  )
-  await ops.addGroupMembers(
-    writerClient,
-    created2.group.groupID,
-    groupMembersToAdd
-  )
+  it('can share records with two groups and list the records shared with each', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const group2Name = `testGroup2-${uuidv4()}`
 
-  // Create a record and share it with the first group
-  const type = `say-hello-${uuidv4()}`
-  const data = { hello: 'world' }
-  const meta = { hola: 'mundo' }
-  let recordInfo = await ops.writeRecord(readerClient, type, data, meta)
-  await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
+    const groupDesciption = 'this is a group meant to list'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
+    const created2 = await ops.createGroup(
+      writerClient,
+      group2Name,
+      groupDesciption
+    )
+    const groupMember = new GroupMember(readerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    const groupMember2 = new GroupMember(authorizerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    let groupMembersToAdd = []
+    groupMembersToAdd.push(groupMember)
+    groupMembersToAdd.push(groupMember2)
+    await ops.addGroupMembers(
+      writerClient,
+      created.group.groupID,
+      groupMembersToAdd
+    )
+    await ops.addGroupMembers(
+      writerClient,
+      created2.group.groupID,
+      groupMembersToAdd
+    )
 
-  // Create a second record and share it with the second group
-  const type2 = `say-hello2-${uuidv4()}`
-  const data2 = { hello2: 'world2' }
-  const meta2 = { hola2: 'mundo2' }
-  let recordInfo2 = await ops.writeRecord(readerClient, type2, data2, meta2)
-  await ops.shareRecordWithGroup(readerClient, created2.group.groupID, type2)
-  let sharedWithGroup = await ops.bulkListRecordsSharedWithGroup(
-    authorizerClient,
-    [created.group.groupID, created2.group.groupID],
-    '',
-    2
-  )
+    // Create a record and share it with the first group
+    const type = `say-hello-${uuidv4()}`
+    const data = { hello: 'world' }
+    const meta = { hola: 'mundo' }
+    let recordInfo = await ops.writeRecord(readerClient, type, data, meta)
+    await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
 
-  let group1Records = null
-  let group2Records = null
+    // Create a second record and share it with the second group
+    const type2 = `say-hello2-${uuidv4()}`
+    const data2 = { hello2: 'world2' }
+    const meta2 = { hola2: 'mundo2' }
+    let recordInfo2 = await ops.writeRecord(readerClient, type2, data2, meta2)
+    await ops.shareRecordWithGroup(readerClient, created2.group.groupID, type2)
+    let sharedWithGroup = await ops.bulkListRecordsSharedWithGroup(
+      authorizerClient,
+      [created.group.groupID, created2.group.groupID],
+      '',
+      2
+    )
 
-  for (let groupRecords of sharedWithGroup.records) {
-    if (groupRecords.groupID == created.group.groupID) {
-      group1Records = groupRecords
+    let group1Records = null
+    let group2Records = null
+
+    for (let groupRecords of sharedWithGroup.records) {
+      if (groupRecords.groupID == created.group.groupID) {
+        group1Records = groupRecords
+      }
+      if (groupRecords.groupID == created2.group.groupID) {
+        group2Records = groupRecords
+      }
     }
-    if (groupRecords.groupID == created2.group.groupID) {
-      group2Records = groupRecords
+
+    // Make sure both records are found
+    let foundFirstRecord = false
+    let foundSecondRecord = false
+
+    // Look through first group
+    for (let record of group1Records.records) {
+      if (record.meta.recordId == recordInfo.meta.recordId) {
+        foundFirstRecord = true
+      }
     }
-  }
 
-  // Make sure both records are found
-  let foundFirstRecord = false
-  let foundSecondRecord = false
-
-  // Look through first group
-  for (let record of group1Records.records) {
-    if (record.meta.recordId == recordInfo.meta.recordId) {
-      foundFirstRecord = true
+    // Look through second group
+    for (let record of group2Records.records) {
+      if (record.meta.recordId == recordInfo2.meta.recordId) {
+        foundSecondRecord = true
+      }
     }
-  }
 
-  // Look through second group
-  for (let record of group2Records.records) {
-    if (record.meta.recordId == recordInfo2.meta.recordId) {
-      foundSecondRecord = true
+    expect(foundFirstRecord).toBe(true)
+    expect(foundSecondRecord).toBe(true)
+    expect(sharedWithGroup.nextToken).toBe('0')
+  })
+
+  it('can share records with two groups and list the records shared with each and paginate', async () => {
+    const groupName = `testGroupA-${uuidv4()}`
+    const group2Name = `testGroupA2-${uuidv4()}`
+
+    const groupDesciption = 'this is a group meant to list'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
+    const created2 = await ops.createGroup(
+      writerClient,
+      group2Name,
+      groupDesciption
+    )
+    const groupMember = new GroupMember(readerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    const groupMember2 = new GroupMember(authorizerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    let groupMembersToAdd = []
+    groupMembersToAdd.push(groupMember)
+    groupMembersToAdd.push(groupMember2)
+    await ops.addGroupMembers(
+      writerClient,
+      created.group.groupID,
+      groupMembersToAdd
+    )
+    await ops.addGroupMembers(
+      writerClient,
+      created2.group.groupID,
+      groupMembersToAdd
+    )
+
+    // Create a record and share it with the first group
+    const type = `say-hello-${uuidv4()}`
+    const data = { hello: 'world' }
+    const meta = { hola: 'mundo' }
+    let recordInfo = await ops.writeRecord(readerClient, type, data, meta)
+    await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
+
+    // Create a second record and share it with the second group
+    const type2 = `say-hello2-${uuidv4()}`
+    const data2 = { hello2: 'world2' }
+    const meta2 = { hola2: 'mundo2' }
+    let recordInfo2 = await ops.writeRecord(readerClient, type2, data2, meta2)
+    await ops.shareRecordWithGroup(readerClient, created2.group.groupID, type2)
+    await new Promise((r) => setTimeout(r, 5000))
+    let sharedWithGroup = await ops.bulkListRecordsSharedWithGroup(
+      authorizerClient,
+      [created.group.groupID, created2.group.groupID],
+      '',
+      1
+    )
+
+    let sharedWithGroup2 = await ops.bulkListRecordsSharedWithGroup(
+      authorizerClient,
+      [created.group.groupID, created2.group.groupID],
+      sharedWithGroup.nextToken,
+      1
+    )
+
+    // Make sure both records are found
+    let group1Records = sharedWithGroup.records[0]
+    let group2Records = sharedWithGroup2.records[0]
+
+    // Make sure both records are found
+    let foundFirstRecord = false
+    let foundSecondRecord = false
+
+    // Look through first group
+    for (let record of group1Records.records) {
+      if (record.meta.recordId == recordInfo.meta.recordId) {
+        foundFirstRecord = true
+      }
     }
-  }
 
-  expect(foundFirstRecord).toBe(true)
-  expect(foundSecondRecord).toBe(true)
-  expect(sharedWithGroup.nextToken).toBe('0')
-})
-
-it('can share records with two groups and list the records shared with each and paginate', async () => {
-  const groupName = `testGroupA-${uuidv4()}`
-  const group2Name = `testGroupA2-${uuidv4()}`
-
-  const groupDesciption = 'this is a group meant to list'
-  const created = await ops.createGroup(
-    writerClient,
-    groupName,
-    groupDesciption
-  )
-  const created2 = await ops.createGroup(
-    writerClient,
-    group2Name,
-    groupDesciption
-  )
-  const groupMember = new GroupMember(readerClient.clientId, {
-    read: true,
-    share: true,
-  })
-  const groupMember2 = new GroupMember(authorizerClient.clientId, {
-    read: true,
-    share: true,
-  })
-  let groupMembersToAdd = []
-  groupMembersToAdd.push(groupMember)
-  groupMembersToAdd.push(groupMember2)
-  await ops.addGroupMembers(
-    writerClient,
-    created.group.groupID,
-    groupMembersToAdd
-  )
-  await ops.addGroupMembers(
-    writerClient,
-    created2.group.groupID,
-    groupMembersToAdd
-  )
-
-  // Create a record and share it with the first group
-  const type = `say-hello-${uuidv4()}`
-  const data = { hello: 'world' }
-  const meta = { hola: 'mundo' }
-  let recordInfo = await ops.writeRecord(readerClient, type, data, meta)
-  await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
-
-  // Create a second record and share it with the second group
-  const type2 = `say-hello2-${uuidv4()}`
-  const data2 = { hello2: 'world2' }
-  const meta2 = { hola2: 'mundo2' }
-  let recordInfo2 = await ops.writeRecord(readerClient, type2, data2, meta2)
-  await ops.shareRecordWithGroup(readerClient, created2.group.groupID, type2)
-  await new Promise((r) => setTimeout(r, 5000))
-  let sharedWithGroup = await ops.bulkListRecordsSharedWithGroup(
-    authorizerClient,
-    [created.group.groupID, created2.group.groupID],
-    '',
-    1
-  )
-
-  let sharedWithGroup2 = await ops.bulkListRecordsSharedWithGroup(
-    authorizerClient,
-    [created.group.groupID, created2.group.groupID],
-    sharedWithGroup.nextToken,
-    1
-  )
-
-  // Make sure both records are found
-  let group1Records = sharedWithGroup.records[0]
-  let group2Records = sharedWithGroup2.records[0]
-
-  // Make sure both records are found
-  let foundFirstRecord = false
-  let foundSecondRecord = false
-
-  // Look through first group
-  for (let record of group1Records.records) {
-    if (record.meta.recordId == recordInfo.meta.recordId) {
-      foundFirstRecord = true
+    // Look through second group
+    for (let record of group2Records.records) {
+      if (record.meta.recordId == recordInfo2.meta.recordId) {
+        foundSecondRecord = true
+      }
     }
-  }
 
-  // Look through second group
-  for (let record of group2Records.records) {
-    if (record.meta.recordId == recordInfo2.meta.recordId) {
-      foundSecondRecord = true
+    expect(foundFirstRecord).toBe(true)
+    expect(foundSecondRecord).toBe(true)
+    expect(sharedWithGroup2.nextToken).toBe('0')
+  })
+  it('can bulk list group members from a group', async () => {
+    // Create group 1
+    const groupName = `testGroup-${uuidv4()}`
+    const groupDesciption = 'this is a test group'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
+    const groupMember = new GroupMember(readerClient.clientId, { read: true })
+    let groupMembersToAdd = []
+    groupMembersToAdd.push(groupMember)
+    await ops.addGroupMembers(
+      writerClient,
+      created.group.groupID,
+      groupMembersToAdd
+    )
+
+    // Create group 2
+    const group2Name = `testGroup2-${uuidv4()}`
+    const created2 = await ops.createGroup(
+      writerClient,
+      group2Name,
+      groupDesciption
+    )
+    const groupMember2 = new GroupMember(authorizerClient.clientId, {
+      share: true,
+    })
+    let groupMembersToAdd2 = []
+    groupMembersToAdd2.push(groupMember2)
+    await ops.addGroupMembers(
+      writerClient,
+      created2.group.groupID,
+      groupMembersToAdd2
+    )
+
+    let members = await ops.bulkListGroupMembers(writerClient, [
+      created.group.groupID,
+      created2.group.groupID,
+    ])
+
+    // // Find members in group 1
+    let foundCreator1 = false
+    let foundMember1 = false
+    for (let groupMember of members.results[created.group.groupID]) {
+      if (groupMember.client_id == writerClient.clientId) foundCreator1 = true
+      if (groupMember.client_id == readerClient.clientId) foundMember1 = true
     }
-  }
 
-  expect(foundFirstRecord).toBe(true)
-  expect(foundSecondRecord).toBe(true)
-  expect(sharedWithGroup2.nextToken).toBe('0')
-})
-it('can bulk list group members from a group', async () => {
-  // Create group 1
-  const groupName = `testGroup-${uuidv4()}`
-  const groupDesciption = 'this is a test group'
-  const created = await ops.createGroup(
-    writerClient,
-    groupName,
-    groupDesciption
-  )
-  const groupMember = new GroupMember(readerClient.clientId, { read: true })
-  let groupMembersToAdd = []
-  groupMembersToAdd.push(groupMember)
-  await ops.addGroupMembers(
-    writerClient,
-    created.group.groupID,
-    groupMembersToAdd
-  )
+    // Find members in group 2
+    let foundCreator2 = false
+    let foundMember2 = false
+    for (let groupMember of members.results[created2.group.groupID]) {
+      if (groupMember.client_id == writerClient.clientId) foundCreator2 = true
+      if (groupMember.client_id == authorizerClient.clientId)
+        foundMember2 = true
+    }
 
-  // Create group 2
-  const group2Name = `testGroup2-${uuidv4()}`
-  const created2 = await ops.createGroup(
-    writerClient,
-    group2Name,
-    groupDesciption
-  )
-  const groupMember2 = new GroupMember(authorizerClient.clientId, {
-    share: true,
+    expect(foundCreator1).toBe(true)
+    expect(foundMember1).toBe(true)
+    expect(foundCreator2).toBe(true)
+    expect(foundMember2).toBe(true)
   })
-  let groupMembersToAdd2 = []
-  groupMembersToAdd2.push(groupMember2)
-  await ops.addGroupMembers(
-    writerClient,
-    created2.group.groupID,
-    groupMembersToAdd2
-  )
+  it('can share records with two groups and list the groups as allowed readers', async () => {
+    const groupName = `testGroupA-${uuidv4()}`
+    const group2Name = `testGroupA2-${uuidv4()}`
 
-  let members = await ops.bulkListGroupMembers(writerClient, [
-    created.group.groupID,
-    created2.group.groupID,
-  ])
+    const groupDesciption = 'testing group'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
+    const created2 = await ops.createGroup(
+      writerClient,
+      group2Name,
+      groupDesciption
+    )
+    const groupMember = new GroupMember(readerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    const groupMember2 = new GroupMember(authorizerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    let groupMembersToAdd = []
+    groupMembersToAdd.push(groupMember)
+    groupMembersToAdd.push(groupMember2)
+    await ops.addGroupMembers(
+      writerClient,
+      created.group.groupID,
+      groupMembersToAdd
+    )
+    await ops.addGroupMembers(
+      writerClient,
+      created2.group.groupID,
+      groupMembersToAdd
+    )
 
-  // // Find members in group 1
-  let foundCreator1 = false
-  let foundMember1 = false
-  for (let groupMember of members.results[created.group.groupID]) {
-    if (groupMember.client_id == writerClient.clientId) foundCreator1 = true
-    if (groupMember.client_id == readerClient.clientId) foundMember1 = true
-  }
+    // Create a record and share it with both groups
+    const type = `say-hello-${uuidv4()}`
+    const data = { hello: 'world' }
+    const meta = { hola: 'mundo' }
+    await ops.writeRecord(readerClient, type, data, meta)
+    await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
+    await ops.shareRecordWithGroup(readerClient, created2.group.groupID, type)
 
-  // Find members in group 2
-  let foundCreator2 = false
-  let foundMember2 = false
-  for (let groupMember of members.results[created2.group.groupID]) {
-    if (groupMember.client_id == writerClient.clientId) foundCreator2 = true
-    if (groupMember.client_id == authorizerClient.clientId) foundMember2 = true
-  }
+    // Create a second record and share it with one group
+    const type2 = `say-hello2-${uuidv4()}`
+    await ops.writeRecord(readerClient, type2, data, meta)
+    await ops.shareRecordWithGroup(readerClient, created.group.groupID, type2)
+    await new Promise((r) => setTimeout(r, 5000))
+    let allowedGroups = await ops.listGroupAllowedReads(readerClient, [
+      type,
+      type2,
+    ])
 
-  expect(foundCreator1).toBe(true)
-  expect(foundMember1).toBe(true)
-  expect(foundCreator2).toBe(true)
-  expect(foundMember2).toBe(true)
-})
-it('can share records with two groups and list the groups as allowed readers', async () => {
-  const groupName = `testGroupA-${uuidv4()}`
-  const group2Name = `testGroupA2-${uuidv4()}`
+    let group1FoundForType1 = false
+    let group2FoundForType1 = false
+    let group1FoundForType2 = false
 
-  const groupDesciption = 'testing group'
-  const created = await ops.createGroup(
-    writerClient,
-    groupName,
-    groupDesciption
-  )
-  const created2 = await ops.createGroup(
-    writerClient,
-    group2Name,
-    groupDesciption
-  )
-  const groupMember = new GroupMember(readerClient.clientId, {
-    read: true,
-    share: true,
+    for (let groupID of allowedGroups[type]) {
+      if (groupID == created.group.groupID) group1FoundForType1 = true
+      else if (groupID == created2.group.groupID) group2FoundForType1 = true
+    }
+
+    for (let groupID of allowedGroups[type2]) {
+      if (groupID == created.group.groupID) group1FoundForType2 = true
+    }
+
+    expect(allowedGroups[type].length).toBe(2)
+    expect(allowedGroups[type2].length).toBe(1)
+    expect(group1FoundForType1).toBe(true)
+    expect(group2FoundForType1).toBe(true)
+    expect(group1FoundForType2).toBe(true)
   })
-  const groupMember2 = new GroupMember(authorizerClient.clientId, {
-    read: true,
-    share: true,
+
+  it('can add a member to two groups and list both group info by ID', async () => {
+    const groupName = `testGroupA-${uuidv4()}`
+    const group2Name = `testGroupA2-${uuidv4()}`
+
+    const groupDesciption = 'testing group'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
+    const created2 = await ops.createGroup(
+      writerClient,
+      group2Name,
+      groupDesciption
+    )
+    const groupMember = new GroupMember(readerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    const groupMember2 = new GroupMember(authorizerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    let group1ID = created.group.groupID
+    let group2ID = created2.group.groupID
+    let groupMembersToAdd = []
+    groupMembersToAdd.push(groupMember)
+    groupMembersToAdd.push(groupMember2)
+    await ops.addGroupMembers(writerClient, group1ID, groupMembersToAdd)
+    await ops.addGroupMembers(writerClient, group2ID, groupMembersToAdd)
+
+    let groupsInfo = await ops.listGroupsByID(readerClient, [
+      created.group.groupID,
+      created2.group.groupID,
+    ])
+
+    expect(
+      Object.prototype.hasOwnProperty.call(groupsInfo.results, group1ID)
+    ).toBe(true)
+    expect(
+      Object.prototype.hasOwnProperty.call(groupsInfo.results, group2ID)
+    ).toBe(true)
+    expect(groupsInfo.results[group1ID].group_name).toBe(groupName)
+    expect(groupsInfo.results[group2ID].group_name).toBe(group2Name)
   })
-  let groupMembersToAdd = []
-  groupMembersToAdd.push(groupMember)
-  groupMembersToAdd.push(groupMember2)
-  await ops.addGroupMembers(
-    writerClient,
-    created.group.groupID,
-    groupMembersToAdd
-  )
-  await ops.addGroupMembers(
-    writerClient,
-    created2.group.groupID,
-    groupMembersToAdd
-  )
 
-  // Create a record and share it with both groups
-  const type = `say-hello-${uuidv4()}`
-  const data = { hello: 'world' }
-  const meta = { hola: 'mundo' }
-  await ops.writeRecord(readerClient, type, data, meta)
-  await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
-  await ops.shareRecordWithGroup(readerClient, created2.group.groupID, type)
+  it('can update a description of a group', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const groupDescription = 'testGroup Description'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDescription
+    )
+    const groupDescriptionUpdated = 'testGroup Description Updated'
+    let groupID = created.group.groupID
 
-  // Create a second record and share it with one group
-  const type2 = `say-hello2-${uuidv4()}`
-  await ops.writeRecord(readerClient, type2, data, meta)
-  await ops.shareRecordWithGroup(readerClient, created.group.groupID, type2)
-  await new Promise((r) => setTimeout(r, 5000))
-  let allowedGroups = await ops.listGroupAllowedReads(readerClient, [
-    type,
-    type2,
-  ])
+    let result = await ops.updateGroupDescription(
+      writerClient,
+      groupID,
+      groupDescriptionUpdated
+    )
+    expect(result.description).toBe(groupDescriptionUpdated)
 
-  let group1FoundForType1 = false
-  let group2FoundForType1 = false
-  let group1FoundForType2 = false
-
-  for (let groupID of allowedGroups[type]) {
-    if (groupID == created.group.groupID) group1FoundForType1 = true
-    else if (groupID == created2.group.groupID) group2FoundForType1 = true
-  }
-
-  for (let groupID of allowedGroups[type2]) {
-    if (groupID == created.group.groupID) group1FoundForType2 = true
-  }
-
-  expect(allowedGroups[type].length).toBe(2)
-  expect(allowedGroups[type2].length).toBe(1)
-  expect(group1FoundForType1).toBe(true)
-  expect(group2FoundForType1).toBe(true)
-  expect(group1FoundForType2).toBe(true)
-})
-
-it('can add a member to two groups and list both group info by ID', async () => {
-  const groupName = `testGroupA-${uuidv4()}`
-  const group2Name = `testGroupA2-${uuidv4()}`
-
-  const groupDesciption = 'testing group'
-  const created = await ops.createGroup(
-    writerClient,
-    groupName,
-    groupDesciption
-  )
-  const created2 = await ops.createGroup(
-    writerClient,
-    group2Name,
-    groupDesciption
-  )
-  const groupMember = new GroupMember(readerClient.clientId, {
-    read: true,
-    share: true,
+    let groupsInfo = await ops.listGroupsByID(writerClient, [
+      created.group.groupID,
+    ])
+    expect(
+      Object.prototype.hasOwnProperty.call(groupsInfo.results, groupID)
+    ).toBe(true)
+    expect(groupsInfo.results[groupID].group_name).toBe(groupName)
+    expect(groupsInfo.results[groupID].description).toBe(
+      groupDescriptionUpdated
+    )
   })
-  const groupMember2 = new GroupMember(authorizerClient.clientId, {
-    read: true,
-    share: true,
+  it('It can exclude records received via a group', async () => {
+    const groupName = `testGroup-${uuidv4()}`
+    const groupDesciption = 'this is a group meant to search'
+    const created = await ops.createGroup(
+      writerClient,
+      groupName,
+      groupDesciption
+    )
+    const groupMember = new GroupMember(readerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    const groupMember2 = new GroupMember(authorizerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    let groupMembersToAdd = []
+    groupMembersToAdd.push(groupMember)
+    groupMembersToAdd.push(groupMember2)
+    await ops.addGroupMembers(
+      writerClient,
+      created.group.groupID,
+      groupMembersToAdd
+    )
+    const type = `say-hello-${uuidv4()}`
+    const data = { hello: 'world' }
+    const meta = { hola: 'mundo' }
+    await ops.writeRecord(readerClient, type, data, meta)
+    await ops.shareRecordWithGroup(readerClient, created.group.groupID, type)
+
+    const type2 = `say-hello2-${uuidv4()}`
+    await ops.writeRecord(authorizerClient, type2, data, meta)
+
+    // Wait for indexer
+    const delay = (ms) => new Promise((res) => setTimeout(res, ms))
+    await delay(10000)
+
+    // Make sure both records have been indexed
+    const request = new Tozny.types.Search(
+      true,
+      true,
+      null,
+      null,
+      [],
+      false,
+      false,
+      false
+    )
+    request.match({ plain: { hola: 'mundo' } }, 'AND', 'EXACT')
+    let found = await ops.search(authorizerClient, request)
+
+    let firstSearchFoundRecord1 = false
+    let firstSearchFoundRecord2 = false
+    for (let record of found) {
+      if (record.meta.type == type) firstSearchFoundRecord1 = true
+      if (record.meta.type == type2) firstSearchFoundRecord2 = true
+    }
+
+    // Exclude group records
+    const request2 = new Tozny.types.Search(
+      true,
+      true,
+      null,
+      null,
+      [],
+      false,
+      true,
+      false
+    )
+    request2.match({ plain: { hola: 'mundo' } }, 'AND', 'EXACT')
+
+    let found2 = await ops.search(authorizerClient, request2)
+    let secondSearchFoundRecord1 = false
+    let secondSearchFoundRecord2 = false
+    // This time we should not receive type2
+    for (let record of found2) {
+      if (record.meta.type == type) secondSearchFoundRecord1 = true
+      if (record.meta.type == type2) secondSearchFoundRecord2 = true
+    }
+
+    expect(firstSearchFoundRecord1).toBe(true)
+    expect(firstSearchFoundRecord2).toBe(true)
+    expect(secondSearchFoundRecord1).toBe(false)
+    expect(secondSearchFoundRecord2).toBe(true)
   })
-  let group1ID = created.group.groupID
-  let group2ID = created2.group.groupID
-  let groupMembersToAdd = []
-  groupMembersToAdd.push(groupMember)
-  groupMembersToAdd.push(groupMember2)
-  await ops.addGroupMembers(writerClient, group1ID, groupMembersToAdd)
-  await ops.addGroupMembers(writerClient, group2ID, groupMembersToAdd)
+  it('It can search for only directly shared records', async () => {
+    const type = `say-hello-${uuidv4()}`
+    const data = { hello: 'world' }
+    const meta = { hola: 'mundo' }
+    await ops.writeRecord(writerClient, type, data, meta)
+    await ops.share(writerClient, type, readerClient.clientId)
 
-  let groupsInfo = await ops.listGroupsByID(readerClient, [
-    created.group.groupID,
-    created2.group.groupID,
-  ])
+    const type2 = `say-hello2-${uuidv4()}`
+    await ops.writeRecord(writerClient, type2, data, meta)
 
-  expect(Object.prototype.hasOwnProperty.call(groupsInfo.results, group1ID)).toBe(true)
-  expect(Object.prototype.hasOwnProperty.call(groupsInfo.results, group2ID)).toBe(true)
-  expect(groupsInfo.results[group1ID].group_name).toBe(groupName)
-  expect(groupsInfo.results[group2ID].group_name).toBe(group2Name)
+    // Wait for indexer
+    const delay = (ms) => new Promise((res) => setTimeout(res, ms))
+    await delay(10000)
+
+    // Make sure both records have been indexed
+    const request = new Tozny.types.Search(
+      true,
+      true,
+      null,
+      null,
+      [],
+      false,
+      false,
+      false
+    )
+    request.match({ plain: { hola: 'mundo' } }, 'AND', 'EXACT')
+    let found = await ops.search(writerClient, request)
+
+    let firstSearchFoundRecord1 = false
+    let firstSearchFoundRecord2 = false
+    for (let record of found) {
+      if (record.meta.type == type) firstSearchFoundRecord1 = true
+      if (record.meta.type == type2) firstSearchFoundRecord2 = true
+    }
+
+    // Include only direct shares
+    const request2 = new Tozny.types.Search(
+      true,
+      false,
+      null,
+      null,
+      [],
+      false,
+      false,
+      true
+    )
+    request2.match({ plain: { hola: 'mundo' } }, 'AND', 'EXACT')
+
+    let found2 = await ops.search(writerClient, request2)
+    let secondSearchFoundRecord1 = false
+    let secondSearchFoundRecord2 = false
+    // This time we should not receive type2
+    for (let record of found2) {
+      if (record.meta.type == type) secondSearchFoundRecord1 = true
+      if (record.meta.type == type2) secondSearchFoundRecord2 = true
+    }
+
+    expect(firstSearchFoundRecord1).toBe(true)
+    expect(firstSearchFoundRecord2).toBe(true)
+    expect(secondSearchFoundRecord1).toBe(true)
+    expect(secondSearchFoundRecord2).toBe(false)
+  })
+  it('It can get outgoing shares by record type', async () => {
+    const type = `say-hello-${uuidv4()}`
+    const data = { hello: 'world' }
+    const meta = { hola: 'mundo' }
+    await ops.writeRecord(writerClient, type, data, meta)
+    await ops.share(writerClient, type, readerClient.clientId)
+    await ops.share(writerClient, type, authorizerClient.clientId)
+
+    let outgoingShares = await ops.outgoingSharingByRecordType(
+      writerClient,
+      type
+    )
+    let foundReaderClient = false
+    let foundAuthClient = false
+    for (let share of outgoingShares.shares) {
+      if (share.reader_id == readerClient.clientId) foundReaderClient = true
+      if (share.reader_id == authorizerClient.clientId) foundAuthClient = true
+    }
+    expect(foundReaderClient).toBe(true)
+    expect(foundAuthClient).toBe(true)
+  })
 })
-
-it('can update a description of a group', async () => {
-  const groupName = `testGroup-${uuidv4()}`
-  const groupDescription = 'testGroup Description'
-  const created = await ops.createGroup(
-    writerClient,
-    groupName,
-    groupDescription
-  )
-  const groupDescriptionUpdated = 'testGroup Description Updated'
-  let groupID = created.group.groupID
-
-  let result = await ops.updateGroupDescription(writerClient, groupID, groupDescriptionUpdated)
-  expect(result.description).toBe(groupDescriptionUpdated)
-
-  let groupsInfo = await ops.listGroupsByID(writerClient, [
-    created.group.groupID,
-  ])
-  expect(Object.prototype.hasOwnProperty.call(groupsInfo.results, groupID)).toBe(true)
-  expect(groupsInfo.results[groupID].group_name).toBe(groupName)
-  expect(groupsInfo.results[groupID].description).toBe(groupDescriptionUpdated)
-})
-

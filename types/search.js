@@ -15,6 +15,8 @@ class Search extends Serializable {
     nextToken,
     groupIds = [],
     includeOnlyGroups = false,
+    excludeGroups = false,
+    includeOnlyDirectShares = false
   ) {
     super()
     this.includeData = includeData
@@ -25,6 +27,8 @@ class Search extends Serializable {
     this.excludes = []
     this.groupIds = groupIds
     this.includeOnlyGroups = includeOnlyGroups
+    this.excludeGroups = excludeGroups
+    this.includeOnlyDirectShares = includeOnlyDirectShares
   }
 
   match(terms, condition, strategy) {
@@ -60,6 +64,8 @@ class Search extends Serializable {
       include_data: this.includeData,
       group_ids: this.groupIds,
       include_only_groups: this.includeOnlyGroups,
+      exclude_group_records: this.excludeGroups,
+      include_only_direct_shares: this.includeOnlyDirectShares,
     }
     if (this.nextToken) {
       toSerialize.next_token = this.nextToken
@@ -76,7 +82,7 @@ class Search extends Serializable {
     if (this.searchOrder) {
       toSerialize.order = this.searchOrder.serializable()
     }
-    if (this.groupIds){
+    if (this.groupIds) {
       toSerialize.group_ids = this.groupIds
     }
     return toSerialize
