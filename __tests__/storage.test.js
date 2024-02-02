@@ -945,7 +945,6 @@ describe('Tozny', () => {
       '',
       1
     )
-    console.log(sharedWithGroup)
 
     let sharedWithGroup2 = await ops.bulkListRecordsSharedWithGroup(
       authorizerClient,
@@ -953,7 +952,6 @@ describe('Tozny', () => {
       sharedWithGroup.nextToken,
       1
     )
-    console.log(sharedWithGroup2)
 
     // Make sure both records are found
     let group1Records = sharedWithGroup.records[0]
