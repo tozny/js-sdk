@@ -1362,6 +1362,10 @@ describe('Tozny', () => {
   })
 
   it('can fetch group IDs by capabilities', async () => {
+    // Re-register clients
+    writerClient = await ops.registerClient()
+    readerClient = await ops.registerClient()
+
     // Create two groups
     const groupName1 = `testGroup1-${uuidv4()}`
     const groupName2 = `testGroup2-${uuidv4()}`
