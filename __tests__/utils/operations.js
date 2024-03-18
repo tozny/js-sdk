@@ -1595,7 +1595,6 @@ module.exports = {
       function (configJSON, params) {
         var config = Tozny.storage.Config.fromObject(configJSON)
         var client = new Tozny.storage.Client(config)
-        console.log(params.capabilities)
         return client.fetchGroupIDsByCapabilities(params)
       },
       JSON.stringify(config),
