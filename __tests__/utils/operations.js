@@ -1589,5 +1589,19 @@ module.exports = {
       recordType,
     )
     return result
-  }
+  },
+  async fetchGroupIDsByCapabilities(config, params) {
+    const result = await runInEnvironment(
+      function (configJSON, params) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        console.log(params.capabilities)
+        return client.fetchGroupIDsByCapabilities(params)
+      },
+      JSON.stringify(config),
+      params
+    )
+    return result 
+  },
 }
+

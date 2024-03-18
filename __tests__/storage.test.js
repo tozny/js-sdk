@@ -1360,4 +1360,72 @@ describe('Tozny', () => {
     expect(foundReaderClient).toBe(true)
     expect(foundAuthClient).toBe(true)
   })
+
+  it('can fetch group IDs by capabilities', async () => {
+    // Create two groups
+    const groupName1 = `testGroup1-${uuidv4()}`
+    const groupName2 = `testGroup2-${uuidv4()}`
+    const groupDescription =
+      'this is a group meant to test fetchGroupIDsByCapabilities'
+
+    const created1 = await ops.createGroup(
+      writerClient,
+      groupName1,
+      groupDescription
+    )
+    const created2 = await ops.createGroup(
+      writerClient,
+      groupName2,
+      groupDescription
+    )
+
+    // Add a member with specific capabilities to each group
+    const groupMember = new GroupMember(readerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    let groupMembersToAdd = [groupMember]
+
+    await ops.addGroupMembers(
+      writerClient,
+      created1.group.groupID,
+      groupMembersToAdd
+    )
+    await ops.addGroupMembers(
+      writerClient,
+      created2.group.groupID,
+      groupMembersToAdd
+    )
+
+    // Call fetchGroupIDsByCapabilities
+    const params = {
+      clientId: readerClient.clientId,
+      capabilities: ['READ_CONTENT', 'SHARE_CONTENT'],
+      max: 10,
+      nextToken: 0,
+    }
+    const result = await ops.fetchGroupIDsByCapabilities(writerClient, params)
+
+    // Check the result
+    expect(result).toHaveProperty('groups')
+    expect(result.groups).toBeInstanceOf(Array)
+    expect(result.groups).toHaveLength(2)
+
+    // Check the first group
+    expect(result.groups[0]).toHaveProperty('capability', 'SHARE_CONTENT')
+    expect(result.groups[0]).toHaveProperty('group_ids')
+    expect(result.groups[0].group_ids).toHaveLength(2);
+    expect(result.groups[0].group_ids).toContainEqual(created1.group.groupID)
+    expect(result.groups[0].group_ids).toContainEqual(created2.group.groupID)
+
+    // Check the second group
+    expect(result.groups[1]).toHaveProperty('capability', 'READ_CONTENT')
+    expect(result.groups[1]).toHaveProperty('group_ids')
+    expect(result.groups[1].group_ids).toHaveLength(2);
+    expect(result.groups[1].group_ids).toContainEqual(created1.group.groupID)
+    expect(result.groups[1].group_ids).toContainEqual(created2.group.groupID)
+
+    // Check next_token
+    expect(result).toHaveProperty('next_token', 0)
+  })
 })
