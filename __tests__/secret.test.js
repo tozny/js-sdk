@@ -657,7 +657,7 @@ describe('Tozny identity client', () => {
     const secret = {
       secretType: 'Credential',
       secretName: testName,
-      secretValue: 'this is the one for the share with namespace',
+      secretValue: 'secret-value',
       description: 'this is a description',
     }
     const namespace = `mytest-for-namespace${uuidv4()}`
