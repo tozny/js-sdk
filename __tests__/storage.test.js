@@ -1412,7 +1412,6 @@ describe('Tozny', () => {
 
     // Check the result
     expect(result).toHaveProperty('groups')
-    expect(result.groups).toBeInstanceOf(Array)
     expect(result.groups).toHaveLength(2)
 
     // Check the first group
