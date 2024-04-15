@@ -52,6 +52,7 @@ class AccessRequest extends Serializable {
     const groups = rawGroups.map((group) => ({
       id: group.group_id || group.id || null,
       groupName: group.group_name || group.groupName || null,
+      attributes:group.Attributes || null
     }))
 
     const accessRequest = new AccessRequest(
