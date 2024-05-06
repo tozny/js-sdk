@@ -1361,6 +1361,7 @@ describe('Tozny', () => {
     expect(foundAuthClient).toBe(true)
   })
 
+  // Test fetchGroupIDsByCapabilities endpoint: v2/storage/groups/client/${params.clientId}
   it('can fetch group IDs by capabilities', async () => {
     // Re-register clients
     writerClient = await ops.registerClient()
@@ -1417,18 +1418,183 @@ describe('Tozny', () => {
     // Check the first group
     expect(result.groups[0]).toHaveProperty('capability', 'SHARE_CONTENT')
     expect(result.groups[0]).toHaveProperty('group_ids')
-    expect(result.groups[0].group_ids).toHaveLength(2);
+    expect(result.groups[0].group_ids).toHaveLength(2)
     expect(result.groups[0].group_ids).toContainEqual(created1.group.groupID)
     expect(result.groups[0].group_ids).toContainEqual(created2.group.groupID)
 
     // Check the second group
     expect(result.groups[1]).toHaveProperty('capability', 'READ_CONTENT')
     expect(result.groups[1]).toHaveProperty('group_ids')
-    expect(result.groups[1].group_ids).toHaveLength(2);
+    expect(result.groups[1].group_ids).toHaveLength(2)
     expect(result.groups[1].group_ids).toContainEqual(created1.group.groupID)
     expect(result.groups[1].group_ids).toContainEqual(created2.group.groupID)
 
     // Check next_token
     expect(result).toHaveProperty('next_token', 0)
+  })
+
+  // Test fetchClientGroupCapabilities endpoint: v2/storage/groups/capabilities/${params.clientID}
+  it('can fetch client group capabilities as member in all groups', async () => {
+    // Create three groups
+    const groupName1 = `testGroup1-${uuidv4()}`
+    const groupName2 = `testGroup2-${uuidv4()}`
+    const groupName3 = `testGroup3-${uuidv4()}`
+    const groupDescription =
+      'this is a group meant to test fetchClientGroupCapabilities'
+
+    const createdGroup1 = await ops.createGroup(
+      writerClient,
+      groupName1,
+      groupDescription
+    )
+    const createdGroup2 = await ops.createGroup(
+      writerClient,
+      groupName2,
+      groupDescription
+    )
+    const createdGroup3 = await ops.createGroup(
+      readerClient, // create using reader client
+      groupName3,
+      groupDescription
+    )
+
+    // Add a member with specific capabilities to only groups 1 and 2
+    const groupMember = new GroupMember(readerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    let groupMembersToAdd = [groupMember]
+
+    await ops.addGroupMembers(
+      writerClient,
+      createdGroup1.group.groupID,
+      groupMembersToAdd
+    )
+    await ops.addGroupMembers(
+      writerClient,
+      createdGroup2.group.groupID,
+      groupMembersToAdd
+    )
+
+    const params = {
+      clientID: readerClient.clientId,
+      groupIDs: [
+        createdGroup1.group.groupID,
+        createdGroup2.group.groupID,
+        createdGroup3.group.groupID,
+      ],
+      max: 10,
+      nextToken: 0,
+    }
+
+    // Call fetchClientGroupCapabilities using READER CLIENT
+    const result = await ops.fetchClientGroupCapabilities(readerClient, params)
+
+    // Validate results
+    expect(result).toBeDefined()
+    expect(result).toHaveProperty('results')
+    expect(result).toHaveProperty('next_token', 0)
+    expect(Object.keys(result.results)).toHaveLength(3)
+
+    // Group 1
+    expect(result.results[createdGroup1.group.groupID]).toBeDefined()
+    expect(result.results[createdGroup1.group.groupID]).toHaveLength(2)
+    expect(result.results[createdGroup1.group.groupID]).toEqual(
+      expect.arrayContaining(['READ_CONTENT', 'SHARE_CONTENT'])
+    )
+    // Group 3
+    expect(result.results[createdGroup2.group.groupID]).toBeDefined()
+    expect(result.results[createdGroup2.group.groupID]).toHaveLength(2)
+    expect(result.results[createdGroup2.group.groupID]).toEqual(
+      expect.arrayContaining(['READ_CONTENT', 'SHARE_CONTENT'])
+    )
+    // Group 3 
+    expect(result.results[createdGroup3.group.groupID]).toBeDefined()
+    expect(result.results[createdGroup3.group.groupID]).toHaveLength(1)
+    expect(result.results[createdGroup3.group.groupID]).toEqual(
+      expect.arrayContaining(['MANAGE_MEMBERSHIP'])
+    )
+  })
+
+  // Test fetchClientGroupCapabilities endpoint: v2/storage/groups/capabilities/${params.clientID}
+  it('can fetch client group capabilities as member in some groups', async () => {
+    // Create 3 groups
+    const groupName1 = `testGroup1-${uuidv4()}`
+    const groupName2 = `testGroup2-${uuidv4()}`
+    const groupName3 = `testGroup3-${uuidv4()}`
+    const groupDescription =
+      'this is a group meant to test fetchClientGroupCapabilities'
+
+    const createdGroup1 = await ops.createGroup(
+      writerClient,
+      groupName1,
+      groupDescription
+    )
+    const createdGroup2 = await ops.createGroup(
+      writerClient,
+      groupName2,
+      groupDescription
+    )
+    const createdGroup3 = await ops.createGroup(
+      readerClient, // create using reader client 
+      groupName3,
+      groupDescription
+    )
+
+    // Add a member with specific capabilities to only groups 1 and 2
+    const groupMember = new GroupMember(readerClient.clientId, {
+      read: true,
+      share: true,
+    })
+    let groupMembersToAdd = [groupMember]
+
+    await ops.addGroupMembers(
+      writerClient,
+      createdGroup1.group.groupID,
+      groupMembersToAdd
+    )
+    await ops.addGroupMembers(
+      writerClient,
+      createdGroup2.group.groupID,
+      groupMembersToAdd
+    )
+
+    // Call fetchGroupIDsByCapabilities
+    const params = {
+      clientID: readerClient.clientId,
+      groupIDs: [
+        createdGroup1.group.groupID,
+        createdGroup2.group.groupID,
+        createdGroup3.group.groupID,
+      ],
+      max: 10,
+      nextToken: 0,
+    }
+
+    // Call fetchClientGroupCapabilities using WRITER CLIENT
+    const result = await ops.fetchClientGroupCapabilities(writerClient, params)
+
+    // Validate results
+    expect(result).toBeDefined()
+    expect(result).toHaveProperty('results')
+    expect(result).toHaveProperty('next_token', 0)
+    expect(Object.keys(result.results)).toHaveLength(3)
+
+    // Group 1
+    expect(result.results[createdGroup1.group.groupID]).toBeDefined()
+    expect(result.results[createdGroup1.group.groupID]).toHaveLength(2)
+    expect(result.results[createdGroup1.group.groupID]).toEqual(
+      expect.arrayContaining(['READ_CONTENT', 'SHARE_CONTENT'])
+    )
+    // Group 2
+    expect(result.results[createdGroup2.group.groupID]).toBeDefined()
+    expect(result.results[createdGroup2.group.groupID]).toHaveLength(2)
+    expect(result.results[createdGroup2.group.groupID]).toEqual(
+      expect.arrayContaining(['READ_CONTENT', 'SHARE_CONTENT'])
+    )
+    // Group 3, no result as writerClient is NOT a member of this group
+    expect(result.results[createdGroup3.group.groupID]).toBeDefined()
+    expect(result.results[createdGroup3.group.groupID]).toHaveLength(0)
+    expect(result.results[createdGroup3.group.groupID]).toEqual([])
   })
 })

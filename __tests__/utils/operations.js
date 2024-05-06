@@ -1602,5 +1602,17 @@ module.exports = {
     )
     return result 
   },
+  async fetchClientGroupCapabilities(config, params) {
+    const result = await runInEnvironment(
+      function (configJSON, params) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.fetchClientGroupCapabilities(params)
+      },
+      JSON.stringify(config),
+      params
+    )
+    return result 
+  },
 }
 
