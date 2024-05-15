@@ -1,11 +1,11 @@
 
 -------------------------------------------------------------------------------
-                        TOZNY, LLC PROPRIETARY LICENSE
-             Copyright 2013-2021 Tozny LLC. All rights reserved.
+        SideAssure, Inc. d/b/a Tozny (“Tozny”) PROPRIETARY LICENSE
+             Copyright 2013-2024 Tozny. All rights reserved.
 -------------------------------------------------------------------------------
 
-Contents of this file or files in this repository are Proprietary and
-Confidential Information constituting Trade Secrets of Tozny LLC.
+Contents of this file or files in this repository are Proprietary and 
+Confidential Information constituting Trade Secrets of Tozny.
 
 Use of this file, files in this repository, any information, or software in
 which the content is incorporated (collectively, the “Content”) requires and is
