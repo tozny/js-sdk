@@ -1620,14 +1620,12 @@ describe('Tozny', () => {
       writerClient,
       groupName2,
       JSON.stringify(description)
-
     )
     description.name = 'Flow Group Name 3'
     const createdGroup3 = await ops.createGroup(
       writerClient, // create using reader client
       groupName3,
       JSON.stringify(description)
-
     )
     console.log(createdGroup1)
     console.log(createdGroup2)
@@ -1653,6 +1651,11 @@ describe('Tozny', () => {
       0,
       10
     )
-    console.log(result)
+    let group1Found = result.results[0] == "Flow Group Name 1" || result.results[1] == "Flow Group Name 1"
+    let group2Found = result.results[0] == "Flow Group Name 2" || result.results[1] == "Flow Group Name 2"
+
+    expect(result.results.length).toBe(2)
+    expect(group1Found).toBe(true)
+    expect(group2Found).toBe(true)
   })
 })
