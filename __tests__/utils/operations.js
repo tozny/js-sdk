@@ -1586,7 +1586,7 @@ module.exports = {
         return client.outgoingSharingByRecordType(recordType)
       },
       JSON.stringify(config),
-      recordType,
+      recordType
     )
     return result
   },
@@ -1600,7 +1600,7 @@ module.exports = {
       JSON.stringify(config),
       params
     )
-    return result 
+    return result
   },
   async fetchClientGroupCapabilities(config, params) {
     const result = await runInEnvironment(
@@ -1612,7 +1612,20 @@ module.exports = {
       JSON.stringify(config),
       params
     )
-    return result 
+    return result
+  },
+  async getUserOnlyAdminGroups(config, clientId, nextToken, max) {
+    const result = await runInEnvironment(
+      function (configJSON, clientId, nextToken, max) {
+        var config = Tozny.storage.Config.fromObject(configJSON)
+        var client = new Tozny.storage.Client(config)
+        return client.getUserOnlyAdminGroups(clientId, nextToken, max)
+      },
+      JSON.stringify(config),
+      clientId,
+      nextToken,
+      max
+    )
+    return result
   },
 }
-
