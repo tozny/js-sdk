@@ -1508,7 +1508,7 @@ describe('Tozny', () => {
     expect(result.results[createdGroup2.group.groupID]).toEqual(
       expect.arrayContaining(['READ_CONTENT', 'SHARE_CONTENT'])
     )
-    // Group 3 
+    // Group 3
     expect(result.results[createdGroup3.group.groupID]).toBeDefined()
     expect(result.results[createdGroup3.group.groupID]).toHaveLength(1)
     expect(result.results[createdGroup3.group.groupID]).toEqual(
@@ -1536,7 +1536,7 @@ describe('Tozny', () => {
       groupDescription
     )
     const createdGroup3 = await ops.createGroup(
-      readerClient, // create using reader client 
+      readerClient, // create using reader client
       groupName3,
       groupDescription
     )
@@ -1596,5 +1596,66 @@ describe('Tozny', () => {
     expect(result.results[createdGroup3.group.groupID]).toBeDefined()
     expect(result.results[createdGroup3.group.groupID]).toHaveLength(0)
     expect(result.results[createdGroup3.group.groupID]).toEqual([])
+  })
+  it('can list all Flow groups a user is the only admin for', async () => {
+    // Create 3 groups
+    const groupName1 = `testGroup1-${uuidv4()}`
+    const groupName2 = `testGroup2-${uuidv4()}`
+    const groupName3 = `testGroup3-${uuidv4()}`
+    const description = {
+      type: 'group',
+      name: 'Flow Group Name 1',
+      description: 'Flow Group Description',
+      tozId: uuidv4(),
+    }
+
+    // Create 3 groups as the writerClient (they will have management capabilities)
+    const createdGroup1 = await ops.createGroup(
+      writerClient,
+      groupName1,
+      JSON.stringify(description)
+    )
+    description.name = 'Flow Group Name 2'
+    const createdGroup2 = await ops.createGroup(
+      writerClient,
+      groupName2,
+      JSON.stringify(description)
+    )
+    description.name = 'Flow Group Name 3'
+    const createdGroup3 = await ops.createGroup(
+      writerClient, // create using reader client
+      groupName3,
+      JSON.stringify(description)
+    )
+    console.log(createdGroup1)
+    console.log(createdGroup2)
+    console.log(createdGroup3)
+
+    // Add the readerClient with manage and read to 1 group
+    const groupMember = new GroupMember(readerClient.clientId, {
+      read: true,
+      share: true,
+      manage: true,
+    })
+    let groupMembersToAdd = [groupMember]
+
+    await ops.addGroupMembers(
+      writerClient,
+      createdGroup3.group.groupID,
+      groupMembersToAdd
+    )
+    // Get all groups that readClient is the sole admin for
+    const result = await ops.getUserOnlyAdminGroups(
+      writerClient,
+      writerClient.clientId,
+      0,
+      10
+    )
+    let group1Found = result.results[0] == "Flow Group Name 1" || result.results[1] == "Flow Group Name 1"
+    let group2Found = result.results[0] == "Flow Group Name 2" || result.results[1] == "Flow Group Name 2"
+
+    expect(result.results.length).toBe(2)
+    expect(group1Found).toBe(true)
+    expect(group2Found).toBe(true)
   })
 })
