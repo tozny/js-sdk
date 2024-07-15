@@ -326,7 +326,33 @@ module.exports = {
       apiUrl
     )
     return Tozny.types.Note.decode(JSON.parse(noteJSON))
+  },  
+  async getAnonymousNoteViewsLeft(
+    id,
+    signingKeyPair,
+  ) {
+    const response = await runInEnvironment(
+      function (
+        id,
+        signingKeyPairJSON,
+        apiUrl
+      ) {
+        var signingKeyPair = JSON.parse(signingKeyPairJSON)
+        return Tozny.storage.getNoteViewsLeft(
+          id,
+          signingKeyPair,
+          {},
+          {},
+          apiUrl
+        )
+      },
+      id,
+      JSON.stringify(signingKeyPair),
+      apiUrl
+    )
+    return response; 
   },
+
   async deleteNote(config, noteId) {
     const result = await runInEnvironment(
       function (configJSON, noteId) {
