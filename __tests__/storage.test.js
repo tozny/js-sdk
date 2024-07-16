@@ -243,6 +243,45 @@ describe('Tozny', () => {
     const deleted = await ops.deleteAnonymousNote(written.noteId, signingPair)
     expect(deleted).toBe(true)
   })
+  it('can write, read, get views left, and delete anonymous notes', async () => {
+    const data = { secret: 'data' }
+    const options = { max_views: 2 }
+    const keyPair = await Tozny.crypto.generateKeypair()
+    const signingPair = await Tozny.crypto.generateSigningKeypair()
+    const writeTest = {
+      mode: 'Sodium',
+      recipientSigningKey: signingPair.publicKey,
+      writerEncryptionKey: keyPair.publicKey,
+      writerSigningKey: signingPair.publicKey,
+    }
+    const written = await ops.writeAnonymousNote(
+      data,
+      keyPair.publicKey,
+      signingPair.publicKey,
+      keyPair,
+      signingPair,
+      options
+    )
+
+    expect(written).toMatchObject(writeTest)
+    const read = await ops.readAnonymousNote(
+      written.noteId,
+      keyPair,
+      signingPair
+    )
+    
+    const viewsLeftResponse = await ops.getAnonymousNoteViewsLeft(
+      written.noteId,
+      // keyPair,
+      signingPair
+    )
+
+    // after one read, there should be one view left
+    expect(viewsLeftResponse).toBe(1)
+
+    const deleted = await ops.deleteAnonymousNote(written.noteId, signingPair)
+    expect(deleted).toBe(true)
+  })
   it('can handle list groups when no groups are returned', async () => {
     const list = await ops.listGroups(
       writerClient,
