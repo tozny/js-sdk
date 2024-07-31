@@ -80,8 +80,10 @@ class Note extends Serializable {
     // Server defined values
     let createdAt = json.created_at === null ? null : json.created_at
     let noteId = json.note_id === null ? null : json.note_id
+    let file_meta = json.file_meta === undefined ? {} : json.file_meta
     note.createdAt = createdAt
     note.noteId = noteId
+    note.file_meta = file_meta
     return note
   }
 
