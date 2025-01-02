@@ -15,7 +15,9 @@ class NoteOptions extends Serializable {
     type,
     plain,
     fileMeta,
-    eacp
+    eacp,
+    recordId,
+    isSecret
   ) {
     super()
 
@@ -31,6 +33,8 @@ class NoteOptions extends Serializable {
     this.type = type
     this.plain = plain
     this.fileMeta = fileMeta
+    this.recordId = recordId,
+    this.isSecret = isSecret
   }
 
   serializable() {
@@ -62,6 +66,19 @@ class NoteOptions extends Serializable {
       toSerialize.eacp = this.eacp.serializable()
     }
 
+    if(this.recordId == null || undefined){
+      toSerialize.recordId = null
+    } else {
+      toSerialize.recordId = this.recordId
+    }
+
+    if(this.isSecret == null){
+      toSerialize.isSecret = false;
+    } else {
+      toSerialize.isSecret = true;
+    }  
+
+   
     const serializedKeys = Object.keys(toSerialize)
     for (const key of serializedKeys) {
       if (toSerialize[key] === null) {
@@ -81,6 +98,9 @@ class NoteOptions extends Serializable {
     let expiration = json.expiration === undefined ? null : json.expiration
     let expires = json.expires === undefined ? null : json.expires
     let eacp = json.eacp === undefined ? null : EACP.decode(json.eacp)
+
+    let recordId = json.record_id === undefined ? null : json.record_id
+    let isSecret = json.is_secret === undefined ? false : json.is_secret
     return new NoteOptions(
       clientId,
       maxViews,
@@ -90,7 +110,9 @@ class NoteOptions extends Serializable {
       type,
       plain,
       fileMeta,
-      eacp
+      eacp,
+      recordId,
+      isSecret
     )
   }
 }
