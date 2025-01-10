@@ -43,6 +43,8 @@ class Note extends Serializable {
       eacp: this.options.eacp,
       created_at: this.createdAt,
       note_id: this.noteId,
+      record_id: this.options.recordId,
+      is_secret: this.options.isSecret
     }
     // Ensure that fileMeta is always an object, even it it's set to null
     if (this.options.fileMeta === null) {
@@ -61,6 +63,24 @@ class Note extends Serializable {
     if (this.options.eacp instanceof EACP) {
       toSerialize.eacp = this.options.eacp.serializable()
     }
+    if(this.options.recordId == null || undefined){
+      toSerialize.record_id = null
+    } else {
+      toSerialize.record_id= this.options.recordId
+    }
+
+    if(this.options.clientId == null){
+      toSerialize.client_id={}
+    } else {
+      toSerialize.client_id= this.options.clientId
+    }
+
+
+    if(this.options.isSecret == null){
+      toSerialize.is_secret = false;
+    } else {
+      toSerialize.is_secret = this.options.isSecret;
+    }    
     const serializedKeys = Object.keys(toSerialize)
     for (const key of serializedKeys) {
       if (toSerialize[key] === null) {
@@ -81,9 +101,19 @@ class Note extends Serializable {
     let createdAt = json.created_at === null ? null : json.created_at
     let noteId = json.note_id === null ? null : json.note_id
     let file_meta = json.file_meta === undefined ? {} : json.file_meta
+
+    let recordId = json.record_id === undefined ? null : json.record_id
+    let isSecret = json.is_secret === undefined ? false : json.is_secret
+
+    let clientId = json.client_id ===undefined ? {} : json.client_id
+
     note.createdAt = createdAt
     note.noteId = noteId
     note.file_meta = file_meta
+    note.recordId = recordId
+    note.isSecret = isSecret
+    note.clientId = clientId
+    
     return note
   }
 
