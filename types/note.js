@@ -69,12 +69,9 @@ class Note extends Serializable {
       toSerialize.record_id= this.options.recordId
     }
 
-    if(this.options.clientId == null){
-      toSerialize.client_id={}
-    } else {
+    if(this.options.clientId != null){
       toSerialize.client_id= this.options.clientId
     }
-
 
     if(this.options.isSecret == null){
       toSerialize.is_secret = false;
