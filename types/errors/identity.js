@@ -74,6 +74,14 @@ class ClockDriftError extends RequestError {
   }
 }
 
+class TokenExpiredError extends RequestError {
+  constructor(...params) {
+    super(...params)
+ 
+    this.name = 'TokenExpiredError'
+  }
+}
+ 
 module.exports = {
   IdentityLockedError,
   InvalidCredentials,
@@ -82,4 +90,5 @@ module.exports = {
   RealmConfigurationError,
   SessionExpiredError,
   ClockDriftError,
+  TokenExpiredError,
 }
