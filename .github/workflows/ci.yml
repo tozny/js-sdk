@@ -14,38 +14,28 @@ jobs:
         node-version: [12, 14, 16]
 
     env:
-      TEST_LOCAL_USE_PROD: false
-      TEST_LOCAL_USE_CDN: false
-      TEST_IDLE_TIMEOUT_MILLISECONDS: 200000
-      TEST_ENVIRONMENT: remote
-      TEST_BROWSER_VERSION: latest
+      TEST_BROWSER: safari
       TEST_TARGET: node
+      TEST_IDLE_TIMEOUT_MILLISECONDS: 1000
+      API_URL: https://dev.e3db.com
 
       CLIENT_REGISTRATION_TOKEN: ${{ secrets.CLIENT_REGISTRATION_TOKEN }}
       ID_APP_NAME: ${{ secrets.ID_APP_NAME }}
       ID_REALM_NAME: ${{ secrets.ID_REALM_NAME }}
       TEST_TOZID_GROUP_ID: ${{ secrets.TEST_TOZID_GROUP_ID }}
-    
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+        uses: actions/checkout@v3
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: npm
 
       - name: Install dependencies
         run: npm install
 
-      - name: Verify environment
-        run: |
-          echo "Realm: $ID_REALM_NAME"
-          echo "App: $ID_APP_NAME"
-          
       - name: Run tests
         run: npx jest
