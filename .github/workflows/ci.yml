@@ -21,9 +21,15 @@ jobs:
       TEST_BROWSER_VERSION: latest
       TEST_TARGET: node
 
+      CLIENT_REGISTRATION_TOKEN: ${{ secrets.CLIENT_REGISTRATION_TOKEN }}
+      ID_APP_NAME: ${{ secrets.ID_APP_NAME }}
+      ID_REALM_NAME: ${{ secrets.ID_REALM_NAME }}
+      TEST_TOZID_GROUP_ID: ${{ secrets.TEST_TOZID_GROUP_ID }}
+    
+
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
@@ -36,5 +42,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Verify environment
+        run: |
+          echo "Realm: $ID_REALM_NAME"
+          echo "App: $ID_APP_NAME"
+          
       - name: Run tests
         run: npx jest
