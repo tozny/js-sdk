@@ -14,10 +14,14 @@ jobs:
         node-version: [12, 14, 16]
 
     env:
-      TEST_BROWSER: safari
+      TEST_LOCAL_USE_PROD: false
+      TEST_LOCAL_USE_CDN: false
+      TEST_IDLE_TIMEOUT_MILLISECONDS: 200000
+      TEST_ENVIRONMENT: remote
+      TEST_BROWSER_VERSION: latest
       TEST_TARGET: node
-      TEST_IDLE_TIMEOUT_MILLISECONDS: 1000
-      API_URL: https://dev.e3db.com
+
+      API_URL: https://api.e3db.com
 
       CLIENT_REGISTRATION_TOKEN: ${{ secrets.CLIENT_REGISTRATION_TOKEN }}
       ID_APP_NAME: ${{ secrets.ID_APP_NAME }}
