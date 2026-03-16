@@ -1,0 +1,40 @@
+name: CI Test
+
+on:
+  push:
+    branches:
+      - github-actions-migration
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12, 14, 16]
+
+    env:
+      TEST_LOCAL_USE_PROD: false
+      TEST_LOCAL_USE_CDN: false
+      TEST_IDLE_TIMEOUT_MILLISECONDS: 200000
+      TEST_ENVIRONMENT: remote
+      TEST_BROWSER_VERSION: latest
+      TEST_TARGET: node
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npx jest
