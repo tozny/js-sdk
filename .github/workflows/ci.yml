@@ -21,7 +21,7 @@ jobs:
       TEST_BROWSER_VERSION: latest
       TEST_TARGET: node
 
-      API_URL: https://api.e3db.com
+      API_URL: https://dev.e3db.com
 
       CLIENT_REGISTRATION_TOKEN: ${{ secrets.CLIENT_REGISTRATION_TOKEN }}
       ID_APP_NAME: ${{ secrets.ID_APP_NAME }}
@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
